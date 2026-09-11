@@ -28,29 +28,43 @@ jobs:
           java-version: "25"
 
       # ---------------------------------------------------------------------
-      # CONFIGURE ME: set SPICEGRINDER_FREE_DOWNLOAD_URL as a repository
-      # variable (Settings -> Secrets and variables -> Actions -> Variables)
-      # pointing at the JRE-only SpiceGrinder Free build from
-      # https://obsvra.com/get-spicegrinder. Not filled in here because the
-      # exact URL couldn't be confirmed without a real download in hand --
-      # verify the archive actually contains a plain spicegrinder-*.jar at
-      # (or near) its root once you have the real link; adjust the `find`
-      # below if the real layout differs.
+      # SpiceGrinder Free comes from a DreamHost cloud-storage bucket whose
+      # download links are presigned and re-minted per request -- there's no
+      # stable URL to hardcode here. Instead this pulls the Free build from
+      # this repo's own GitHub Releases "latest" (a real, permanent API
+      # endpoint that always resolves to whatever's currently tagged), so CI
+      # never needs updating when a new build ships -- only the release does.
+      #
+      # CONFIGURE ME, once: publish a GitHub Release on this repo (or set
+      # SPICEGRINDER_RELEASE_REPO below to a different owner/repo) with a
+      # Linux build attached as an asset. Asset-name matching below assumes
+      # something containing "linux", ending in .zip or .tar.gz -- adjust the
+      # grep pattern if the real asset name doesn't fit that (unverified,
+      # since no release exists yet to check against).
       # ---------------------------------------------------------------------
-      - name: Download SpiceGrinder Free
+      - name: Download SpiceGrinder Free (latest GitHub Release)
         env:
-          DOWNLOAD_URL: ${{ vars.SPICEGRINDER_FREE_DOWNLOAD_URL }}
+          RELEASE_REPO: ${{ vars.SPICEGRINDER_RELEASE_REPO || github.repository }}
+          GH_TOKEN: ${{ github.token }}
         run: |
-          if [ -z "$DOWNLOAD_URL" ]; then
-            echo "::error::SPICEGRINDER_FREE_DOWNLOAD_URL repo variable is not set -- see the comment above this step in validate-community-models.yml"
+          ASSET_URL="$(gh api "repos/$RELEASE_REPO/releases/latest" \
+            --jq '.assets[] | select(.name | test("linux"; "i")) | select(.name | test("\\.(zip|tar\\.gz)$"; "i")) | .browser_download_url' \
+            | head -1)"
+          if [ -z "$ASSET_URL" ]; then
+            echo "::error::No Linux build asset found on $RELEASE_REPO's latest release. Either no release exists yet, or its asset naming doesn't match this workflow's expectations -- see the CONFIGURE ME comment above this step."
             exit 1
           fi
-          curl -fsSL "$DOWNLOAD_URL" -o spicegrinder-free.zip
+          echo "Downloading $ASSET_URL"
+          ASSET_FILE="$(basename "$ASSET_URL")"
+          curl -fsSL "$ASSET_URL" -o "$ASSET_FILE"
           mkdir -p spicegrinder-free
-          unzip -q spicegrinder-free.zip -d spicegrinder-free
+          case "$ASSET_FILE" in
+            *.zip) unzip -q "$ASSET_FILE" -d spicegrinder-free ;;
+            *.tar.gz) tar -xzf "$ASSET_FILE" -C spicegrinder-free ;;
+          esac
           JAR="$(find spicegrinder-free -iname 'spicegrinder-*.jar' ! -iname '*sources*' ! -iname '*javadoc*' | head -1)"
           if [ -z "$JAR" ]; then
-            echo "::error::No spicegrinder-*.jar found in the downloaded archive -- the archive layout may not match what this workflow expects (see the CONFIGURE ME comment above)."
+            echo "::error::No spicegrinder-*.jar found inside $ASSET_FILE -- the archive layout may not match what this workflow expects (see the CONFIGURE ME comment above)."
             find spicegrinder-free -type f
             exit 1
           fi

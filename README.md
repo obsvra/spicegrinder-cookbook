@@ -30,3 +30,7 @@ grind --seed 42 --count 10 examples/financial/claims-frequency-severity.xml
 - [obsvra.com/security](https://obsvra.com/security) — what SpiceGrinder does and doesn't do with your data
 
 Questions, feedback, or something in this repo looks wrong: [support@obsvra.com](mailto:support@obsvra.com).
+
+## License
+
+[MIT](LICENSE) for `skills/*/SKILL.md`, `examples/`, and everything else authored for this repo, with two exceptions: the bundled skill reference docs (`skills/*/references/`) are real SpiceGrinder product documentation, not covered by that MIT grant — see [NOTICE.md](NOTICE.md). `community-models/` is contributed content, licensed separately under [CC0](community-models/LICENSE).
