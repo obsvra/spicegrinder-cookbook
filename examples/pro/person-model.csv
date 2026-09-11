@@ -1,0 +1,12 @@
+# seed=42 -- reproduce with: grind --seed 42 --count 10 samples/pro/person-model.xml
+dim0
+female|Sophia|Peterson
+female|Joyce|Lopez
+female|Brittany|Taylor
+female|Donna|Mendoza
+male|Jeremy|Alvarez
+female|Evelyn|Parker
+female|Isabella|Smith
+male|Logan|Rodriguez
+female|Ruth|Davis
+male|Brandon|Hall

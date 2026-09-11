@@ -1,0 +1,12 @@
+# seed=42 -- reproduce with: grind --seed 42 --count 10 samples/pro/appointment-time.xml
+dim0
+15:01:00
+16:15:03
+13:43:20
+17:28:15
+11:36:20
+17:10:15
+17:18:34
+12:58:05
+14:21:03
+10:20:03

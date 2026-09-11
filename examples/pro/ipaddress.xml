@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Sample SpiceGrinder model: IPv4 address via the IPAddress generator (default mode).
+
+  All four octets are drawn uniformly at random, redrawn whenever the result falls in a real
+  IANA special-purpose block (private/loopback/link-local/multicast/reserved/documentation/
+  etc. — see IPAddress.java's own javadoc for the full list), so the result looks like a real,
+  routable public address. This means a generated address can, in principle, coincide with a
+  real, currently-assigned one — but it carries zero connection to any real person or PII.
+
+  Set fictionalOnly="true" to restrict every draw to the three IANA/RFC 5737
+  documentation-only blocks (192.0.2.0/24, 198.51.100.0/24, 203.0.113.0/24) instead —
+  guaranteed by the standard itself to never be publicly routable, at the cost of only 768
+  distinct addresses total.
+
+  Output: one Observation of [address] per pull, rendered as "203.0.113.42".
+-->
+<dataset>
+	<root node="ClientIp"/>
+	<nodes>
+		<IPAddress name="ClientIp"/>
+	</nodes>
+</dataset>

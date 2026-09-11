@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  PRO: Network latency with Perturb; nominal path via Import of latency-nominal-lib.xml.
+-->
+<dataset seed="7">
+	<root node="ObservedLatency"/>
+	<nodes>
+		<Perturb name="ObservedLatency" repeat="true">
+			<input name="NominalLib" role="normal"/>
+			<input name="Outage" role="disturbance"/>
+			<input name="WaitGen" role="wait"/>
+			<input name="DurGen" role="duration"/>
+		</Perturb>
+
+		<Import name="NominalLib" file="latency-nominal-lib.xml" prefix="nom"/>
+		<Lognormal name="Outage" mu="5.5" sigma="0.6"/>
+		<Constant name="WaitGen" value="20" type="double"/>
+		<Constant name="DurGen" value="5" type="double"/>
+	</nodes>
+</dataset>

@@ -1,0 +1,12 @@
+# seed=42 -- reproduce with: grind --seed 42 --count 10 samples/pro/d6-lib.xml
+dim0
+5
+5
+5
+5
+4
+1
+4
+6
+1
+6

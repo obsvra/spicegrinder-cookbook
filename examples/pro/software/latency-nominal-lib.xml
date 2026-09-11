@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- PRO LIBRARY: Nominal network RTT (ms), Lognormal — matches Free network-latency. -->
+<dataset seed="7">
+	<root node="LatencyMs"/>
+	<nodes>
+		<Lognormal name="LatencyMs" mu="2.5" sigma="0.45"/>
+	</nodes>
+</dataset>

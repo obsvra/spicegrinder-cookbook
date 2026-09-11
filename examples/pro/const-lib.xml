@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<dataset>
+	<root node="LibOut"/>
+	<nodes>
+		<Constant name="LibOut" value="99.0" type="double"/>
+	</nodes>
+</dataset>

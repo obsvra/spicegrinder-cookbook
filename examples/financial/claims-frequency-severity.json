@@ -1,0 +1,26 @@
+{
+  "dataset": {
+    "seed": 42,
+    "root": "ClaimObservation",
+    "nodes": [
+      {
+        "type": "Append",
+        "name": "ClaimObservation",
+        "inputs": [
+          {"name": "Frequency"},
+          {"name": "Severity"}
+        ]
+      },
+      {
+        "type": "Poisson",
+        "name": "Frequency",
+        "attributes": {"lambda": "3.5"}
+      },
+      {
+        "type": "Lognormal",
+        "name": "Severity",
+        "attributes": {"mu": "8.0", "sigma": "1.2"}
+      }
+    ]
+  }
+}

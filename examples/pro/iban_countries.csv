@@ -1,0 +1,11 @@
+# Real ISO 3166-1 alpha-2 country codes for the 6 countries IBAN.java supports, each with its
+# real ISO 13616 BBAN field structure (see IBAN.java's own javadoc for the field-by-field
+# breakdown, fetched and verified directly against en.wikipedia.org/wiki/International_Bank_
+# Account_Number before implementing). Unweighted -- no cited relative-usage figure across
+# these 6 countries was sought, same honesty standard as vin_manufacturers.csv.
+DE,Germany
+GB,United Kingdom
+FR,France
+ES,Spain
+IT,Italy
+NL,Netherlands

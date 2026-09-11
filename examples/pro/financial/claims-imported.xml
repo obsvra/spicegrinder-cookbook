@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  PRO: Claims observation via Import of claims-core-lib.xml (decomposition demo).
+  Outer model is intentionally thin — library holds frequency/severity structure.
+-->
+<dataset seed="42">
+	<root node="ClaimObservation"/>
+	<nodes>
+		<Import name="ClaimObservation" file="claims-core-lib.xml" prefix="core"/>
+	</nodes>
+</dataset>

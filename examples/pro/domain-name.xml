@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Sample SpiceGrinder model: domain/website name via the DomainName generator.
+
+  NameParts combines one draw from email_words.txt (the same real, filtered common-word list
+  Email's random-word mode and CompanyName use) with a real top-level domain from
+  domain_tlds.csv (10 real, currently-significant TLDs, unweighted — see that CSV's own
+  header comment for why). DomainName joins them as word.tld — e.g. "falcon.com".
+
+  Not derived from any real, currently-registered domain — a generated name can in principle
+  coincide with a real domain, but carries no tie to any real domain's or organization's data.
+  No fictionalOnly toggle: a domain name is not sensitive PII, and there is no reserved-safe
+  registry to opt into even if one were wanted.
+
+  Output: one Observation of [domainName] per pull.
+-->
+<dataset>
+	<root node="Website"/>
+	<nodes>
+		<DomainName name="Website">
+			<input name="NameParts"/>
+		</DomainName>
+
+		<Append name="NameParts">
+			<input name="Word"/>
+			<input name="TLD"/>
+		</Append>
+		<FlatFile name="Word" file="samples/pro/email_words.txt" mode="unweighted"/>
+		<FlatFile name="TLD" file="samples/pro/domain_tlds.csv" mode="unweighted"/>
+	</nodes>
+</dataset>

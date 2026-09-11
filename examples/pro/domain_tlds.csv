@@ -1,0 +1,18 @@
+# Real, currently-active top-level domains, cross-checked against Hostinger's and
+# domaindetails.com's own published domain-registration-statistics writeups (2026) -- com, net,
+# org, io, cn, de, uk, nl, ru, info are all real, currently significant TLDs by registration
+# volume. Left unweighted rather than weighted: the two source articles' own registration-count
+# figures for the same TLD didn't agree closely enough to build one internally-consistent
+# weighted table from them (e.g. .cn was reported as both ~21M and ~9M registrations across the
+# two), so rather than pick one figure over the other, FlatFile mode="unweighted" samples these
+# uniformly. Used by business.filters.DomainName.
+com
+net
+org
+io
+cn
+de
+uk
+nl
+ru
+info

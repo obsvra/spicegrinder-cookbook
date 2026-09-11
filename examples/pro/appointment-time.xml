@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Sample SpiceGrinder model: business-hours appointment time via the Time generator.
+
+  Hour is a plain composed Input (Uniform(9, 18) here — any numeric-valued generator works,
+  same "engine wires, component owns meaning" convention Date's year input and pro.filters.
+  Perturb's role inputs already established). Time itself only owns the minute/second math:
+  it draws both uniformly within the drawn hour, with no leap-style correctness landmine to
+  guard against — every hour has exactly 60 minutes and every minute exactly 60 seconds,
+  unlike Date's day-of-year piece.
+
+  "Business hours only" needs no special constraint parameter on Time itself — it falls out
+  for free from the hour input's own restricted range (9 through 17 here, since Uniform's
+  upper bound is exclusive), the same composability Date's minAge/asOf deliberately avoided
+  needing for anything time itself could already express through its input.
+
+  Output: one Observation of [appointmentTime] per pull, rendered as an HH:mm:ss string
+  (TimeDataPoint's default) whose numeric value is seconds since midnight.
+-->
+<dataset>
+	<root node="Appointment"/>
+	<nodes>
+		<Time name="Appointment">
+			<input name="Hour"/>
+		</Time>
+
+		<Uniform name="Hour" min="9" max="18"/>
+	</nodes>
+</dataset>

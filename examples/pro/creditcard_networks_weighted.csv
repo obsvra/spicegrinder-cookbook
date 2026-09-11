@@ -1,0 +1,10 @@
+# Real US credit-card network market share (by purchase volume, credit cards only -- not
+# blended with debit, which would over-weight Visa) via WalletHub's 2026 compilation
+# (wallethub.com/edu/cc/market-share-by-credit-card-network). BIN prefix is one real,
+# representative Issuer Identification Number prefix per network (ISO/IEC 7812); length is
+# that network's standard card-number length. Only the four networks with real, cited
+# market-share figures are included -- no fabricated weights for Diners Club/JCB/etc.
+52.2,Visa,4,16
+24.9,Mastercard,51,16
+19.5,American Express,34,15
+3.5,Discover,6011,16

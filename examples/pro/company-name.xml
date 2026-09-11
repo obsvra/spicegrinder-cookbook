@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Sample SpiceGrinder model: business/company name via the CompanyName generator.
+
+  NameParts combines two independent draws from email_words.txt (the same real, filtered
+  common-word list Email's random-word mode uses) with a real, standard US legal-entity
+  suffix from business_suffixes.csv (unweighted — see that CSV's own header comment for why).
+  CompanyName internally joins the two words with a space or "&" (chosen at random) and
+  appends the suffix — e.g. "Falcon Meadow Group" or "Falcon & Meadow LLC".
+
+  Not derived from any real, currently-registered business's actual name — a generated name
+  can in principle coincide with a real company's name, but carries no tie to any real
+  business's data. No fictionalOnly toggle: a company name is not sensitive PII, and there is
+  no reserved-safe registry to opt into even if one were wanted.
+
+  Output: one Observation of [companyName] per pull.
+-->
+<dataset>
+	<root node="Vendor"/>
+	<nodes>
+		<CompanyName name="Vendor">
+			<input name="NameParts"/>
+		</CompanyName>
+
+		<Append name="NameParts">
+			<input name="Word1"/>
+			<input name="Word2"/>
+			<input name="Suffix"/>
+		</Append>
+		<FlatFile name="Word1" file="samples/pro/email_words.txt" mode="unweighted"/>
+		<FlatFile name="Word2" file="samples/pro/email_words.txt" mode="unweighted"/>
+		<FlatFile name="Suffix" file="samples/pro/business_suffixes.csv" mode="unweighted"/>
+	</nodes>
+</dataset>

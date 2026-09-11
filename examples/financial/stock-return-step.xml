@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  EXAMPLE (Free): Single-period stock return factor
+  Models a simple log-return ~ Normal(mu, sigma). Chain Sequence externally
+  or in Pro via custom path for multi-step price paths.
+
+  Extension hooks:
+  - Pro: Perturb to inject crash days
+  - Pro: custom PricePath business object over many steps
+-->
+<dataset>
+	<root node="LogReturn"/>
+	<nodes>
+		<Normal name="LogReturn" mean="0.0004" sigma="0.012"/>
+	</nodes>
+</dataset>

@@ -1,0 +1,26 @@
+{
+  "dataset": {
+    "root": "PatientOutcome",
+    "nodes": [
+      {
+        "type": "Mix",
+        "name": "PatientOutcome",
+        "attributes": {"synchronous": "false"},
+        "inputs": [
+          {"name": "ControlArm", "weight": "2"},
+          {"name": "TreatmentArm", "weight": "1"}
+        ]
+      },
+      {
+        "type": "Binomial",
+        "name": "ControlArm",
+        "attributes": {"n": "1", "p": "0.30"}
+      },
+      {
+        "type": "Binomial",
+        "name": "TreatmentArm",
+        "attributes": {"n": "1", "p": "0.45"}
+      }
+    ]
+  }
+}

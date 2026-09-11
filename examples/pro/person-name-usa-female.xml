@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Sample SpiceGrinder model: realistically-frequency-weighted US female full name.
+
+  Given name: SSA's official "Popular Baby Names by Birth Year" data for 2025 (top 1,000
+  names, real "Number of females" counts) — ssa.gov/oact/babynames. Surname: U.S. Census
+  Bureau's "Frequently Occurring Surnames from the 2010 Census" (top 1,000, real
+  FREQUENCY (COUNT) column) — census.gov/topics/population/genealogy. Both weighted via
+  FlatFile's mode="weighted" (frequency is the first CSV column, the default weightColumn),
+  so names drawn are proportionally realistic rather than uniform over the name list —
+  unlike person-model.xml/PersonAssembler's top-100 mode="unweighted" lists, which sample
+  every name in the list with equal probability regardless of how common it actually is.
+
+  A single-year snapshot (2025), not a century aggregate like the 100-name unweighted lists
+  — SSA's own "top names over the last 100 years" view is capped at 100 by design, so a
+  genuine top-1000-over-a-century would need aggregating SSA's full historical per-year
+  dataset by hand; a single recent year's real top-1000 with real counts was the more
+  tractable and current choice. Trades century-representativeness for currency — skews
+  toward names popular right now (Olivia, Charlotte, ...) rather than the full historical
+  spread person-model.xml's Mary/Patricia/Jennifer-heavy list reflects.
+
+  Output: one Observation of [givenName, surname] per pull.
+-->
+<dataset>
+	<root node="Name"/>
+	<nodes>
+		<Append name="Name">
+			<input name="GivenName"/>
+			<input name="Surname"/>
+		</Append>
+
+		<FlatFile name="GivenName" file="samples/pro/female_names_weighted.csv" mode="weighted"/>
+		<FlatFile name="Surname" file="samples/pro/surnames_weighted.csv" mode="weighted"/>
+	</nodes>
+</dataset>

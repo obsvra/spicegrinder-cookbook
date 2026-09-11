@@ -1,0 +1,12 @@
+# Prototype .sgm translation of samples/pro/import-demo.xml. Deliberately keeps the
+# original file's own node order (Head before Lib/Local) to exercise decision 4's
+# two-pass forward-reference resolution for real, and imports the existing real XML
+# library unmodified to exercise a compact file importing an XML file (decision 9 has
+# no format-specific logic, so this should just work).
+
+dataset.root = Head
+
+Head = Mix((Lib, 1), (Local, 1))
+
+Lib = Import("../pro/const-lib.xml", prefix="lib")
+Local = Constant(1.0)

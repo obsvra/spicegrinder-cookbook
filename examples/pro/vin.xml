@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Sample SpiceGrinder model: 17-character Vehicle Identification Number via the VIN generator.
+
+  Manufacturer is a plain composed Input drawn from vin_manufacturers.csv — real 3-character
+  World Manufacturer Identifier (WMI) codes assigned by SAE International, cross-checked
+  against NHTSA's own public vPIC database. The remaining 14 characters are generated
+  internally per the real ISO 3779 / 49 CFR 565 VIN standard — VDS (positions 4-8) and plant
+  code (position 11) drawn from the real 33-character VIN alphabet, position 9 a real check
+  digit computed via the exact NHTSA/ISO 3779 transliteration-and-weighted-sum algorithm,
+  position 10 a real model-year code from the standard's own 30-symbol cycle, and positions
+  12-17 a 6-digit random sequential-production number. See VIN.java's own javadoc for the
+  full algorithm.
+
+  This means a generated VIN can, in principle, coincide with a real, currently-registered
+  vehicle's VIN — but it carries zero connection to any real vehicle or person. No
+  fictionalOnly toggle: no standards body publishes an officially reserved "guaranteed safe"
+  VIN block.
+
+  Output: one Observation of [vin] per pull, rendered as the bare 17-character string.
+-->
+<dataset>
+	<root node="Vehicle"/>
+	<nodes>
+		<VIN name="Vehicle">
+			<input name="Manufacturer"/>
+		</VIN>
+
+		<FlatFile name="Manufacturer" file="samples/pro/vin_manufacturers.csv" mode="unweighted"/>
+	</nodes>
+</dataset>

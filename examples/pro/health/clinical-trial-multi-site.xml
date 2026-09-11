@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  PRO SHOWCASE: Multi-center clinical trial, pooled outcomes across 4 real-shaped sites — the
+  same control-vs-treatment story as samples/health/clinical-trial-arms.xml, but each site is
+  the SAME shared sub-model (site-arm-lib.xml) imported once per site with its own realistic
+  response rates and enrollment share, instead of 4 hand-duplicated near-identical files.
+
+  Real multi-center trials show genuine site heterogeneity: different patient populations,
+  standard-of-care baselines, and protocol adherence shift each site's true response rate and
+  effect size even under one shared protocol. Pooled/meta-analysis code (random-effects
+  models, I^2 heterogeneity statistics, DSMB interim-monitoring dashboards) needs synthetic
+  data with a KNOWN, per-site ground truth to validate against — exactly what parameterizing
+  one shared sub-model per site guarantees, versus eyeballing 4 separate files into rough
+  agreement.
+
+  Sites (enrollment-weighted, illustrative, not real trial data):
+    AcademicCenter    — large, well-resourced, strong protocol adherence: clean separation
+    CommunityHospital — moderate resourcing, matches the original baseline closely
+    RuralSite         — smaller population, attenuated effect, own 1:1 enrollment amendment
+    IntlSite          — different standard-of-care baseline shifts the control arm itself
+
+  RuralSite is the only one that also overrides controlWeight/treatmentWeight (a site-specific
+  enrollment-ratio amendment) — the other three keep site-arm-lib.xml's own 2:1 default,
+  deliberately showing "override some or all of the declared values," not "override
+  everything every time."
+
+  See samples/docs/showcase-multi-site-trial.md for the full walkthrough.
+-->
+<dataset>
+	<root node="TrialOutcome"/>
+	<nodes>
+		<Mix name="TrialOutcome" synchronous="false">
+			<input name="AcademicCenter" weight="0.40"/>
+			<input name="CommunityHospital" weight="0.30"/>
+			<input name="RuralSite" weight="0.20"/>
+			<input name="IntlSite" weight="0.10"/>
+		</Mix>
+
+		<!-- Large academic center: strong adherence, clean effect separation -->
+		<Import name="AcademicCenter" file="site-arm-lib.xml"
+			controlP="0.27" treatmentP="0.49"/>
+
+		<!-- Community hospital: response rates close to the original single-site baseline -->
+		<Import name="CommunityHospital" file="site-arm-lib.xml"
+			controlP="0.31" treatmentP="0.45"/>
+
+		<!-- Rural/underserved site: smaller population, attenuated effect, its own 1:1 enrollment -->
+		<Import name="RuralSite" file="site-arm-lib.xml"
+			controlP="0.34" treatmentP="0.42" controlWeight="1" treatmentWeight="1"/>
+
+		<!-- International site: different standard-of-care baseline shifts the control arm -->
+		<Import name="IntlSite" file="site-arm-lib.xml"
+			controlP="0.20" treatmentP="0.38"/>
+	</nodes>
+</dataset>

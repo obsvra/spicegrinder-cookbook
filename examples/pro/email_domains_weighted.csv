@@ -1,0 +1,14 @@
+# Real email-provider relative popularity (approximate global user-share percentages used
+# directly as weights), via sellcell.com's 2026 compilation of public provider user-count
+# figures (sellcell.com/blog/most-popular-email-provider-by-number-of-users). iCloud's
+# share is the source's own broad "Apple iCloud ecosystem" figure, not necessarily all
+# active @icloud.com addresses specifically -- flagged directly by the source itself, not
+# smoothed over here.
+50.9,gmail.com
+26.9,icloud.com
+11.3,outlook.com
+6.4,yahoo.com
+2.8,protonmail.com
+0.7,aol.com
+0.6,gmx.com
+0.4,zoho.com

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Sample SpiceGrinder model: International Bank Account Number via the IBAN generator.
+
+  Country is a plain composed Input drawn from iban_countries.csv — 6 real ISO 3166-1
+  country codes, each with its real ISO 13616 BBAN field structure (see IBAN.java's own
+  javadoc for the full field-by-field breakdown). The two IBAN-level check digits (position
+  3-4) are the real ISO 7064 MOD-97 checksum, computed correctly. The remaining BBAN fields
+  are filled with random digits/letters of the correct type and length — nominal realism, not
+  true realism: several countries embed a second, country-specific check algorithm inside the
+  BBAN itself (France's RIB key, Spain's national check digits, Italy's CIN, the
+  Netherlands' "elfproef") that this generator does not also implement; only the real,
+  required, universally-checked IBAN-level MOD-97 digits are guaranteed correct.
+
+  No fictionalOnly toggle: no standards body publishes a reserved-safe IBAN block.
+
+  Output: one Observation of [iban] per pull, rendered as "DE89 3704 0044 0532 0130 00".
+-->
+<dataset>
+	<root node="Account"/>
+	<nodes>
+		<IBAN name="Account">
+			<input name="Country"/>
+		</IBAN>
+
+		<FlatFile name="Country" file="samples/pro/iban_countries.csv" mode="unweighted"/>
+	</nodes>
+</dataset>

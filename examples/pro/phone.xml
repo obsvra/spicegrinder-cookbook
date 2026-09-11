@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Sample SpiceGrinder model: US (NANP) phone number via the Phone generator.
+
+  Area code is a plain composed Input drawn from area_codes.csv — 389 real, currently
+  in-service US NANP area codes from NANPA's own official public database
+  (reports.nanpa.com/public/npa_report.csv). Exchange and subscriber number are generated
+  internally, fully random within valid NANP format (exchange excludes the 8 reserved N11
+  codes: 211/311/411/511/611/711/811/911).
+
+  Fully random by default, not restricted to the NANP-reserved fictional block (555-0100
+  through 555-0199) — confirmed directly with the user rather than assumed. This means a
+  generated number can, in principle, be a real, currently-assigned number that would reach
+  a live line if dialed — but it carries zero connection to any real person or PII, since it
+  was never associated with an actual subscriber by this generator. Dialing a generated
+  number is no different from random digit dialing within valid NANP format. If a
+  guaranteed-non-colliding number is needed instead, set fictionalOnly="true" on the Phone
+  node below — the user's own explicit follow-up request, so both modes are first-class
+  rather than requiring the model author to hand-roll the safe range themselves.
+
+  Output: one Observation of [phoneNumber] per pull, rendered as "(201) 234-5678"
+  (PhoneDataPoint's default format).
+-->
+<dataset>
+	<root node="ContactNumber"/>
+	<nodes>
+		<Phone name="ContactNumber">
+			<input name="AreaCode"/>
+		</Phone>
+
+		<FlatFile name="AreaCode" file="samples/pro/area_codes.csv" mode="unweighted"/>
+	</nodes>
+</dataset>

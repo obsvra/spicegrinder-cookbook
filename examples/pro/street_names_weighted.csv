@@ -1,0 +1,106 @@
+# Top 100 most common US street names, weighted by the number of real US cities
+# containing that exact street name. Source: roadsigns.com's analysis of
+# OpenStreetMap-derived street-name-frequency data (roadsigns.com/blogs/resources/
+# most-common-street-names), itself built on Street Name Search's OpenStreetMap
+# compilation. Directional prefixes (N/S/E/W) are counted as distinct real names,
+# matching how they're actually used on the ground.
+9361,Main St
+5849,2nd St
+5341,3rd St
+5266,1st St
+4770,Oak St
+4516,4th St
+4422,Elm St
+4320,Pine St
+4257,Church St
+4122,Maple St
+3680,Walnut St
+3617,5th St
+3202,N Main St
+3154,S Main St
+2926,Washington St
+2905,6th St
+2819,E Main St
+2789,W Main St
+2658,Center St
+2592,High St
+2503,Park Ave
+2488,Cedar St
+2437,North St
+2387,7th St
+2371,Park St
+2354,Sunset Dr
+2332,River Rd
+2248,South St
+2172,Chestnut St
+2162,Ridge Rd
+2157,Mill St
+2085,Cherry St
+2062,Lakeview Dr
+2047,Spring St
+2039,Railroad St
+2011,Meadow Ln
+2002,School St
+1990,Circle Dr
+1922,West St
+1913,8th St
+1911,Spruce St
+1859,2nd Ave
+1798,1st Ave
+1794,Jackson St
+1790,Shady Ln
+1750,Jefferson St
+1736,Hill St
+1722,Lincoln St
+1721,3rd Ave
+1690,Short St
+1658,Railroad Ave
+1644,Water St
+1643,Maple Ave
+1612,9th St
+1602,Locust St
+1599,Ash St
+1593,Poplar St
+1542,County Line Rd
+1516,Airport Rd
+1512,Central Ave
+1509,Front St
+1500,Willow St
+1493,Highland Ave
+1484,Hillcrest Dr
+1483,Woodland Dr
+1479,East St
+1456,Franklin St
+1456,Cedar Ln
+1439,10th St
+1436,Adams St
+1427,Vine St
+1410,Washington Ave
+1406,4th Ave
+1398,W 2nd St
+1393,Lincoln Ave
+1386,Birch St
+1369,W 3rd St
+1364,Grove St
+1355,E 3rd St
+1351,Hillside Dr
+1346,Grant St
+1336,E 2nd St
+1326,Pearl St
+1319,Smith Rd
+1315,State St
+1303,5th Ave
+1275,Charles St
+1274,W 4th St
+1273,Hickory St
+1255,N 2nd St
+1254,N 3rd St
+1251,Dogwood Ln
+1246,Hickory Ln
+1238,Green St
+1238,Riverside Dr
+1235,Cemetery Rd
+1230,James St
+1230,Smith St
+1229,Fairway Dr
+1221,E 4th St

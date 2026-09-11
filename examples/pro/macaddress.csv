@@ -1,0 +1,12 @@
+# seed=42 -- reproduce with: grind --seed 42 --count 10 samples/pro/macaddress.xml
+dim0
+00:05:5D:0A:E9:2D
+00:05:B5:3F:2E:2F
+00:00:0C:64:A1:FE
+00:00:F0:31:88:8C
+00:09:5B:87:3A:4C
+00:05:02:04:0D:53
+00:05:69:1A:76:44
+00:03:FF:57:42:72
+00:01:E6:E8:49:45
+00:05:B5:B0:0D:68

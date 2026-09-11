@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Sample SpiceGrinder model: US Social Security Number via the SSN generator (default mode).
+
+  Area is drawn from the real historically-allocatable [001, 899] range (excluding 666, per
+  SSA rule — reserved and never issued), group from [01, 99], serial from [0001, 9999]. This
+  means a generated number can, in principle, coincide with a real person's actual SSN — but
+  it carries zero connection to any real person or PII.
+
+  Set fictionalOnly="true" to restrict the area number to [900, 999] instead — the SSA's own
+  published rule states this range has never been, and never will be, allocated to a real
+  person — guaranteed safe at the cost of an obviously-synthetic-looking area number.
+
+  Output: one Observation of [ssn] per pull, rendered as "078-05-1120".
+-->
+<dataset>
+	<root node="Applicant"/>
+	<nodes>
+		<SSN name="Applicant"/>
+	</nodes>
+</dataset>

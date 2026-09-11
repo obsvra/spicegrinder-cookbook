@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  EXAMPLE (Free): Patient vital signs (HR, SBP, SpO2) via Multivariate Normal
+  Dimensions: heart rate, systolic BP, oxygen saturation (diagonal covariance demo).
+
+  Pro upgrade path (same scenario, richer behavior):
+    samples/pro/health/patient-vitals-perturbed.xml  — Perturb anomaly injection
+    samples/pro/health/patient-vitals-imported.xml   — Import decomposition of nominal lib
+    samples/pro/health/vitals-nominal-lib.xml        — reusable nominal library
+-->
+<dataset>
+	<root node="Vitals"/>
+	<nodes>
+		<MultivariateNormal name="Vitals"
+			dimension="3"
+			means="72,118,98"
+			sigmas="8,12,1.5"/>
+	</nodes>
+</dataset>

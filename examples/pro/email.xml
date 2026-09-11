@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Sample SpiceGrinder model: name-based email address via the Email generator (default mode).
+
+  The "name" input is a PersonAssembler node (same wiring as samples/pro/person-model.xml)
+  producing a PersonDataPoint; Email picks one of several common real-world username
+  patterns from it at random (john.smith, jsmith, john.smith47, ...). The "domain" input is
+  a real email provider drawn from email_domains_weighted.csv (real global user-share
+  percentages as weights).
+
+  Real-format, not tied to any real inbox: a generated address can in principle coincide
+  with a real, in-use inbox at that provider, but it was never derived from any real
+  person's actual data — the composed name source is itself synthetic (PersonAssembler's
+  output), so there is no PII tie-in. See Email's own javadoc for the fuller version of this
+  disclosure, and samples/pro/phone.xml for the same shape of reasoning applied there.
+
+  For the alternate mode (no name needed at all, "zookeeper32"-style local parts drawn from
+  a real common-word list), see samples/pro/email-random.xml.
+
+  Output: one Observation of [email] per pull, rendered as "local@domain"
+  (EmailDataPoint's default format).
+-->
+<dataset>
+	<root node="ContactEmail"/>
+	<nodes>
+		<Email name="ContactEmail">
+			<input name="Person" role="name"/>
+			<input name="Domain" role="domain"/>
+		</Email>
+
+		<PersonAssembler name="Person">
+			<input name="GenderGiven" role="genderGiven"/>
+			<input name="Surname" role="surname"/>
+		</PersonAssembler>
+
+		<Mix name="GenderGiven">
+			<input name="MaleBranch" weight="0.5"/>
+			<input name="FemaleBranch" weight="0.5"/>
+		</Mix>
+
+		<Append name="MaleBranch">
+			<input name="MaleLabel"/>
+			<input name="MaleGivenFile"/>
+		</Append>
+		<Constant name="MaleLabel" value="male" type="string"/>
+		<FlatFile name="MaleGivenFile" file="samples/pro/male_names.csv" mode="unweighted"/>
+
+		<Append name="FemaleBranch">
+			<input name="FemaleLabel"/>
+			<input name="FemaleGivenFile"/>
+		</Append>
+		<Constant name="FemaleLabel" value="female" type="string"/>
+		<FlatFile name="FemaleGivenFile" file="samples/pro/female_names.csv" mode="unweighted"/>
+
+		<FlatFile name="Surname" file="samples/pro/surnames.csv" mode="unweighted"/>
+
+		<FlatFile name="Domain" file="samples/pro/email_domains_weighted.csv" mode="weighted"/>
+	</nodes>
+</dataset>

@@ -1,0 +1,27 @@
+# Real global browser + OS market share, combined nominally (not a jointly-measured
+# distribution -- StatCounter publishes browser share and OS share separately, not a
+# browser-by-OS crosstab). Weights below are derived by hand from StatCounter's own
+# published, independent figures as of mid-2026:
+#   browser share (gs.statcounter.com/browser-market-share): Chrome 65.23%, Safari 18.12%,
+#     Edge 5.41%, Firefox 2.94%, Samsung Internet 2.29% (all-device, May 2026)
+#   desktop OS share (gs.statcounter.com/os-market-share/desktop/worldwide): Windows 62.16%,
+#     macOS 14.58%, Linux 3.09%, ChromeOS 1.42% (June 2026, renormalized over the four
+#     counted OSes after excluding StatCounter's ~18.75% "Unknown" fingerprint-blocked bucket)
+#   mobile OS share (gs.statcounter.com/os-market-share/mobile/worldwide): Android 70.6%,
+#     iOS 28.7% (early 2026)
+#   device split (gs.statcounter.com, May 2026): mobile 50.29%, desktop 48.24%, tablet 1.48%
+#     (tablet folded into desktop/mobile buckets it most resembles, for simplicity)
+# Nominal realism, not true realism -- same standard as address.xml's city/street combination:
+# real inputs, hand-combined, not independently verified as a joint distribution. Only browser
+# and OS-family are drawn from here; version numbers are generated internally by the
+# UserAgent filter (see its own javadoc) so this table doesn't need updating on every browser
+# release.
+25.8,Chrome,Windows
+7.4,Edge,Windows
+3.7,Firefox,Windows
+4.7,Safari,macOS
+3.4,Chrome,macOS
+1.8,Chrome,Linux
+30.2,Chrome,Android
+5.3,Samsung Browser,Android
+14.4,Safari,iOS

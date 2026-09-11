@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Sample SpiceGrinder model: US federal business day via the BusinessDay generator.
+
+  Year is a plain composed Input (any numeric-valued source — a fixed Constant here, a real
+  range via Uniform, etc.). BusinessDay draws a day of that year uniformly at random,
+  leap-year-correct by construction (same as Date), redrawn until it lands on a real US
+  federal business day — Monday through Friday, excluding all 11 real holidays codified at
+  5 U.S.C. § 6103 (with the real Saturday/Sunday federal-observance shift applied to the six
+  fixed-date holidays). See BusinessDay.java's own javadoc for the full holiday list and
+  computation.
+
+  No fictionalOnly toggle: a calendar date carries no PII-collision concern.
+
+  Output: one Observation of [date] per pull, rendered as "2026-03-17" (ISO yyyy-MM-dd).
+-->
+<dataset>
+	<root node="InvoiceDate"/>
+	<nodes>
+		<BusinessDay name="InvoiceDate">
+			<input name="Year"/>
+		</BusinessDay>
+
+		<Constant name="Year" value="2026" type="int"/>
+	</nodes>
+</dataset>

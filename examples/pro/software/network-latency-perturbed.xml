@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  PRO SHOWCASE extension of Free network-latency:
+  Nominal Lognormal RTT + Perturb for regional-outage style spikes.
+
+  wait 20 nominal samples, 5 disturbance samples, repeat.
+-->
+<dataset seed="7">
+	<root node="ObservedLatency"/>
+	<nodes>
+		<Perturb name="ObservedLatency" repeat="true">
+			<input name="Nominal" role="normal"/>
+			<input name="Outage" role="disturbance"/>
+			<input name="WaitGen" role="wait"/>
+			<input name="DurGen" role="duration"/>
+		</Perturb>
+
+		<Lognormal name="Nominal" mu="2.5" sigma="0.45"/>
+		<!-- Heavier tail / larger typical RTT during disruption -->
+		<Lognormal name="Outage" mu="5.5" sigma="0.6"/>
+
+		<Constant name="WaitGen" value="20" type="double"/>
+		<Constant name="DurGen" value="5" type="double"/>
+	</nodes>
+</dataset>

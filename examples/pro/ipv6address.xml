@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Sample SpiceGrinder model: IPv6 address via the IPv6Address generator.
+
+  By default, all eight 16-bit groups are drawn uniformly at random, redrawn whenever the
+  result falls in a real IANA IPv6 Special-Purpose Address Registry block (loopback,
+  unspecified, IPv4-mapped, IPv4-IPv6 translation, discard-only, IETF protocol assignments,
+  documentation, 6to4, unique-local, link-local unicast, multicast) — fetched directly from
+  IANA's own published registry text, not reconstructed from memory. fictionalOnly restricts
+  every draw to the real RFC 3849 documentation prefix 2001:0db8::/32 — guaranteed to never be
+  publicly routable. Rendered in the full, uncompressed 8-group colon-hex form; no RFC 5952
+  zero-compression is applied, disclosed explicitly.
+
+  This means a generated address can, in principle, coincide with a real, currently-assigned
+  IPv6 address — but it carries zero connection to any real person's data.
+
+  Output: one Observation of [ipv6Address] per pull.
+-->
+<dataset>
+	<root node="ClientIp"/>
+	<nodes>
+		<IPv6Address name="ClientIp"/>
+	</nodes>
+</dataset>

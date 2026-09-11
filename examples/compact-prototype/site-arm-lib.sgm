@@ -1,0 +1,18 @@
+# Prototype .sgm translation of samples/pro/health/site-arm-lib.xml. Loadable standalone
+# (uses its own declare defaults) or imported with overrides -- see
+# clinical-trial-multi-site.sgm, which imports this exact file four times.
+
+dataset.root = SiteOutcome
+
+define.declare controlP = "0.30"
+define.declare treatmentP = "0.45"
+define.declare controlWeight = "2"
+define.declare treatmentWeight = "1"
+
+# Control response rate for this site
+ControlArm = Binomial(1, $controlP)
+
+# Treatment response rate for this site
+TreatmentArm = Binomial(1, $treatmentP)
+
+SiteOutcome = Mix((ControlArm, $controlWeight), (TreatmentArm, $treatmentWeight), synchronous=false)

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  SHOWCASE (Free): Insurance claim frequency & severity
+  Why synthetic: real claims data embeds policyholder PII/PHI and only reflects
+  losses that have already occurred — not stress scenarios you need to plan for.
+
+  Pro upgrade path:
+    samples/pro/financial/claims-severity-perturbed.xml — Perturb catastrophe on severity
+    samples/pro/financial/claims-imported.xml           — Import decomposition
+    samples/pro/financial/claims-core-lib.xml           — reusable Frequency+Severity library
+-->
+<dataset seed="42">
+	<root node="ClaimObservation"/>
+	<nodes>
+		<Append name="ClaimObservation">
+			<input name="Frequency"/>
+			<input name="Severity"/>
+		</Append>
+		<Poisson name="Frequency" lambda="3.5"/>
+		<Lognormal name="Severity" mu="8.0" sigma="1.2"/>
+	</nodes>
+</dataset>

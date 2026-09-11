@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<dataset>
+	<root node="Head"/>
+	<nodes>
+		<Mix name="Head">
+			<input name="Lib" weight="1"/>
+			<input name="Local" weight="1"/>
+		</Mix>
+		<Import name="Lib" file="const-lib.xml" prefix="lib"/>
+		<Constant name="Local" value="1.0" type="double"/>
+	</nodes>
+</dataset>

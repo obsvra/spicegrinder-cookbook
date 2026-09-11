@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  PRO LIBRARY: Nominal patient vitals (HR, SBP, SpO2) — Multivariate Normal.
+  Reused by patient-vitals-perturbed.xml and patient-vitals-imported.xml.
+  Same parameters as Free samples/health/patient-vitals.xml.
+-->
+<dataset seed="42">
+	<root node="Vitals"/>
+	<nodes>
+		<MultivariateNormal name="Vitals"
+			dimension="3"
+			means="72,118,98"
+			sigmas="8,12,1.5"/>
+	</nodes>
+</dataset>

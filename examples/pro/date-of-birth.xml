@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Sample SpiceGrinder model: realistic adult date of birth via the Date generator.
+
+  Year is a plain composed Input (Uniform(1950, 2008) here — any numeric-valued generator
+  works: Normal/Empirical for a peaked age distribution, FlatFile for a real population
+  pyramid, etc.). Date itself only owns the day-of-year math: it draws uniformly over the
+  drawn year's actual day count (365 or 366, decided AFTER the year is known via
+  Year.isLeap(), so leap years are never under- or over-weighted), then enforces minAge as of
+  a fixed, explicit asOf reference date — never wall-clock now(), so the same seed always
+  reproduces the same output regardless of when the model is run.
+
+  Output: one Observation of [dateOfBirth] per pull, dateOfBirth rendered as an ISO
+  yyyy-MM-dd string (DateDataPoint's default) whose numeric value is Unix epoch seconds at
+  UTC midnight on that date.
+-->
+<dataset>
+	<root node="DOB"/>
+	<nodes>
+		<Date name="DOB" minAge="18" asOf="2026-08-17">
+			<input name="BirthYear"/>
+		</Date>
+
+		<Uniform name="BirthYear" min="1950" max="2008"/>
+	</nodes>
+</dataset>

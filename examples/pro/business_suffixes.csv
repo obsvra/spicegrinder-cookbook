@@ -1,0 +1,15 @@
+# Real, standard US legal-entity/business-naming suffixes -- not a fabricated list, but
+# deliberately left unweighted: a search for a citable, per-suffix relative-frequency figure
+# (LLC vs Inc. vs Corp. vs Co. vs Group vs Ltd. vs "& Associates") turned up general trend
+# data (LLC has become the dominant new-entity choice since the 2000s; Census Bureau Business
+# Formation Statistics track aggregate counts, not a per-suffix-wording breakdown) but no
+# single source with exact relative shares for these specific naming conventions -- same
+# honesty-about-precision-limits standard as vin_manufacturers.csv's unweighted WMI list.
+LLC
+Inc.
+Corp.
+Co.
+Group
+Ltd.
+& Associates
+& Sons

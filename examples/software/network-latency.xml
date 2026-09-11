@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  EXAMPLE (Free): Network latency (ms) — Lognormal for right-skewed RTT
+
+  Pro upgrade path:
+    samples/pro/software/network-latency-perturbed.xml — Perturb outage spikes
+    samples/pro/software/network-latency-imported.xml  — Import + Perturb
+    samples/pro/software/latency-nominal-lib.xml       — reusable nominal library
+-->
+<dataset>
+	<root node="LatencyMs"/>
+	<nodes>
+		<Lognormal name="LatencyMs" mu="2.5" sigma="0.45"/>
+	</nodes>
+</dataset>

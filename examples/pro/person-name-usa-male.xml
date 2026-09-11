@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Sample SpiceGrinder model: realistically-frequency-weighted US male full name.
+
+  See person-name-usa-female.xml for the full source/methodology writeup (same surname
+  source, same 2025-single-year given-name source, same weighting rationale) — this is its
+  male counterpart, sharing the same surname table.
+
+  Output: one Observation of [givenName, surname] per pull.
+-->
+<dataset>
+	<root node="Name"/>
+	<nodes>
+		<Append name="Name">
+			<input name="GivenName"/>
+			<input name="Surname"/>
+		</Append>
+
+		<FlatFile name="GivenName" file="samples/pro/male_names_weighted.csv" mode="weighted"/>
+		<FlatFile name="Surname" file="samples/pro/surnames_weighted.csv" mode="weighted"/>
+	</nodes>
+</dataset>

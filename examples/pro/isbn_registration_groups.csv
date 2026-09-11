@@ -1,0 +1,13 @@
+# Real single-digit ISBN registration group identifiers, assigned by the International ISBN
+# Agency and cross-checked against Wikipedia's "List of ISBN registration groups" /  the ISBN
+# standard's own group-identifier scheme. Groups 6, 8, and 9 are not directly assignable as a
+# single digit (they subdivide into real multi-digit prefixes instead, not modeled here) --
+# unweighted -- FlatFile mode="unweighted" samples these uniformly, not by real publication
+# volume (no cited per-group volume figure used).
+0,English
+1,English
+2,French
+3,German
+4,Japan
+5,Former USSR (Russian-speaking states)
+7,China

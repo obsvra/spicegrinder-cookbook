@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  PRO LIBRARY: Frequency + Severity as a reusable Append root.
+  Imported by claims-frequency-severity-imported.xml / used as decomposition target.
+-->
+<dataset seed="42">
+	<root node="ClaimCore"/>
+	<nodes>
+		<Append name="ClaimCore">
+			<input name="Frequency"/>
+			<input name="Severity"/>
+		</Append>
+		<Poisson name="Frequency" lambda="3.5"/>
+		<Lognormal name="Severity" mu="8.0" sigma="1.2"/>
+	</nodes>
+</dataset>

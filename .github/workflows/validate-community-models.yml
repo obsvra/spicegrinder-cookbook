@@ -1,0 +1,120 @@
+name: Validate community models
+
+# Runs ModelValidatorApp against every changed model under community-models/, then
+# replays each one's own output.csv "# seed=N -- reproduce with: ..." comment line and
+# diffs the result against what was actually committed. This proves a submission
+# validates and reproduces -- it does NOT prove the model is a sensible representation
+# of whatever it claims to simulate. See CONTRIBUTING.md: human review still happens
+# after this passes, nothing here auto-merges.
+
+on:
+  pull_request:
+    paths:
+      - "community-models/**"
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout PR
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up JDK 25
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "25"
+
+      # ---------------------------------------------------------------------
+      # CONFIGURE ME: set SPICEGRINDER_FREE_DOWNLOAD_URL as a repository
+      # variable (Settings -> Secrets and variables -> Actions -> Variables)
+      # pointing at the JRE-only SpiceGrinder Free build from
+      # https://obsvra.com/get-spicegrinder. Not filled in here because the
+      # exact URL couldn't be confirmed without a real download in hand --
+      # verify the archive actually contains a plain spicegrinder-*.jar at
+      # (or near) its root once you have the real link; adjust the `find`
+      # below if the real layout differs.
+      # ---------------------------------------------------------------------
+      - name: Download SpiceGrinder Free
+        env:
+          DOWNLOAD_URL: ${{ vars.SPICEGRINDER_FREE_DOWNLOAD_URL }}
+        run: |
+          if [ -z "$DOWNLOAD_URL" ]; then
+            echo "::error::SPICEGRINDER_FREE_DOWNLOAD_URL repo variable is not set -- see the comment above this step in validate-community-models.yml"
+            exit 1
+          fi
+          curl -fsSL "$DOWNLOAD_URL" -o spicegrinder-free.zip
+          mkdir -p spicegrinder-free
+          unzip -q spicegrinder-free.zip -d spicegrinder-free
+          JAR="$(find spicegrinder-free -iname 'spicegrinder-*.jar' ! -iname '*sources*' ! -iname '*javadoc*' | head -1)"
+          if [ -z "$JAR" ]; then
+            echo "::error::No spicegrinder-*.jar found in the downloaded archive -- the archive layout may not match what this workflow expects (see the CONFIGURE ME comment above)."
+            find spicegrinder-free -type f
+            exit 1
+          fi
+          echo "SPICEGRINDER_JAR=$JAR" >> "$GITHUB_ENV"
+
+      - name: Find changed model files
+        id: changed
+        run: |
+          git fetch origin "${{ github.base_ref }}" --depth=1
+          CHANGED="$(git diff --name-only "origin/${{ github.base_ref }}"...HEAD -- community-models | grep -E '\.(xml|json|sgm)$' || true)"
+          echo "Changed model files:"
+          echo "$CHANGED"
+          {
+            echo "files<<EOF"
+            echo "$CHANGED"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Validate and reproduce each changed model
+        if: steps.changed.outputs.files != ''
+        run: |
+          set -euo pipefail
+          FAIL=0
+          while IFS= read -r MODEL; do
+            [ -z "$MODEL" ] && continue
+            echo "::group::$MODEL"
+
+            echo "-- ModelValidatorApp --"
+            if ! java -cp "$SPICEGRINDER_JAR" com.obsvra.spicegrinder.tools.ModelValidatorApp "$MODEL"; then
+              echo "::error file=$MODEL::Failed to validate"
+              FAIL=1
+              echo "::endgroup::"
+              continue
+            fi
+
+            MODEL_DIR="$(dirname "$MODEL")"
+            OUTPUT_CSV="$MODEL_DIR/output.csv"
+            if [ ! -f "$OUTPUT_CSV" ]; then
+              echo "::warning file=$MODEL::No sibling output.csv found next to this model -- skipping reproduction check (see CONTRIBUTING.md, every submission needs one)"
+              echo "::endgroup::"
+              continue
+            fi
+
+            HEADER="$(head -1 "$OUTPUT_CSV")"
+            SEED="$(echo "$HEADER" | grep -oE 'seed=[^ ]+' | cut -d= -f2)"
+            COUNT="$(echo "$HEADER" | grep -oE -- '--count [0-9]+' | awk '{print $2}')"
+            if [ -z "$SEED" ] || [ -z "$COUNT" ]; then
+              echo "::error file=$OUTPUT_CSV::Could not parse '# seed=N -- reproduce with: grind --seed N --count K <path>' from the first line"
+              FAIL=1
+              echo "::endgroup::"
+              continue
+            fi
+
+            echo "-- reproducing with seed=$SEED count=$COUNT --"
+            ACTUAL="$(java -cp "$SPICEGRINDER_JAR" com.obsvra.spicegrinder.tools.Grind --seed "$SEED" --count "$COUNT" --header --quiet "$MODEL")"
+            EXPECTED="$(tail -n +2 "$OUTPUT_CSV")"
+            if [ "$ACTUAL" != "$EXPECTED" ]; then
+              echo "::error file=$OUTPUT_CSV::Reproduced output does not match the committed file"
+              diff <(echo "$EXPECTED") <(echo "$ACTUAL") || true
+              FAIL=1
+            else
+              echo "Reproduced output matches committed output.csv exactly."
+            fi
+            echo "::endgroup::"
+          done <<< "${{ steps.changed.outputs.files }}"
+
+          exit $FAIL

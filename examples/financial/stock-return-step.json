@@ -1,0 +1,12 @@
+{
+  "dataset": {
+    "root": "LogReturn",
+    "nodes": [
+      {
+        "type": "Normal",
+        "name": "LogReturn",
+        "attributes": {"mean": "0.0004", "sigma": "0.012"}
+      }
+    ]
+  }
+}

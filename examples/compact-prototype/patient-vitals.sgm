@@ -1,0 +1,13 @@
+# Prototype .sgm translation of samples/health/patient-vitals.xml.
+#
+# History: the design doc originally (wrongly) claimed dimension="3" was dead on
+# MultivariateNormal; that was corrected to "it's real and required" after this file
+# genuinely failed to load without it. That correction has now itself been superseded:
+# MultivariateNormal.configure() was a real, fixed bug (DIAGONAL mode didn't infer
+# dimension from means/sigmas length the way FULL mode already infers it from covariance's
+# row count -- see the class's own updated comment). dimension is omitted below on
+# purpose, to prove the fix, not by oversight.
+
+dataset.root = Vitals
+
+Vitals = MultivariateNormal(means=(72, 118, 98), sigmas=(8, 12, 1.5))

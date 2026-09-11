@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  SHOWCASE (Free): Clinical trial binary outcomes (control vs treatment)
+  Why synthetic: real trial data is PHI, access-controlled, and often too small
+  to stress test analytics pipelines or rare-event logic before go-live.
+
+  Mix selects arm by weight (2:1 enrollment control:treatment in this demo),
+  then each arm is Binomial successes in n patients (here n=1 per draw =
+  Bernoulli outcome for a single patient encounter).
+
+  Extension hooks:
+  - Pro: Perturb treatment arm to simulate protocol deviations / adverse clusters
+  - Pro: custom PatientOutcome DataPoint (site, arm, covariates)
+  - Pro: Import site-level sub-models for multi-center trials, see
+    samples/pro/health/clinical-trial-multi-site.xml and
+    samples/docs/showcase-multi-site-trial.md
+-->
+<dataset analysis.version="1" analysis.timestamp="2026-09-05T02:04:38.471702Z" analysis.mode="FULLY_COMPUTED" analysis.node_count="3" analysis.min_depth="2" analysis.max_depth="2" analysis.score="30" analysis.custom_component_count="0" analysis.predicted_avg_depth="2.000000" analysis.summary="fully computed: nodes=3 minDepth=2 maxDepth=2 predictedAvgDepth=2.000 score=30">
+	<root node="PatientOutcome"/>
+	<nodes>
+		<Mix name="PatientOutcome" synchronous="false">
+			<input name="ControlArm" weight="2"/>
+			<input name="TreatmentArm" weight="1"/>
+		</Mix>
+		<!-- Control response rate ~ 30% -->
+		<Binomial name="ControlArm" n="1" p="0.30"/>
+		<!-- Treatment response rate ~ 45% -->
+		<Binomial name="TreatmentArm" n="1" p="0.45"/>
+	</nodes>
+</dataset>

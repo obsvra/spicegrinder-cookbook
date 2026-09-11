@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Sample SpiceGrinder model: US National Provider Identifier via the NPI generator.
+
+  First digit is 1 (Type 1, individual provider) or 2 (Type 2, organization provider) per the
+  CMS NPI Final Rule — random by default, or fixed via type="individual"/"organization". The
+  remaining 8 of the first 9 digits are drawn uniformly at random; the 10th (final) digit is a
+  real Luhn check digit computed over the 9 digits prefixed with the constant 80840 (the
+  ISO/IEC 7812 health-industry issuer identifier CMS's own rule specifies) — the same
+  algorithm every real NPI must satisfy.
+
+  This means a generated NPI can, in principle, coincide with a real, currently-assigned
+  provider's number — but it carries zero connection to any real person or organization.
+  No fictionalOnly toggle: unlike Phone/CreditCard/SSN, CMS/NPPES does not publish an
+  officially reserved "guaranteed safe" NPI block.
+
+  Output: one Observation of [npi] per pull, rendered as the bare 10-digit string.
+-->
+<dataset>
+	<root node="Provider"/>
+	<nodes>
+		<NPI name="Provider"/>
+	</nodes>
+</dataset>

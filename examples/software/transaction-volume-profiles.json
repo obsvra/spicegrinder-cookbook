@@ -1,0 +1,52 @@
+{
+  "dataset": {
+    "root": "Transaction",
+    "nodes": [
+      {
+        "type": "Mix",
+        "name": "Transaction",
+        "attributes": {"synchronous": "false"},
+        "inputs": [
+          {"name": "Retail", "weight": "4"},
+          {"name": "Corporate", "weight": "1"}
+        ]
+      },
+      {
+        "type": "Append",
+        "name": "Retail",
+        "inputs": [
+          {"name": "RetailCount"},
+          {"name": "RetailAmount"}
+        ]
+      },
+      {
+        "type": "Poisson",
+        "name": "RetailCount",
+        "attributes": {"lambda": "12"}
+      },
+      {
+        "type": "Lognormal",
+        "name": "RetailAmount",
+        "attributes": {"mu": "3.2", "sigma": "0.6"}
+      },
+      {
+        "type": "Append",
+        "name": "Corporate",
+        "inputs": [
+          {"name": "CorpCount"},
+          {"name": "CorpAmount"}
+        ]
+      },
+      {
+        "type": "Poisson",
+        "name": "CorpCount",
+        "attributes": {"lambda": "3"}
+      },
+      {
+        "type": "Lognormal",
+        "name": "CorpAmount",
+        "attributes": {"mu": "6.5", "sigma": "0.9"}
+      }
+    ]
+  }
+}

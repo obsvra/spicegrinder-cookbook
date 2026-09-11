@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  SHOWCASE (Free): Transaction volume by customer profile (retail vs corporate)
+  Why synthetic: production transaction logs can contain account identifiers and
+  only mirror historical load — not Black Friday × 10 or a new market launch.
+
+  Mix picks a profile; each profile is [count, amount] via Append(Poisson, Lognormal).
+
+  Extension hooks:
+  - Pro: Perturb corporate arm for fraud/outage bursts
+  - Pro: custom TransactionEvent business object
+  - Pro: Import "retail-profile.xml" / "corporate-profile.xml" as libraries
+-->
+<dataset>
+	<root node="Transaction"/>
+	<nodes>
+		<Mix name="Transaction" synchronous="false">
+			<input name="Retail" weight="4"/>
+			<input name="Corporate" weight="1"/>
+		</Mix>
+
+		<Append name="Retail">
+			<input name="RetailCount"/>
+			<input name="RetailAmount"/>
+		</Append>
+		<Poisson name="RetailCount" lambda="12"/>
+		<Lognormal name="RetailAmount" mu="3.2" sigma="0.6"/>
+
+		<Append name="Corporate">
+			<input name="CorpCount"/>
+			<input name="CorpAmount"/>
+		</Append>
+		<Poisson name="CorpCount" lambda="3"/>
+		<Lognormal name="CorpAmount" mu="6.5" sigma="0.9"/>
+	</nodes>
+</dataset>

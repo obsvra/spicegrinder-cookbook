@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Sample SpiceGrinder model: credit card number via the CreditCard generator (default mode).
+
+  Network is a plain composed Input drawn from creditcard_networks_weighted.csv — real US
+  credit-card network market share (Visa, Mastercard, American Express, Discover), weighted
+  by real purchase-volume percentages. Remaining digits between each network's real BIN
+  prefix and the check digit are filled in at random and a valid Luhn check digit is
+  computed, so the result is format- and checksum-valid but not derived from any real
+  cardholder's actual account.
+
+  Fully random by default, not restricted to the guaranteed-safe published test numbers —
+  confirmed directly with the user rather than assumed ("Credit card. Same design ethic:
+  truly random with an approved fake option."). This means a generated number can, in
+  principle, coincide with a real, currently-issued card — but it carries zero connection to
+  any real person or PII. If a guaranteed-non-colliding number is needed instead, set
+  fictionalOnly="true" on the CreditCard node below to substitute each network's real,
+  published test number (the exact same numbers Stripe, and every other major payment
+  processor, documents for sandbox testing) — at the cost of zero variety, since every draw
+  for a given network is then identical.
+
+  Output: one Observation of [card] per pull, rendered as "4242 4242 4242 4242"
+  (CreditCardDataPoint's default grouped format).
+-->
+<dataset>
+	<root node="PaymentCard"/>
+	<nodes>
+		<CreditCard name="PaymentCard">
+			<input name="Network"/>
+		</CreditCard>
+
+		<FlatFile name="Network" file="samples/pro/creditcard_networks_weighted.csv" mode="weighted"/>
+	</nodes>
+</dataset>

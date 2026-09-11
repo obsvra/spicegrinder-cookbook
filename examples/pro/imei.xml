@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Sample SpiceGrinder model: 15-digit mobile device IMEI via the IMEI generator.
+
+  TAC (8 digits) and serial number (6 digits) are drawn uniformly at random; the 15th digit is
+  a real Luhn check digit computed over the preceding 14 — the same algorithm already used
+  for CreditCard/NPI. TAC/serial are not sourced from a real per-device GSMA allocation table
+  (a confidently-verified curated subset of those exact mappings wasn't available to cite
+  directly) — only the real 15-digit format and the real Luhn check digit are guaranteed
+  correct; see IMEI.java's own javadoc for the full disclosure.
+
+  This means a generated IMEI can, in principle, coincide with a real, currently-active
+  device's IMEI — but it carries zero connection to any real device or person.
+  No fictionalOnly toggle: GSMA does not publish a reserved-safe-for-testing IMEI block.
+
+  Output: one Observation of [imei] per pull, rendered as the bare 15-digit string.
+-->
+<dataset>
+	<root node="Device"/>
+	<nodes>
+		<IMEI name="Device"/>
+	</nodes>
+</dataset>

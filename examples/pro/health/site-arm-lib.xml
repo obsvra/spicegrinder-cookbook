@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  PRO LIBRARY: One clinical trial site's control-vs-treatment enrollment + outcome model —
+  the same Mix/Binomial shape as samples/health/clinical-trial-arms.xml, parameterized via
+  <declare> so one file can represent every site in a multi-center trial instead of one
+  hand-duplicated copy per site. Reused by
+  samples/pro/health/clinical-trial-multi-site.xml — see that file's own header and
+  samples/docs/showcase-multi-site-trial.md for the full walkthrough.
+
+  Real multi-center trials see genuine site-to-site heterogeneity: different patient
+  populations, standard-of-care baselines, protocol adherence, so a single global p doesn't
+  represent a real trial's pooled data well. Each <Import> of this file overrides some or all
+  of controlP/treatmentP/controlWeight/treatmentWeight for one specific site; anything not
+  overridden falls back to the defaults below.
+-->
+<dataset>
+	<root node="SiteOutcome"/>
+	<definitions>
+		<declare name="controlP" value="0.30"/>
+		<declare name="treatmentP" value="0.45"/>
+		<declare name="controlWeight" value="2"/>
+		<declare name="treatmentWeight" value="1"/>
+	</definitions>
+	<nodes>
+		<Mix name="SiteOutcome" synchronous="false">
+			<input name="ControlArm" weight="$controlWeight"/>
+			<input name="TreatmentArm" weight="$treatmentWeight"/>
+		</Mix>
+
+		<!-- Control response rate for this site -->
+		<Binomial name="ControlArm" n="1" p="$controlP"/>
+
+		<!-- Treatment response rate for this site -->
+		<Binomial name="TreatmentArm" n="1" p="$treatmentP"/>
+	</nodes>
+</dataset>

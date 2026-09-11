@@ -1,0 +1,20 @@
+# Real 3-character World Manufacturer Identifier (WMI) codes, assigned by SAE International
+# per ISO 3780 and cross-checked against NHTSA's own public vPIC WMI database
+# (vpic.nhtsa.dot.gov) and en.wikibooks.org/wiki/Vehicle_Identification_Numbers_(VIN_codes)/
+# World_Manufacturer_Identifier_(WMI). Unweighted -- FlatFile mode="unweighted" samples these
+# uniformly, not by real production volume (no cited per-manufacturer volume figure used).
+1HG,Honda (USA)
+1G1,Chevrolet (USA)
+1FA,Ford passenger car (USA)
+1FT,Ford truck (USA)
+2T1,Toyota (Canada)
+3VW,Volkswagen (Mexico)
+4T1,Toyota (USA)
+5YJ,Tesla Model S/3 (USA)
+JHM,Honda (Japan)
+JN1,Nissan (Japan)
+JTD,Toyota (Japan)
+KMH,Hyundai (Korea)
+WBA,BMW (Germany)
+WDD,Mercedes-Benz (Germany)
+WVW,Volkswagen (Germany)

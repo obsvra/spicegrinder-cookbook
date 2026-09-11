@@ -1,0 +1,52 @@
+{
+  "dataset": {
+    "root": "SixStats",
+    "nodes": [
+      {
+        "type": "Uniform",
+        "name": "Die",
+        "attributes": {"max": "7", "min": "1"}
+      },
+      {
+        "type": "ToInteger",
+        "name": "D6",
+        "attributes": {"mode": "floor"},
+        "inputs": [
+          {"name": "Die"}
+        ]
+      },
+      {
+        "type": "Redimension",
+        "name": "ThreeDice",
+        "attributes": {"dimension": "3"},
+        "inputs": [
+          {"name": "D6"}
+        ]
+      },
+      {
+        "type": "Calculate",
+        "name": "Sum",
+        "attributes": {"expression": "y[0] = x[0] + x[1] + x[2]"},
+        "inputs": [
+          {"name": "ThreeDice"}
+        ]
+      },
+      {
+        "type": "Drop",
+        "name": "DropCopies",
+        "attributes": {"excludes": "1,2"},
+        "inputs": [
+          {"name": "Sum"}
+        ]
+      },
+      {
+        "type": "Redimension",
+        "name": "SixStats",
+        "attributes": {"dimension": "6"},
+        "inputs": [
+          {"name": "DropCopies"}
+        ]
+      }
+    ]
+  }
+}

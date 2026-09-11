@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  PRO: Same Perturb story as patient-vitals-perturbed.xml, but nominal physiology
+  is loaded via Import (decomposition / reusable library).
+
+  Relative path is from this file's directory.
+-->
+<dataset seed="42">
+	<root node="ObservedVitals"/>
+	<nodes>
+		<Perturb name="ObservedVitals" repeat="true">
+			<input name="NominalLib" role="normal"/>
+			<input name="Spike" role="disturbance"/>
+			<input name="WaitGen" role="wait"/>
+			<input name="DurGen" role="duration"/>
+		</Perturb>
+
+		<Import name="NominalLib" file="vitals-nominal-lib.xml" prefix="nom"/>
+
+		<MultivariateNormal name="Spike"
+			dimension="3"
+			means="130,85,88"
+			sigmas="10,15,3"/>
+
+		<Constant name="WaitGen" value="8" type="double"/>
+		<Constant name="DurGen" value="2" type="double"/>
+	</nodes>
+</dataset>

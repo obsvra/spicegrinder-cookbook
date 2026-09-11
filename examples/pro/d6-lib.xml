@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Pro/Import library: a single reusable "d6" unit: Uniform[1,7) -> ToInteger(floor).
+
+  Factored out of samples/dnd-ability-scores.xml (Free), where this exact pair is inlined
+  fresh for every die roll. Here it's a standalone, importable sub-model instead, meant to
+  be pulled in via Import wherever a die roll belongs. See
+  samples/pro/dnd-ability-scores-import.xml for the model that does that.
+-->
+<dataset>
+	<root node="D6"/>
+	<nodes>
+		<Uniform name="Die" min="1" max="7"/>
+
+		<ToInteger name="D6" mode="floor">
+			<input name="Die"/>
+		</ToInteger>
+	</nodes>
+</dataset>

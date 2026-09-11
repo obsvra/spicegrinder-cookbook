@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Sample SpiceGrinder model: nominal-realism US street address via the Address generator.
+
+  Two independent real reference tables: city/state/zip (city_state_zip.csv, real USPS
+  triples via GeoNames, so those three are always mutually consistent) and street name
+  (street_names_weighted.csv, the top 100 most common real US street names, weighted by how
+  many real cities have that exact name). Street number and an optional unit are generated
+  internally, independent of both.
+
+  Deliberately nominal, not truly realistic — the street is not claimed to exist in the
+  drawn city, and the number is not claimed to be a real, deliverable address. A future
+  per-city-accurate version is a separate, harder problem (see the header comment in
+  business.filters.Address for the full reasoning).
+
+  Output: one Observation of [address] per pull, address rendered as a single-line string
+  ("123 Main St, Apt 4, Springfield, IL 62704") via AddressDataPoint's default format.
+-->
+<dataset>
+	<root node="ShippingAddress"/>
+	<nodes>
+		<Address name="ShippingAddress">
+			<input name="Location" role="location"/>
+			<input name="Street" role="street"/>
+		</Address>
+
+		<FlatFile name="Location" file="samples/pro/city_state_zip.csv" mode="unweighted"/>
+		<FlatFile name="Street" file="samples/pro/street_names_weighted.csv" mode="weighted"/>
+	</nodes>
+</dataset>

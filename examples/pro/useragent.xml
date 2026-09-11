@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Sample SpiceGrinder model: HTTP User-Agent string via the UserAgent generator.
+
+  BrowserOs is a plain composed Input drawn from useragent_browser_os_weighted.csv — real
+  global browser share (StatCounter) combined nominally with real OS share (StatCounter) into
+  a single weighted [browser, osFamily] reference table (not a jointly-measured distribution —
+  see the CSV's own header comment for the exact provenance and combination method).
+
+  Full UA strings are assembled internally per the real, standard format for each browser/OS
+  combination, using current major version numbers hardcoded in UserAgent.java (so the
+  reference table itself doesn't need updating on every browser release). Four of the five
+  browsers are deterministic per major version by construction — Chrome/Edge/Samsung Browser's
+  frozen X.0.0.0 build tag and Firefox's X.0 are both real conventions, not simplifications —
+  Safari's real point-release variance (26.0 through 26.6 in 2026) is the one case with genuine
+  internal randomization. See UserAgent.java's own javadoc for the full disclosure.
+
+  Output: one Observation of [userAgent] per pull, e.g.
+  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)
+  Chrome/152.0.0.0 Safari/537.36"
+-->
+<dataset>
+	<root node="Client"/>
+	<nodes>
+		<UserAgent name="Client">
+			<input name="BrowserOs"/>
+		</UserAgent>
+
+		<FlatFile name="BrowserOs" file="samples/pro/useragent_browser_os_weighted.csv" mode="weighted"/>
+	</nodes>
+</dataset>

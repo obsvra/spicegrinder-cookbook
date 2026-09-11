@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Pro companion to samples/dnd-ability-scores.xml (Free): same "3d6, six times, no rerolls"
+  ability-score generator. The Free version inlines the Uniform -> ToInteger "d6" pair
+  fresh at the top of the pipeline; here that pair is factored out once into
+  samples/pro/d6-lib.xml and pulled in via Import instead, same upsell shape as the
+  existing Perturb-as-upsell pattern (Free demonstrates the concept inline, Pro demonstrates
+  composing it as a reusable library piece).
+
+  Everything downstream of the die roll (Redimension bundling three rolls into a
+  3-dimension observation, Calculate summing them, Drop discarding the raw-copy dimensions,
+  the final Redimension bundling six stat-sums into one 6-dimension observation: STR, DEX,
+  CON, INT, WIS, CHA, in that order) is unchanged from the Free version. Only the
+  Uniform+ToInteger pair became one Import node.
+-->
+<dataset>
+	<root node="SixStats"/>
+	<nodes>
+		<Import name="D6" file="d6-lib.xml" prefix="d6"/>
+
+		<Redimension name="ThreeDice" dimension="3">
+			<input name="D6"/>
+		</Redimension>
+
+		<Calculate name="Sum" expression="y[0] = x[0] + x[1] + x[2]">
+			<input name="ThreeDice"/>
+		</Calculate>
+
+		<Drop name="DropCopies" excludes="1,2">
+			<input name="Sum"/>
+		</Drop>
+
+		<Redimension name="SixStats" dimension="6">
+			<input name="DropCopies"/>
+		</Redimension>
+	</nodes>
+</dataset>

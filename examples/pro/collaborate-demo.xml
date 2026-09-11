@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Sample SpiceGrinder model: the Collaborate channel worked example.
+
+  Watcher combines its own <Input> (Source, a Constant) with two CollaborationBeacon
+  instances — BeaconA and BeaconB — referenced purely via collaborate.primary/
+  collaborate.secondary attributes, never as <Input> children. Neither beacon appears
+  anywhere in Watcher's <Input> tree: they're absent from ModelValidator/
+  ModelComplexityAnalyzer's structural checks by construction, resolved and called only
+  through ICollaborationTarget.collaborate().
+
+  Pull Watcher's output repeatedly and inspect it: the Source-derived first value changes
+  each call (a normal <Input> pull), but the two beacon-derived values stay constant across
+  every call — collaborate() never advances a beacon's own counter, only its own
+  getNextObservation() does (which nothing in this model ever calls). That invariant is the
+  entire point of this demo.
+
+  Output: [Source value, BeaconA current value, BeaconB current value] per observation.
+-->
+<dataset>
+	<root node="Watcher"/>
+	<nodes>
+		<CollaborationWatcher name="Watcher" collaborate.primary="BeaconA" collaborate.secondary="BeaconB">
+			<input name="Source"/>
+		</CollaborationWatcher>
+		<Constant name="Source" value="1" type="double"/>
+
+		<CollaborationBeacon name="BeaconA" initial="100"/>
+		<CollaborationBeacon name="BeaconB" initial="500"/>
+	</nodes>
+</dataset>

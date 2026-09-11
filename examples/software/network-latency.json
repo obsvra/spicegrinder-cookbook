@@ -1,0 +1,12 @@
+{
+  "dataset": {
+    "root": "LatencyMs",
+    "nodes": [
+      {
+        "type": "Lognormal",
+        "name": "LatencyMs",
+        "attributes": {"mu": "2.5", "sigma": "0.45"}
+      }
+    ]
+  }
+}

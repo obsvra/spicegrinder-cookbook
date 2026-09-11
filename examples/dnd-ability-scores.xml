@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  BONUS (Free): old-school D&D ability scores — 3d6, six times, no rerolls.
+
+  Not part of the Financial/Health/Software showcase set — a small, deliberately silly and
+  relatable demo of composing built-in Core primitives, with no custom component at all
+  (purer composition than samples/pro/person-model.xml needed, since that one still requires
+  a custom assembler filter/DataPoint).
+
+  Pipeline: Uniform[1,7) -> ToInteger(floor) turns the continuous draw into a d6 -> a
+  Redimension(1:3) bundles three consecutive die rolls into one 3-dimension observation ->
+  Calculate sums them into y[0] (y[1]/y[2] default-copy the raw dice per Calculate's own
+  unassigned-index behavior) -> Drop discards those copies, keeping just the sum -> a final
+  Redimension(1:6) bundles six stat-sums into one 6-dimension observation: a full set of
+  ability scores (STR, DEX, CON, INT, WIS, CHA, in that dimension order) for one character.
+
+  Extension hook (Pro): the Uniform -> ToInteger pair is the reusable "d6" unit — in Pro this
+  is exactly the kind of trivial-but-repeated fragment worth factoring out once as a named
+  sub-model and pulling in via Import wherever a die roll belongs, instead of inlining it
+  fresh every time. Free ships the inlined version below.
+-->
+<dataset>
+	<root node="SixStats"/>
+	<nodes>
+		<Uniform name="Die" min="1" max="7"/>
+
+		<ToInteger name="D6" mode="floor">
+			<input name="Die"/>
+		</ToInteger>
+
+		<Redimension name="ThreeDice" dimension="3">
+			<input name="D6"/>
+		</Redimension>
+
+		<Calculate name="Sum" expression="y[0] = x[0] + x[1] + x[2]">
+			<input name="ThreeDice"/>
+		</Calculate>
+
+		<Drop name="DropCopies" excludes="1,2">
+			<input name="Sum"/>
+		</Drop>
+
+		<Redimension name="SixStats" dimension="6">
+			<input name="DropCopies"/>
+		</Redimension>
+	</nodes>
+</dataset>

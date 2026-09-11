@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  PRO SHOWCASE extension of Free claims-frequency-severity:
+  Same Poisson frequency, but severity path uses Perturb to inject catastrophe
+  spikes on a schedule (wait 15 nominal claims-sized draws, 3 catastrophe draws).
+
+  Output dimensions still [frequency, severity] via Append.
+-->
+<dataset seed="42">
+	<root node="ClaimObservation"/>
+	<nodes>
+		<Append name="ClaimObservation">
+			<input name="Frequency"/>
+			<input name="SeverityObserved"/>
+		</Append>
+
+		<Poisson name="Frequency" lambda="3.5"/>
+
+		<Perturb name="SeverityObserved" repeat="true">
+			<input name="SeverityNominal" role="normal"/>
+			<input name="SeverityCat" role="disturbance"/>
+			<input name="WaitGen" role="wait"/>
+			<input name="DurGen" role="duration"/>
+		</Perturb>
+
+		<Lognormal name="SeverityNominal" mu="8.0" sigma="1.2"/>
+		<!-- Catastrophe: higher log-mean -->
+		<Lognormal name="SeverityCat" mu="11.5" sigma="0.9"/>
+
+		<Constant name="WaitGen" value="15" type="double"/>
+		<Constant name="DurGen" value="3" type="double"/>
+	</nodes>
+</dataset>

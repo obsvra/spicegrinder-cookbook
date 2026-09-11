@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Sample SpiceGrinder model: 6-byte MAC address via the MACAddress generator.
+
+  Vendor is a plain composed Input drawn from mac_vendors.csv — real 3-byte OUI
+  (Organizationally Unique Identifier) prefixes assigned by the IEEE Registration Authority,
+  sourced from the Wireshark project's manuf database plus independent vendor-specific lookups
+  for entries not present in the fetched excerpt. The remaining 3 NIC-specific bytes are drawn
+  uniformly at random. Rendered as the standard colon-separated uppercase hex form.
+
+  This means a generated MAC address can, in principle, coincide with a real, currently-in-use
+  device's address — but it carries zero connection to any real device or person. No
+  fictionalOnly toggle: IEEE 802's "locally administered" address space is a real mechanism
+  but is actively used by real software for its own real addresses, not an officially reserved
+  never-collide block; see MACAddress.java's own javadoc for the full disclosure.
+
+  Output: one Observation of [mac] per pull, rendered as the bare colon-separated hex string.
+-->
+<dataset>
+	<root node="Device"/>
+	<nodes>
+		<MACAddress name="Device">
+			<input name="Vendor"/>
+		</MACAddress>
+
+		<FlatFile name="Vendor" file="samples/pro/mac_vendors.csv" mode="unweighted"/>
+	</nodes>
+</dataset>

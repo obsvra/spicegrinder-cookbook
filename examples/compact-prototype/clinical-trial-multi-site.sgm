@@ -1,0 +1,22 @@
+# Prototype .sgm translation of samples/pro/health/clinical-trial-multi-site.xml.
+# Imports site-arm-lib.sgm (compact importing compact, unlike import-demo.sgm's
+# compact-importing-XML) four times with different declare overrides -- the exact
+# "one shared sub-model, multiple parameterized call sites" scenario decision 9 exists
+# for. TrialOutcome is defined before any of the four sites it references, again
+# exercising decision 4's forward references.
+
+dataset.root = TrialOutcome
+
+TrialOutcome = Mix((AcademicCenter, 0.40), (CommunityHospital, 0.30), (RuralSite, 0.20), (IntlSite, 0.10), synchronous=false)
+
+# Large academic center: strong adherence, clean effect separation
+AcademicCenter = Import("site-arm-lib.sgm", controlP="0.27", treatmentP="0.49")
+
+# Community hospital: response rates close to the original single-site baseline
+CommunityHospital = Import("site-arm-lib.sgm", controlP="0.31", treatmentP="0.45")
+
+# Rural/underserved site: smaller population, attenuated effect, its own 1:1 enrollment
+RuralSite = Import("site-arm-lib.sgm", controlP="0.34", treatmentP="0.42", controlWeight="1", treatmentWeight="1")
+
+# International site: different standard-of-care baseline shifts the control arm
+IntlSite = Import("site-arm-lib.sgm", controlP="0.20", treatmentP="0.38")

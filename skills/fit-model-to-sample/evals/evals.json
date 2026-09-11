@@ -1,0 +1,60 @@
+{
+  "skill_name": "fit-model-to-sample",
+  "evals": [
+    {
+      "eval_id": 1,
+      "eval_name": "pii-business-object-check",
+      "prompt": "hey I've got this customer_transactions.csv from our billing system and I want to generate a bunch of fake test data that looks statistically like it, for load testing our new payment flow. can you figure out how to build this as a SpiceGrinder model?",
+      "assertions": [
+        "Cites real component names verified against the actual catalog rather than inventing plausible-sounding ones",
+        "Recommends the SSN business object for customer_ssn rather than a value-replay/Categorical distribution",
+        "Does not reproduce any of the sampled SSN values verbatim in the final recommendation",
+        "Fits amount using actual computed statistics (states mean/std or a named distribution), not eyeballing",
+        "Fits payment_method to a weighted categorical reflecting observed frequencies"
+      ]
+    },
+    {
+      "eval_id": 2,
+      "eval_name": "mixture-detection",
+      "prompt": "I pulled sensor_readings.csv off our IoT gateway - about 500 rows of raw sensor values. Need to generate more data like this for a demo dataset but obviously can't just replay the raw readings. what would the SpiceGrinder model look like for this column?",
+      "assertions": [
+        "Cites real component names verified against the actual catalog rather than inventing plausible-sounding ones",
+        "Identifies sensor_value as bimodal rather than fitting one unimodal distribution",
+        "Recommends Mix of two component distributions",
+        "Backs the mixture claim with actual statistical evidence, not eyeballing"
+      ]
+    },
+    {
+      "eval_id": 3,
+      "eval_name": "perturbation-vs-mixture",
+      "prompt": "attaching patient_vitals.csv, it's heart rate readings from a monitoring device. want to model this in spicegrinder so we can generate synthetic vitals streams for testing without using real patient data",
+      "assertions": [
+        "Cites real component names verified against the actual catalog rather than inventing plausible-sounding ones",
+        "Backs its conclusion with real computed statistics (fit tests, BIC/AIC comparison, or autocorrelation/runs analysis), not eyeballing",
+        "Reaches EITHER a well-justified Perturb recommendation (base distribution + a described patterned deviation) OR a well-justified single-distribution recommendation (explicitly ruling out a 2-population mixture and explaining why the skew/tail is better read as one distributional shape) -- both are acceptable given the fixture is genuinely ambiguous; a recommendation with no supporting statistical reasoning either way is not"
+      ]
+    },
+    {
+      "eval_id": 4,
+      "eval_name": "correlation-multivariate",
+      "prompt": "got patient_measurements.csv, height and weight pairs from intake forms. trying to build a synthetic version for a demo - is there a way to model these together in SpiceGrinder or do I just do two separate distributions?",
+      "assertions": [
+        "Cites real component names verified against the actual catalog rather than inventing plausible-sounding ones",
+        "Computes an actual numeric correlation coefficient between height_cm/weight_kg",
+        "Correctly flags the correlation as significant (doesn't dismiss ~0.75 as negligible)",
+        "Recommends MultivariateNormal instead of two independent univariate fits"
+      ]
+    },
+    {
+      "eval_id": 5,
+      "eval_name": "perturbation-episodic-structure",
+      "prompt": "here's patient_vitals_episodic.csv - heart rate readings from a monitoring device, same kind of thing as before but I think this device logs more of a continuous stream. can you model this in spicegrinder?",
+      "assertions": [
+        "Cites real component names verified against the actual catalog rather than inventing plausible-sounding ones",
+        "Fits the base heart_rate population to a Normal with reasonable parameters (mean ~70-78, std ~6-10)",
+        "Detects real temporal clustering/dwell-time in the elevated readings (via autocorrelation, a runs test, or explicit consecutive-run detection) rather than treating them as independent per-row events",
+        "Recommends Perturb (not Mix, and not a single unified distribution) specifically because the elevated readings form sustained multi-reading episodes rather than isolated points"
+      ]
+    }
+  ]
+}

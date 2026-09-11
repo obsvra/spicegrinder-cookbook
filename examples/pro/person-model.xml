@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Sample SpiceGrinder model: random US-style person identity.
+
+  Entirely composed from core/Pro building blocks (FlatFile, Mix, Append, Constant) plus
+  one small custom filter (PersonAssembler) and custom DataPoint (PersonDataPoint) for the
+  final assembly step, demonstrating a full custom business object with no custom
+  generators needed for the underlying data.
+
+  Given names: SSA top-100 over the last century (male_names.csv / female_names.csv).
+  Surnames: U.S. Census 2010 top 100 (surnames.csv). Equal weight within each file.
+  Gender is chosen 50/50 by Mix; the matching given-name FlatFile is paired with it in the
+  same branch, so gender and given name are always consistent per observation.
+
+  Output: one PersonDataPoint per observation (gender | given | surname).
+-->
+<dataset>
+	<root node="Person"/>
+	<nodes>
+		<PersonAssembler name="Person">
+			<input name="GenderGiven" role="genderGiven"/>
+			<input name="Surname" role="surname"/>
+		</PersonAssembler>
+
+		<Mix name="GenderGiven">
+			<input name="MaleBranch" weight="0.5"/>
+			<input name="FemaleBranch" weight="0.5"/>
+		</Mix>
+
+		<Append name="MaleBranch">
+			<input name="MaleLabel"/>
+			<input name="MaleGivenFile"/>
+		</Append>
+		<Constant name="MaleLabel" value="male" type="string"/>
+		<FlatFile name="MaleGivenFile" file="samples/pro/male_names.csv" mode="unweighted"/>
+
+		<Append name="FemaleBranch">
+			<input name="FemaleLabel"/>
+			<input name="FemaleGivenFile"/>
+		</Append>
+		<Constant name="FemaleLabel" value="female" type="string"/>
+		<FlatFile name="FemaleGivenFile" file="samples/pro/female_names.csv" mode="unweighted"/>
+
+		<FlatFile name="Surname" file="samples/pro/surnames.csv" mode="unweighted"/>
+	</nodes>
+</dataset>
