@@ -1,11 +1,13 @@
 ![spicegrinder-icon](assets/spicegrinder-icon.png)
 # Model File Format Reference
 
+> © 2026 Obsvra. This document describes SpiceGrinder and is provided to help you evaluate and use it. It is not a license to reproduce, adapt, or use this material to build a competing product or service. Full terms: the SpiceGrinder EULA.
+
 See [Component-Library-Reference.md](Component-Library-Reference.md) for the full component/parameter list.
 
 ## Formats
 
-Two interchangeable formats, same structure: **XML** and **JSON**. `ModelLoader` auto-detects format by content on load; save picks the format explicitly (GUI: Save dialog format selector; CLI: file extension).
+Three interchangeable formats, same underlying structure: **XML**, **JSON**, and a dense, hand-authoring-friendly **compact format** (`.sgm` — see [Same model, compact format](#same-model-compact-format-sgm) below). `ModelLoader` auto-detects format by content or extension on load; save picks the format explicitly by file extension — the GUI's Open/Save dialogs, and any other caller that writes to a `.sgm`-named file (a CLI tool, or a direct `ModelIO.write()` call), all produce real compact-format output.
 
 ## Top-level structure
 
@@ -13,7 +15,9 @@ Two interchangeable formats, same structure: **XML** and **JSON**. `ModelLoader`
 |---|---|---|---|---|
 | Root pointer | `<root node="Name"/>` | `"root": "Name"` | yes | Name of the node that is the model's output |
 | Seed | `<dataset seed="123">` | `"seed": 123` | no | Omitted/`<= 0` = no fixed seed (platform default RNG) |
+| Random override | `<dataset random="com.example.MyRNG">` | `"random": "com.example.MyRNG"` | no | Classpath class implementing `IRandom`, replacing the built-in default. Requires Pro unless the class is in `core.defaults` (the built-in default itself) — see below |
 | Custom type defs | `<definitions><custom .../></definitions>` | `"definitions": [...]` | no | Pro only — see below |
+| Declared parameters | `<definitions><declare .../></definitions>` | `"declarations": [...]` | no | Pro only — see below |
 | Node list | `<nodes>...</nodes>` | `"nodes": [...]` | yes | Flat list, not nested |
 
 ## Node spec fields
@@ -100,6 +104,35 @@ This is implemented once, centrally, in `ReflectiveConfigurer` (used by every `@
 }
 ```
 
+## Same model, compact format (.sgm)
+
+A third, denser syntax for the exact same model — one line per node, positional arguments where a component's parameters allow it, `#` comments. Meant for hand-authoring and quick iteration (sketch a model, glance at it, tweak a value) — the GUI can open and save `.sgm` files like any other format.
+
+```
+dataset.root = SixStats
+
+Die = Uniform(1, 7)
+D6 = ToInteger(Die, "floor")
+ThreeDice = Redimension(D6, 3)
+Sum = Calculate(ThreeDice, "y[0] = x[0] + x[1] + x[2]")
+DropCopies = Drop(Sum, (1, 2))
+SixStats = Redimension(DropCopies, 6)
+```
+
+Key rules:
+- `NodeName = Component(args)` is a node assignment. A filter's input is always its first argument (`ToInteger(Die, "floor")`); a component's other parameters follow, positionally where possible — each component's parameters have a defined order (matching their order in [Component-Library-Reference.md](Component-Library-Reference.md)) — or by `name=value` once one argument in the call is named, the same positional-then-keyword rule Python uses for function calls.
+- `dataset.seed = 123` / `dataset.root = Name` / `dataset.random = com.example.MyRNG` replace XML's `<dataset seed="..." random="...">` / `<root node="...">` (see [Random number generator override](#random-number-generator-override-pro--dynamic-extension) above).
+- Array/matrix-typed parameters use a tuple literal instead of a delimited string: `means=(72, 118, 98)` for a vector, `covariance=((144, 67.2), (67.2, 64))` for a matrix — the same values a `"144,67.2;67.2,64"`-style quoted string holds in XML/JSON, just structured instead of flattened.
+- `# comment` — a comment line, start-of-line only (no trailing end-of-line comments).
+- `define.declare`/`define.custom` and `Import` map onto `<declare>`/`<custom>` and `<Import>` (see [Parameterized sub-models](#parameterized-sub-models-pro--declare--import-overrides) and [Custom type definitions](#custom-type-definitions-pro--dynamic-extension) above) with identical semantics and identical Pro licensing — nothing about using this format changes what's Free vs. Pro:
+
+  ```
+  define.declare hrMean = "72"
+  define.declare hrStdDev = "8"
+
+  Normal = Import("vitals.xml", hrMean="140", hrStdDev="15")
+  ```
+
 ## Per-input attributes (weight / role)
 
 Some filters read extra attributes on individual `input` entries, not just the node's own attributes. `Mix` uses `weight`; `Perturb`/`PersonAssembler` use `role`.
@@ -141,6 +174,50 @@ Registers a fully-qualified Java class under a short tag name usable as a node `
 	<custom name="MyType" class="com.example.MyGeneratorClass"/>
 </definitions>
 ```
+
+## Random number generator override (Pro — dynamic extension)
+
+Replaces the built-in default RNG for the whole process with a classpath class implementing `IRandom` (`getNextUniform()`, `getNextUniform(min, max)`, `getNextUniformInt(min, max)`, `getNextNormal()`, `getNextNormal(mean, sigma)`). Same caveats as `<custom>` above: the class must be on the classpath, and naming a class outside a recognized free package requires Pro — naming `com.obsvra.spicegrinder.core.defaults.Random` itself (the built-in default) is the one exception, since it's not really an extension at all.
+
+```xml
+<dataset random="com.example.MyRNG">
+```
+```json
+{"dataset": {"random": "com.example.MyRNG", ...}}
+```
+```
+dataset.random = com.example.MyRNG
+```
+
+The class needs a no-arg constructor for unseeded use, and (if the model also sets a seed) a `(long seed)` constructor — naming a class with no `(long)` constructor alongside a `seed` is a load-time error, not a silent unseeded fallback, since the seed request can't otherwise be honored.
+
+## Parameterized sub-models (Pro — declare + Import overrides)
+
+`<declare name="foo" value="bar"/>` inside `<definitions>` registers a named default value. Anywhere in `<nodes>` — a node attribute, an `<input>` attribute, or a child-element's text — a value that is *exactly* `$foo` (the whole attribute value, not part of a larger string) resolves to `bar` at load time. This turns a library file into a reusable, parameterized sub-model instead of a fixed one: import it as-is for the defaults, or override specific declared values per call site without duplicating the file.
+
+`<Import>` accepts arbitrary extra key/value attributes beyond its required `file` (and optional `name`/`prefix`) — each overrides the matching `<declare>` in the imported file for that one import. An override key with no matching `<declare>` in the target file is a load-time error, same as an unresolved `$foo` reference — both are meant to catch a typo immediately rather than silently doing nothing.
+
+```xml
+<!-- vitals.xml — a shared library with declared, overridable defaults -->
+<definitions>
+	<declare name="hrMean" value="72"/>
+	<declare name="hrStdDev" value="8"/>
+</definitions>
+<nodes>
+	<Normal name="HeartRate" mean="$hrMean" stddev="$hrStdDev"/>
+	<!-- ... blood pressure, temperature, etc. ... -->
+</nodes>
+```
+
+```xml
+<!-- normal vitals: defaults as declared -->
+<Import name="Normal" file="vitals.xml"/>
+
+<!-- abnormal vitals: override just what needs to shift -->
+<Import name="Tachycardic" file="vitals.xml" hrMean="140" hrStdDev="15"/>
+```
+
+A `<declare>`'s own `value` is always a literal — it is never itself re-substituted, so `<declare name="x" value="$y"/>` is rejected at load time rather than silently landing `"$y"` as `x`'s literal value. Chaining a value through multiple levels of nested imports still works, just expressed as forwarded overrides instead of declare-to-declare references: an outer file's `<Import file="middle.xml" someParam="$myDeclare"/>` resolves `$myDeclare` from the outer file's own scope before handing the literal down, and if `middle.xml` in turn has its own `<Import file="inner.xml" innerParam="$someParam"/>`, that resolves from `middle.xml`'s scope (including whatever it was just handed) the same way.
 
 ## Dimension
 

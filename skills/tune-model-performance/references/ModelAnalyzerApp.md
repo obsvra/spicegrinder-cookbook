@@ -2,6 +2,8 @@
 
 # ModelAnalyzerApp(1)
 
+> © 2026 Obsvra. This document describes SpiceGrinder and is provided to help you evaluate and use it. It is not a license to reproduce, adapt, or use this material to build a competing product or service. Full terms: the SpiceGrinder EULA.
+
 ## NAME
 
 ModelAnalyzerApp — standalone Model Analyzer: static complexity plus optional throughput and per-component benchmarking
@@ -30,7 +32,7 @@ For each model file given, `ModelAnalyzerApp`:
 
 Multiple files may be given on one invocation; each is analyzed independently.
 
-Edition comes from the artifact (`LicenseBuildEdition`) by default, same as `ModelRunner`. `--pro`/`--free` exist to test the *other* edition's policy on a build where the classes are still physically present — not the normal way to select an edition.
+Edition comes from the artifact (`LicenseBuildEdition`) by default, same as `Grind`. `--pro`/`--free` exist to test the *other* edition's policy on a build where the classes are still physically present — not the normal way to select an edition.
 
 ## OPTIONS
 
@@ -50,6 +52,7 @@ Edition comes from the artifact (`LicenseBuildEdition`) by default, same as `Mod
 | `--diagnostic` | Enable the diagnostic instrumentation stream for this run. |
 | `-h`, `--help` | Print usage and exit. |
 | `--version` | Print the version (e.g. `1.0.0 Alpha 1 (Build 1)`) and exit. |
+| `--json` | Emit one JSON report to stdout instead of human-readable text. See OUTPUT (JSON) below. |
 
 ## ISOLATED BENCHMARK
 
@@ -73,6 +76,36 @@ Written onto the model's dataset attributes unless `--no-write` is given. Prior 
 | `analysis.obs_per_sec` | Measured throughput (if sampled) |
 | `analysis.sample_count` / `sample_duration_ms` | Sample details |
 | `analysis.summary` | Short human-readable line |
+
+## OUTPUT (JSON)
+
+With `--json`, every file given is analyzed exactly the same way, but the results are collected into one JSON document printed to stdout instead of per-file human-readable text:
+
+```json
+{
+  "success": true,
+  "results": [
+    {
+      "model": "/abs/path/model.xml",
+      "rootName": "root",
+      "timestamp": "2026-08-28T12:00:00Z",
+      "complexity": {
+        "mode": "FULLY_COMPUTED", "nodeCount": 12, "minDepth": 1, "maxDepth": 4,
+        "predictedAverageDepth": 2.5, "score": 340,
+        "customComponentCount": 0, "customComponentNames": [], "summary": "..."
+      },
+      "throughput": {"sampleCount": 5000, "sampleDurationMs": 812, "observationsPerSecond": 6157.0},
+      "isolatedBenchmark": null,
+      "written": true,
+      "error": null
+    }
+  ]
+}
+```
+
+`results[]` has one entry per file given, in order. `throughput` is `null` when `--no-throughput` was given. `isolatedBenchmark` is `null` unless `--isolate` was given, in which case it's a compact summary — `measuredAverageDepth`, `baselineNanosPerCall`, `problemNodeCount`, and a `problemNodes[]` array (`label`, `className`, `core`, `confidence`, `relativeMultiplier`) — mirroring the same compact section the stdout report shows; the full raw per-node components are still `--isolate-raw`-only, via the diagnostic stream, exactly as without `--json`. A file that fails to load or analyze gets a leaner entry instead: `{"model": "...", "error": "<message>"}`, with top-level `success` set to `false`.
+
+`--json` only changes this payload — the diagnostic-stream logging `--isolate-raw` triggers still happens the same way, and embedded `analysis.*` attributes are still written unless `--no-write` is given. `-h`/`--help`/`--version` output and bad-argument errors (exit code 2) always stay plain text, unaffected by `--json`.
 
 ## EXIT STATUS
 
@@ -102,6 +135,12 @@ Full isolated per-component benchmark with raw diagnostic output:
 analyzer --isolate --isolate-raw --diagnostic model.xml
 ```
 
+Get a machine-readable report for a script or agent to parse:
+
+```
+analyzer --json --no-write model.xml
+```
+
 ## SEE ALSO
 
-`ModelRunner`(1), `ModelValidatorApp`(1)
+`Grind`(1), `ModelValidatorApp`(1), `ComponentLibraryApp`(1), `McpServerApp`(1)
