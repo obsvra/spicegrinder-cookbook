@@ -28,30 +28,33 @@ jobs:
           java-version: "25"
 
       # ---------------------------------------------------------------------
-      # SpiceGrinder Free comes from a DreamHost cloud-storage bucket whose
-      # download links are presigned and re-minted per request -- there's no
-      # stable URL to hardcode here. Instead this pulls the Free build from
-      # this repo's own GitHub Releases "latest" (a real, permanent API
-      # endpoint that always resolves to whatever's currently tagged), so CI
-      # never needs updating when a new build ships -- only the release does.
+      # SpiceGrinder Free is published to GitHub Releases on obsvra/spicegrinder.
+      # "releases/latest" is a permanent API endpoint that always resolves to
+      # whatever is currently tagged, so CI never needs updating when a new build
+      # ships -- only the release does.
       #
-      # CONFIGURE ME, once: publish a GitHub Release on this repo (or set
-      # SPICEGRINDER_RELEASE_REPO below to a different owner/repo) with a
-      # Linux build attached as an asset. Asset-name matching below assumes
-      # something containing "linux", ending in .zip or .tar.gz -- adjust the
-      # grep pattern if the real asset name doesn't fit that (unverified,
-      # since no release exists yet to check against).
+      # Verified 2026-09-13 against v1.0.0-beta.1.1: the Linux asset is named
+      # SpiceGrinder-<version>-Free-linux.zip (matches the "linux" + .zip pattern
+      # below), and it unpacks to SpiceGrinder-Free/lib/app/spicegrinder-<version>-free.jar
+      # (matches the spicegrinder-*.jar search). Both assumptions were previously
+      # marked unverified because no release existed yet to check against.
+      #
+      # Note the releases live on a DIFFERENT repo from this one. Do not let
+      # RELEASE_REPO fall back to github.repository -- this repo publishes no
+      # SpiceGrinder builds, so that fallback fails with a confusing "no Linux
+      # build asset found". Override with the SPICEGRINDER_RELEASE_REPO variable
+      # only if the release location actually moves.
       # ---------------------------------------------------------------------
       - name: Download SpiceGrinder Free (latest GitHub Release)
         env:
-          RELEASE_REPO: ${{ vars.SPICEGRINDER_RELEASE_REPO || github.repository }}
+          RELEASE_REPO: ${{ vars.SPICEGRINDER_RELEASE_REPO || 'obsvra/spicegrinder' }}
           GH_TOKEN: ${{ github.token }}
         run: |
           ASSET_URL="$(gh api "repos/$RELEASE_REPO/releases/latest" \
             --jq '.assets[] | select(.name | test("linux"; "i")) | select(.name | test("\\.(zip|tar\\.gz)$"; "i")) | .browser_download_url' \
             | head -1)"
           if [ -z "$ASSET_URL" ]; then
-            echo "::error::No Linux build asset found on $RELEASE_REPO's latest release. Either no release exists yet, or its asset naming doesn't match this workflow's expectations -- see the CONFIGURE ME comment above this step."
+            echo "::error::No Linux build asset found on $RELEASE_REPO's latest release. Check that a non-prerelease exists there with a Linux .zip attached -- GitHub's releases/latest skips prereleases."
             exit 1
           fi
           echo "Downloading $ASSET_URL"
