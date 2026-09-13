@@ -1,6 +1,8 @@
 ![spicegrinder-icon](assets/spicegrinder-icon.png)
 # SpiceGrinder Customization Guide
 
+> © 2026 Obsvra. This document describes SpiceGrinder and is provided to help you evaluate and use it. It is not a license to reproduce, adapt, or use this material to build a competing product or service. Full terms: the SpiceGrinder EULA.
+
 This document explains how to **extend and customize** SpiceGrinder without modifying its core source code.
 
 The system is deliberately designed around:
@@ -14,9 +16,9 @@ Anyone with a compiled SpiceGrinder library on the classpath can add new generat
 
 > **This entire document describes a Pro feature.** Dynamic extension — loading any generator or filter that isn't one of SpiceGrinder's own built-in `core.defaults.generators`/ `core.defaults.filters` classes — requires SpiceGrinder Pro and is enforced at model-load time, whether you register it via package scanning (Option A below), explicit registration (Option B), or a fully-qualified class name in XML/`<definitions>` (Option C).
 
-> A Free build rejects all three with a clear `LicenseException`. If you're writing tooling, documentation, or an AI-assisted workflow that walks someone through this guide, make that requirement explicit up front rather than letting a Free user discover it only after writing and compiling a custom component — this was verified against a real exploit attempt and fixed for (internal record, not bundled with this reference copy).
+> A Free build rejects all three with a clear `LicenseException`. If you're writing tooling, documentation, or an AI-assisted workflow that walks someone through this guide, make that requirement explicit up front rather than letting a Free user discover it only after writing and compiling a custom component — see [Implementation-Status.md](Implementation-Status.md) for the real exploit this was verified against and fixed for.
 
-> **A related but different Pro feature**: this guide is about writing and registering your *own* generator/filter classes, loaded the normal way through `ModelLoader`. If instead you want to construct one of SpiceGrinder's own *built-in* classes (`Uniform`, `Append`, etc.) directly from your own Java code — bypassing a model file entirely — that's `com.obsvra.spicegrinder.core.factories.ComponentFactory`, also Pro-only. Built-in generator/filter constructors are package-private on purpose; `new Uniform(...)` from outside their package won't compile on either edition. `ComponentFactory.construct(...)` is the sanctioned path, and throws a clear `LicenseException` on Free.
+> **A related but different Pro feature**: this guide is about writing and registering your *own* generator/filter classes, loaded the normal way through `ModelLoader`. If instead you want to construct one of SpiceGrinder's own *built-in* classes (`Uniform`, `Append`, etc.) directly from your own Java code — bypassing a model file entirely — that's `com.obsvra.spicegrinder.core.factories.ComponentFactory`, also Pro-only. Built-in generator/filter constructors are package-private on purpose; `new Uniform(...)` from outside their package won't compile on either edition. `ComponentFactory.construct(...)` is the sanctioned path, and throws a clear `LicenseException` on Free. **If your app is multithreaded, read [§8.1](#81-concurrent-generation-is-not-safe--you-must-serialize-it-yourself) before you call generation from more than one thread** — SpiceGrinder is single-threaded by default and using it in a multi-threaded environment requires adding a layer of thread-safety yourself.
 
 ---
 
@@ -55,13 +57,17 @@ public interface IGenerator {
     boolean isSynchronous();
     IObservation getNextObservation() throws SpiceGrinderException;
 
-    // Legacy hook (still supported)
-    void loadSettings(Collection<Pair<String,String>> keyValuePairs)
-            throws NotImplementedException;
+    // Default: reflectively binds every @Parameter-annotated scalar field this class
+    // declares (registering it with ComponentRegistry first if needed) -- override for
+    // anything beyond simple scalar binding.
+    default void configure(Collection<Pair<String,String>> settings, NodeMap registry)
+            throws Exception { ... }
 }
 ```
 
-**`configure(...)` is not part of `IGenerator` itself** — it lives on the concrete `Generator`/`Filter` base classes (see §3), which is what `ModelLoader`'s Pass 2 actually calls (`if (gen instanceof Generator generator) generator.configure(settings, registry)`). A class that implements `IGenerator` directly, without extending `Generator`/`Filter`, has no `configure()` hook at all and would need to rely on `loadSettings(...)` or its own constructor for configuration — extending the base classes is the practical path for anything that needs XML-supplied settings, which is nearly everything.
+**`configure(...)` is part of `IGenerator` itself**, with a default implementation — `ModelLoader`'s Pass 2 calls it directly on the `IGenerator` reference (`gen.configure(settings, registry)`), no downcast to `Generator`/`Filter` needed. The default reflectively binds every `@Parameter`-annotated scalar field via `ReflectiveConfigurer.apply(...)`, so a class that implements `IGenerator` directly — without extending `Generator`/`Filter`, and without writing a `configure()` override at all — still gets simple scalar parameters "just working" for free. Extending `Generator`/`Filter` (see §3) is still recommended for the bookkeeping they provide (name/dimension/synchronous flag, input list, `<input name="..."/>` wiring), but it's not a requirement for basic configuration to work.
+
+Override `configure(...)` yourself for anything the default can't do: resolving `<input name="..."/>` references from `registry` (per §9, `Filter`'s own `configure()` already does this for you), multi-occurrence/complex parameters (a `multiple = true` `@Parameter` — see §4.2 — is a GUI-discovery-only carrier over a non-scalar field; the default skips it and leaves real wiring to your own `configure()`), or validation that should fail the whole load immediately.
 
 ### Minimal Filter Contract
 
@@ -285,6 +291,15 @@ You can always write:
 No scanning required. The identical rule applies to a model's own
 `<definitions><custom name="..." class="..."/></definitions>` block, which gives a class an XML short alias — it's the same check either way, since both resolve to a class name that `ModelLoader` has to instantiate.
 
+### Using custom components with `ModelServiceApp`
+
+Options A/B above assume you control the `ModelLoader` call directly (embedding SpiceGrinder in your own app, or the CLI/GUI). The Service is a separately-launched, long-running process you don't call into that way — but the underlying requirement is identical: your class has to be on **that process's** classpath, set once at launch. Two ways to do it, matching however you're running the Service:
+
+- **Raw jar**: add your jar to `-cp` alongside SpiceGrinder's own, same as you would for any other Java process — `java -cp spicegrinder.jar:my-plugin.jar com.obsvra.spicegrinder.pro.service.ModelServiceApp`.
+- **jpackage install**: the native `service`/`service.exe` launcher reads its classpath from a generated config file (`service.cfg`, next to the launcher — `Contents/app/service.cfg` on macOS) rather than a command-line flag. Add your jar to its `app.classpath` line (`:`-separated on macOS/Linux, `;`-separated on Windows) and the launcher picks it up on the next start.
+
+Either way, reference the class the same way you would locally: its fully-qualified name directly as an XML tag (Option C above), or via a `<definitions><custom .../></definitions>` alias in the model you register with the Service. There's no separate plugin directory and no hot-reload — a classpath change only takes effect on the next process start, exactly like any other JVM's classpath. That's a deliberate simplification, not a missing feature: the Service's classpath being fixed at launch (no dynamic loading mid-run) is part of what keeps its trust model simple, and restarting to pick up a new component is the same cost as restarting to pick up any other code change during development.
+
 ---
 
 ## 7. Overriding a Built-in Component
@@ -315,7 +330,13 @@ public class MySecureRandom implements IRandom {
 Randoms.set(new MySecureRandom());
 ```
 
-`Randoms` is process-wide static state (`Randoms.get()` returns whatever was last set, or the default source if `set(...)` was never called). Generators read it **once, at construction time** — every default distribution's `(String name)` constructor calls `Randoms.get()` and keeps the result (see `Skellam` in §5) — so `Randoms.set(...)` only affects generators built *after* the call. There's no per-generator reseed-in-place; to change the random source for an already-built model, rebuild it (e.g. reload via `ModelLoader`) after calling `Randoms.set(...)`. For reproducible-but-different-per-dataset seeding rather than a different `IRandom` implementation entirely, see `Randoms.applyDatasetSeed(Long)` instead, which is what the embedded-seed and `--seed`/`--no-seed` CLI handling in `ModelRunner` uses.
+`Randoms` is process-wide static state (`Randoms.get()` returns whatever was last set, or the default source if `set(...)` was never called). Generators read it **once, at construction time** — every default distribution's `(String name)` constructor calls `Randoms.get()` and keeps the result (see `Skellam` in §5) — so `Randoms.set(...)` only affects generators built *after* the call. There's no per-generator reseed-in-place; to change the random source for an already-built model, rebuild it (e.g. reload via `ModelLoader`) after calling `Randoms.set(...)`. For reproducible-but-different-per-dataset seeding rather than a different `IRandom` implementation entirely, see `Randoms.applyDatasetSeed(Long)` instead, which is what the embedded-seed and `--seed`/`--no-seed` CLI handling in `Grind` uses.
+
+### 8.1 Concurrent generation is not safe — you must serialize it yourself
+
+**If you're embedding SpiceGrinder in your own multithreaded application** (direct construction via `ComponentFactory`, or any other path that ends up calling `getNextObservation()` from more than one thread), this is the one thing in this whole guide most likely to fail silently: two threads calling `getNextObservation()` concurrently on generators sharing the same `IRandom`/`RandomGenerator` — which, per the paragraph above, is the *normal* case, since every generator built in one `Randoms.set(...)` window shares one instance — is not safe. `Randoms.current` itself is `volatile`, so swapping which source is active (`Randoms.set(...)`) is safe to do from another thread; that's a different guarantee from concurrent *draws* being safe, and it isn't one. The JDK's modern `RandomGenerator` algorithms this project targets are not documented as thread-safe for concurrent use by a single instance, and nothing in `IRandom`/`Randoms`/the default generators adds locking on top of that.
+
+This is exactly why `ModelServiceApp` runs every `/generate`/`/stream` call through a single background worker per process, one job at a time — a deliberate design choice, not an oversight (see [Service API Reference](Service-API-Reference.md#concurrency-model)). If you're using the Service API, this is already handled for you. **If you're using direct construction in your own app, it isn't** — nothing stops you from calling generation from multiple threads yourself, and nothing will warn you if you do. Serialize calls into any given generator graph yourself (a single worker thread/executor per graph is the simplest correct shape, mirroring what the Service API already does internally) if your application is multithreaded.
 
 ---
 
@@ -371,6 +392,183 @@ public void configure(Collection<Pair<String, String>> settings, NodeMap registr
 
 `hasExplicitSynchronous(settings)` (a protected static helper on `Filter`) is also available if you need to check for an explicit override yourself outside this flow.
 
+### 9.2 Multi-Input Filters with Roles (complete example)
+
+Some filters need more than a flat, homogeneous list of inputs (like `Append`, where every input plays the same part) — they need specific, *named* inputs, the way a join needs a left side and a right side. `PersonAssembler` (`com.obsvra.spicegrinder.business.filters`, Pro) is a real, shipped, fully-tested example: it combines a `[gender, givenName]` source and a `surname` source into one `Person` value, and the two inputs are not interchangeable — swapping them would silently produce nonsense, not just a different but valid result.
+
+```java
+package com.obsvra.spicegrinder.business.filters;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import com.obsvra.spicegrinder.core.annotations.ComponentInfo;
+import com.obsvra.spicegrinder.core.annotations.Parameter;
+import com.obsvra.spicegrinder.core.defaults.Filter;
+import com.obsvra.spicegrinder.core.defaults.Observation;
+import com.obsvra.spicegrinder.business.datapoints.PersonDataPoint;
+import com.obsvra.spicegrinder.core.interfaces.IGenerator;
+import com.obsvra.spicegrinder.core.interfaces.IObservation;
+import com.obsvra.spicegrinder.core.exceptions.SpiceGrinderException;
+import com.obsvra.spicegrinder.core.utilities.NodeMap;
+import com.obsvra.spicegrinder.core.utilities.Pair;
+
+@ComponentInfo(
+        name        = "PersonAssembler",
+        description = "Assembles a [gender, givenName] source and a surname source into a Person",
+        category    = "filter")
+public class PersonAssembler extends Filter {
+
+    @Parameter(
+            name          = "input",
+            multiple      = true,
+            required      = true,
+            minOccurrences = 2,
+            maxOccurrences = 2,
+            attributes    = {"name", "role"},
+            category      = "Inputs",
+            description   = "Inputs: genderGiven (dimension-2: [gender, givenName]), surname (dimension-1)")
+    // Reflection/GUI discovery slot only -- wiring below uses the role attributes directly.
+    private final List<String> inputSlot = new ArrayList<>();
+
+    private IGenerator genderGivenGen;
+    private IGenerator surnameGen;
+
+    public PersonAssembler(String name) {
+        super(name, 1);
+        this.inputs = new ArrayList<>();
+    }
+
+    @Override
+    public void configure(Collection<Pair<String, String>> settings, NodeMap registry) throws Exception {
+        super.configure(settings, registry);   // scalar @Parameter binding + populates this.inputs
+
+        Map<String, IGenerator> byRole = new HashMap<>();
+        for (Pair<String, String> p : settings) {
+            String key = p.getKey();
+            if (key != null && key.startsWith("input.") && key.endsWith(".role")) {
+                String refName = key.substring("input.".length(), key.length() - ".role".length());
+                IGenerator g = registry.getNode(refName);
+                if (g != null) {
+                    byRole.put(p.getValue().toLowerCase(), g);
+                }
+            }
+        }
+
+        if (byRole.containsKey("gendergiven") && byRole.containsKey("surname")) {
+            genderGivenGen = byRole.get("gendergiven");
+            surnameGen = byRole.get("surname");
+        } else if (inputs.size() >= 2) {
+            // Fallback: fixed order (genderGiven, surname) if roles weren't given explicitly
+            genderGivenGen = inputs.get(0);
+            surnameGen = inputs.get(1);
+        } else {
+            throw new Exception("PersonAssembler '" + getName()
+                    + "' requires two inputs (genderGiven, surname)");
+        }
+
+        this.dimension = 1;
+    }
+
+    @Override
+    public IObservation getNextObservation() throws SpiceGrinderException {
+        IObservation genderGivenObs = genderGivenGen.getNextObservation();
+        String gender = genderGivenObs.getAt(0).stringValue();
+        String given = genderGivenObs.getAt(1).stringValue();
+        String surname = surnameGen.getNextObservation().getAt(0).stringValue();
+
+        IObservation obs = new Observation();
+        obs.add(new PersonDataPoint(gender, given, surname));
+        return obs;
+    }
+}
+```
+
+### Using it from XML
+
+```xml
+<PersonAssembler name="Person">
+  <input name="GenderGiven" role="genderGiven"/>
+  <input name="Surname" role="surname"/>
+</PersonAssembler>
+```
+
+**Why `inputSlot` is `multiple = true`, and why that matters for `configure()`.** A parameter declared `multiple = true` is a GUI/discovery-only carrier — it exists so the registry and GUI know this component takes repeatable `<input name="..." role="..."/>` children, not so `IGenerator`'s default `configure()` can bind it. Multi-occurrence values don't reduce to one string the way a scalar `@Parameter` does, so the default reflective binding **skips** any `multiple = true` field rather than attempting to (and failing to) stuff a list of inputs into it. That's exactly why `PersonAssembler` still needs its own `configure()` override even though its scalar binding is free: the *role wiring* — matching `role="genderGiven"`/`role="surname"` to the right resolved generator — is real logic no annotation can express, so it's still your job, same as resolving `<input name="..."/>` references is `Filter`'s job for the simple case. The pattern in general: `multiple = true` gets you correct GUI/discovery metadata for free; it never gets you automatic wiring, for any filter, built-in or your own.
+
+### 9.3 Importing External Objects via `ISerializable` and `Convert`
+
+The filters above compose values that already live inside SpiceGrinder's own component graph. `Convert` (`com.obsvra.spicegrinder.pro.filters.Convert`, Pro) solves a different problem: bringing in a whole *object* from outside the system — the likely sources are `ServiceCall` (a backend you don't control, possibly not even written in Java), `FlatFile`, and `Database` (a persisted value written by something else entirely) — without flattening it into individual `DataPoint` fields and hand-reassembling them on the way back in, which breaks the moment the object's shape changes.
+
+The contract your object implements is `com.obsvra.spicegrinder.core.interfaces.ISerializable`: `serialize()` (render to a string), `deserialize(Map<String,Object> fields)` (populate from already-parsed data — called once, immediately after construction, not a live mutation API), and `get(String key)` (read a field back out generically). You can implement all three by hand, or extend `com.obsvra.spicegrinder.core.interfaces.AbstractSerializable` for the common case — it backs `serialize()`/`get()` with a plain accumulated map, so you only call `add(key, value)` for each field rather than touch JSON directly:
+
+```java
+package com.example.grind;
+
+import java.util.Map;
+
+import com.obsvra.spicegrinder.core.interfaces.AbstractSerializable;
+
+public class Product extends AbstractSerializable {
+
+    private String sku = "";
+    private double price = 0.0;
+    private boolean inStock = false;
+
+    /** Required -- Convert reflectively constructs this via a no-arg constructor. */
+    public Product() {
+    }
+
+    public String getSku() { return sku; }
+    public double getPrice() { return price; }
+    public boolean isInStock() { return inStock; }
+
+    @Override
+    protected void populate() {
+        add("sku", sku);
+        add("price", price);
+        add("inStock", inStock);
+    }
+
+    @Override
+    public void deserialize(Map<String, Object> fields) throws Exception {
+        super.deserialize(fields);
+        Object skuObj = fields.get("sku");
+        Object priceObj = fields.get("price");
+        Object stockObj = fields.get("inStock");
+        if (!(skuObj instanceof String) || !(priceObj instanceof Double) || !(stockObj instanceof Boolean)) {
+            throw new IllegalArgumentException("Product requires string 'sku', numeric 'price', "
+                    + "boolean 'inStock'");
+        }
+        this.sku = (String) skuObj;
+        this.price = (Double) priceObj; // MiniJson always parses numbers as Double -- narrow here
+        this.inStock = (Boolean) stockObj;
+    }
+}
+```
+
+### Using it from XML
+
+```xml
+<ServiceCall name="ProductLookup" url="http://localhost:9000/products" outputs="string"/>
+
+<Convert name="Product1" class="com.example.grind.Product">
+    <input name="ProductLookup"/>
+</Convert>
+```
+
+`FlatFile`/`Database` work identically — point `Convert`'s `<input>` at whichever node produces the serialized string column, e.g. `<FlatFile file="products.csv"/>` with a text column holding one JSON object per row. See `Convert`'s own javadoc for the full expected wire format (exactly what JSON shape the upstream string needs to be, aimed at whoever is producing it — very often someone who will never read this file or any Java source at all) rather than repeating it here.
+
+A downstream custom filter reads the reconstructed object back out via `ObjectDataPoint.getObject()`:
+
+```java
+Product p = ((ObjectDataPoint<Product>) input.getNextObservation().getAt(0)).getObject();
+```
+
+Two constraints worth knowing before reaching for this: `Convert`'s single `<input>` must be single-dimension (a raw string column, not a raw multi-column row — project down first if your source is naturally multi-column), and the target type needs a genuinely accessible no-arg constructor, since that's what `Convert` reflectively invokes before calling `deserialize()`.
+
 ---
 
 ## 10. Checklist for a New Component
@@ -379,7 +577,7 @@ public void configure(Collection<Pair<String, String>> settings, NodeMap registr
 2. Provide a public constructor that takes a single `String name`.
 3. Annotate the class with `@ComponentInfo` (optional but recommended).
 4. Annotate configurable fields with `@Parameter`.
-5. In `configure`, populate your fields from `settings` — either manually (loop over the `Collection<Pair<String,String>>` and match keys/aliases yourself; see `Skellam` in §5, the pattern most of Core's own distributions use), or via `ReflectiveConfigurer.apply(this, descriptor, settings)` for simple scalar-only fields (see `Uniform`/`Normal`/`Exponential` in Core) — then perform any extra validation or wiring. Neither is mandatory; pick whichever fits your field types.
+5. If your fields are simple scalars, you don't need to write `configure(...)` at all — `IGenerator`'s default reflectively binds every `@Parameter`-annotated field for you. Override `configure` only when you need something beyond that: manual parsing (loop over the `Collection<Pair<String,String>>` and match keys/aliases yourself; see `Skellam` in §5, the pattern most of Core's own distributions use, often because they want a single combined validation check across multiple fields rather than one), explicit `ReflectiveConfigurer.apply(this, descriptor, settings)` calls if you want the binding to happen at a specific point relative to other logic, input wiring (§9), or extra validation.
 6. Place the class on the classpath in a package that will be scanned, **or** register it explicitly, **or** refer to it by fully-qualified name in XML.
 7. (Optional) Ship a small sample XML snippet so users know the attribute names.
 

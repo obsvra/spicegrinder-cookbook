@@ -31,15 +31,10 @@ if [[ -z "$SRC" || ! -d "$SRC/agent/skills" ]]; then
   exit 1
 fi
 
-# Customization.md is held back on purpose. It is excluded from the public skills
-# zip by an explicit decision (see build-skills-package.sh, 2026-09-02) and from
-# obsvra.com's docs section, on the grounds that the custom-component authoring
-# guide is a blueprint for the extension architecture rather than evaluation
-# content. A copy is nonetheless already committed here and public; syncing would
-# grow it from 21,880 to 36,532 bytes, widening a publication that two other
-# channels deliberately limit. Resolve the contradiction before removing this
-# guard -- either publish it everywhere or remove it from this repo.
-HOLD_BACK=("Customization.md")
+# Files to hold back from the sync, if any ever need to be. Empty by design:
+# Customization.md was held back until 2026-09-13, when the decision was made to
+# publish it across every channel — this repo, the skills zip, and obsvra.com/docs.
+HOLD_BACK=()
 
 changed=0
 checked=0
