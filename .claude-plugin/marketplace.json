@@ -9,7 +9,7 @@
   "plugins": [
     {
       "name": "spicegrinder",
-      "source": ".",
+      "source": "./",
       "description": "Six skills for working with SpiceGrinder models: draft one from a description, fit one to a real data sample, explain an existing model, write custom generators/filters, audit a model for PII risk, and profile it for performance. Grounded in the real component catalog rather than guessing at components.",
       "version": "1.0.0",
       "author": {
