@@ -7,9 +7,6 @@
 <dataset seed="42">
 	<root node="Vitals"/>
 	<nodes>
-		<MultivariateNormal name="Vitals"
-			dimension="3"
-			means="72,118,98"
-			sigmas="8,12,1.5"/>
+		<MultivariateNormal name="Vitals" means="72,118,98" sigmas="8,12,1.5" dimension="3"/>
 	</nodes>
 </dataset>

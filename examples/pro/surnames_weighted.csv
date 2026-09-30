@@ -1,3 +1,6 @@
+# Top 1,000 surnames with their real counts from the US Census Bureau's "Frequently Occurring
+# Surnames from the 2010 Census" (census.gov/topics/population/genealogy), a US government work in
+# the public domain. Weight first. Used by samples/pro/person-name-usa-*.xml.
 2442977,Smith
 1932812,Johnson
 1625252,Williams

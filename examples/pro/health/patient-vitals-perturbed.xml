@@ -1,5 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<dataset seed="42" analysis.version="1" analysis.timestamp="2026-09-05T02:04:38.320451Z" analysis.mode="PARTIAL" analysis.node_count="5" analysis.min_depth="2" analysis.max_depth="2" analysis.score="20" analysis.custom_component_count="1" analysis.summary="partial — 1 custom component(s) excluded from predicted average: nodes=5 minDepth=2 maxDepth=2 score=20; customs=[ObservedVitals:Perturb]">
+<dataset seed="42"
+	analysis.version="1"
+	analysis.timestamp="2026-09-05T02:04:38.320451Z"
+	analysis.mode="PARTIAL"
+	analysis.node_count="5"
+	analysis.min_depth="2"
+	analysis.max_depth="2"
+	analysis.score="20"
+	analysis.custom_component_count="1"
+	analysis.summary="partial — 1 custom component(s) excluded from predicted average: nodes=5 minDepth=2 maxDepth=2 score=20; customs=[ObservedVitals:Perturb]">
 	<root node="ObservedVitals"/>
 	<nodes>
 		<Perturb name="ObservedVitals" repeat="true">
@@ -8,9 +17,9 @@
 			<input name="WaitGen" role="wait"/>
 			<input name="DurGen" role="duration"/>
 		</Perturb>
-		<MultivariateNormal name="Nominal" dimension="3" means="72,118,98" sigmas="8,12,1.5"/>
-		<MultivariateNormal name="Spike" dimension="3" means="130,85,88" sigmas="10,15,3"/>
-		<Constant name="WaitGen" type="double" value="8"/>
-		<Constant name="DurGen" type="double" value="2"/>
+		<MultivariateNormal name="Nominal" means="72,118,98" sigmas="8,12,1.5" dimension="3"/>
+		<MultivariateNormal name="Spike" means="130,85,88" sigmas="10,15,3" dimension="3"/>
+		<Constant name="WaitGen" value="8" type="double"/>
+		<Constant name="DurGen" value="2" type="double"/>
 	</nodes>
 </dataset>

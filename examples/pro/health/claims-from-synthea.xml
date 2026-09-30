@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Claims generated against a Synthea-derived member pool.
+
+  Synthea supplies the member spine (real clinical population shape, no PII).
+  SpiceGrinder supplies claim economics at whatever volume and distribution
+  the test needs.
+
+  Pool built by running Synthea for 40 Massachusetts patients with seed 42
+  and CSV export enabled, then projecting patients.csv down to
+  MEMBER_ID, BIRTHDATE, GENDER, STATE. (The exact command line is in the
+  writeup, not here: XML comments cannot contain a double hyphen.)
+-->
+<dataset seed="42">
+	<root node="ClaimLine"/>
+	<nodes>
+		<Append name="ClaimLine">
+			<input name="Member"/>
+			<input name="ServiceUnits"/>
+			<input name="BilledAmount"/>
+		</Append>
+
+		<!-- Pro: the member spine, drawn atomically so every field
+		     on a claim line belongs to the same person -->
+		<FlatFile name="Member" file="member-pool.csv" skipHeader="true" mode="unweighted"/>
+
+		<!-- Free: claim economics, shaped to what the test needs -->
+		<Poisson name="ServiceUnits" lambda="2.5"/>
+		<Lognormal name="BilledAmount" mu="6.4" sigma="0.9"/>
+	</nodes>
+</dataset>

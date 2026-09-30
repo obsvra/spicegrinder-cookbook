@@ -26,8 +26,8 @@ Three interchangeable formats, same underlying structure: **XML**, **JSON**, and
 |---|---|
 | `type` | Component short name (e.g. `Normal`, `Mix`) — matches [Component-Library-Reference.md](Component-Library-Reference.md), or a `definitions`-registered custom type name |
 | `name` | Unique identifier for this node, referenced by other nodes' `input` entries |
-| attributes | Component-specific parameters (see per-component tables in the library reference) |
-| `input` entries | For filters only — references to other nodes by `name`, in order; some filters accept per-input attributes (e.g. `weight`, `role`) |
+| attributes | Component-specific parameters (see per-component tables in the library reference). A name that matches none of the component's parameters or aliases is an error when the model loads, naming the valid ones and the closest match (`stdev` → did you mean `stddev`?) |
+| `input` entries | For filters only — references to other nodes by `name`, in order; some filters accept per-input attributes (e.g. `weight`, `role`), and an unknown one is also a load error |
 
 Node category is implicit in whether a component has inputs: **generators** are leaves (no inputs); **filters** take one or more `input` entries.
 
@@ -69,12 +69,12 @@ This is implemented once, centrally, in `ReflectiveConfigurer` (used by every `@
 			<input name="ThreeDice"/>
 		</Calculate>
 
-		<Drop name="DropCopies" excludes="1,2">
+		<Arrange name="KeepSum" columns="0">
 			<input name="Sum"/>
-		</Drop>
+		</Arrange>
 
 		<Redimension name="SixStats" dimension="6">
-			<input name="DropCopies"/>
+			<input name="KeepSum"/>
 		</Redimension>
 	</nodes>
 </dataset>
@@ -95,10 +95,10 @@ This is implemented once, centrally, in `ReflectiveConfigurer` (used by every `@
       {"type": "Calculate", "name": "Sum",
         "attributes": {"expression": "y[0] = x[0] + x[1] + x[2]"},
         "inputs": [{"name": "ThreeDice"}]},
-      {"type": "Drop", "name": "DropCopies", "attributes": {"excludes": "1,2"},
+      {"type": "Arrange", "name": "KeepSum", "attributes": {"columns": "0"},
         "inputs": [{"name": "Sum"}]},
       {"type": "Redimension", "name": "SixStats", "attributes": {"dimension": "6"},
-        "inputs": [{"name": "DropCopies"}]}
+        "inputs": [{"name": "KeepSum"}]}
     ]
   }
 }
@@ -115,12 +115,12 @@ Die = Uniform(1, 7)
 D6 = ToInteger(Die, "floor")
 ThreeDice = Redimension(D6, 3)
 Sum = Calculate(ThreeDice, "y[0] = x[0] + x[1] + x[2]")
-DropCopies = Drop(Sum, (1, 2))
-SixStats = Redimension(DropCopies, 6)
+KeepSum = Arrange(Sum, (0))
+SixStats = Redimension(KeepSum, 6)
 ```
 
 Key rules:
-- `NodeName = Component(args)` is a node assignment. A filter's input is always its first argument (`ToInteger(Die, "floor")`); a component's other parameters follow, positionally where possible — each component's parameters have a defined order (matching their order in [Component-Library-Reference.md](Component-Library-Reference.md)) — or by `name=value` once one argument in the call is named, the same positional-then-keyword rule Python uses for function calls.
+- `NodeName = Component(args)` is a node assignment. A filter's input is always its first argument (`ToInteger(Die, "floor")`); a component's other parameters follow, positionally where possible — each component's parameters have a defined order (matching their order in [Component-Library-Reference.md](Component-Library-Reference.md)) (for a custom component, a Pro feature, that order comes from `@Parameter(order = ...)`, described in the Pro Customization Guide) — or by `name=value` once one argument in the call is named, the same positional-then-keyword rule Python uses for function calls.
 - `dataset.seed = 123` / `dataset.root = Name` / `dataset.random = com.example.MyRNG` replace XML's `<dataset seed="..." random="...">` / `<root node="...">` (see [Random number generator override](#random-number-generator-override-pro--dynamic-extension) above).
 - Array/matrix-typed parameters use a tuple literal instead of a delimited string: `means=(72, 118, 98)` for a vector, `covariance=((144, 67.2), (67.2, 64))` for a matrix — the same values a `"144,67.2;67.2,64"`-style quoted string holds in XML/JSON, just structured instead of flattened.
 - `# comment` — a comment line, start-of-line only (no trailing end-of-line comments).
@@ -221,7 +221,7 @@ A `<declare>`'s own `value` is always a literal — it is never itself re-substi
 
 ## Dimension
 
-Every node has a **dimension** — the number of `DataPoint` objects per `Observation` it emits. Filters like `Redimension`/`Drop`/`Append` change dimension explicitly; most generators are fixed-dimension (often 1, multivariate ones like `MultivariateNormal`/`Dirichlet`/`Wishart` are k-dimensional based on their own parameters).
+Every node has a **dimension** — the number of `DataPoint` objects per `Observation` it emits. Filters like `Redimension`/`Arrange`/`Append` change dimension explicitly; most generators are fixed-dimension (often 1, multivariate ones like `MultivariateNormal`/`Dirichlet`/`Wishart` are k-dimensional based on their own parameters).
 
 ## Validation
 

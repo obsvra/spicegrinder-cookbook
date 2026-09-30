@@ -4,8 +4,7 @@
 
   Vendor is a plain composed Input drawn from mac_vendors.csv — real 3-byte OUI
   (Organizationally Unique Identifier) prefixes assigned by the IEEE Registration Authority,
-  sourced from the Wireshark project's manuf database plus independent vendor-specific lookups
-  for entries not present in the fetched excerpt. The remaining 3 NIC-specific bytes are drawn
+  each checked against the IEEE's public MA-L registry listing. The remaining 3 NIC-specific bytes are drawn
   uniformly at random. Rendered as the standard colon-separated uppercase hex form.
 
   This means a generated MAC address can, in principle, coincide with a real, currently-in-use

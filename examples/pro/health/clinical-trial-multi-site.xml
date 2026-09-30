@@ -37,19 +37,20 @@
 		</Mix>
 
 		<!-- Large academic center: strong adherence, clean effect separation -->
-		<Import name="AcademicCenter" file="site-arm-lib.xml"
-			controlP="0.27" treatmentP="0.49"/>
+		<Import name="AcademicCenter" file="site-arm-lib.xml" controlP="0.27" treatmentP="0.49"/>
 
 		<!-- Community hospital: response rates close to the original single-site baseline -->
-		<Import name="CommunityHospital" file="site-arm-lib.xml"
-			controlP="0.31" treatmentP="0.45"/>
+		<Import name="CommunityHospital" file="site-arm-lib.xml" controlP="0.31" treatmentP="0.45"/>
 
 		<!-- Rural/underserved site: smaller population, attenuated effect, its own 1:1 enrollment -->
-		<Import name="RuralSite" file="site-arm-lib.xml"
-			controlP="0.34" treatmentP="0.42" controlWeight="1" treatmentWeight="1"/>
+		<Import name="RuralSite"
+			file="site-arm-lib.xml"
+			controlP="0.34"
+			controlWeight="1"
+			treatmentP="0.42"
+			treatmentWeight="1"/>
 
 		<!-- International site: different standard-of-care baseline shifts the control arm -->
-		<Import name="IntlSite" file="site-arm-lib.xml"
-			controlP="0.20" treatmentP="0.38"/>
+		<Import name="IntlSite" file="site-arm-lib.xml" controlP="0.20" treatmentP="0.38"/>
 	</nodes>
 </dataset>

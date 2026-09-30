@@ -26,6 +26,8 @@
 			<input name="RegistrationGroup"/>
 		</ISBN>
 
-		<FlatFile name="RegistrationGroup" file="samples/pro/isbn_registration_groups.csv" mode="unweighted"/>
+		<FlatFile name="RegistrationGroup"
+			file="samples/pro/isbn_registration_groups.csv"
+			mode="unweighted"/>
 	</nodes>
 </dataset>

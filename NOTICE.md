@@ -18,4 +18,8 @@ Everything under `community-models/` is licensed under CC0 1.0 Universal, not MI
 
 ## Everything else
 
-`skills/*/SKILL.md`, `CONTRIBUTING.md`, this file, the GitHub Actions workflow, and everything under `examples/` are covered by the root [LICENSE](LICENSE) (MIT).
+`skills/*/SKILL.md`, `CONTRIBUTING.md`, this file, the GitHub Actions workflow, and the example models under `examples/` (the `.xml`, `.json` and `.sgm` files, their `.csv` output records and the READMEs) are covered by the root [LICENSE](LICENSE) (MIT).
+
+## Separately licensed: reference data tables under examples/
+
+The reference tables the example models read (the `.csv` and `.txt` data files under `examples/pro/`, and `examples/health/` and `examples/software/` where they carry a source header) come from third-party sources and keep those sources' licenses (CC BY 4.0, CC BY-SA 3.0, the Statistics Canada Open Licence, and others). They are listed one by one, with attribution, in [`examples/THIRD-PARTY-DATA-NOTICES.md`](examples/THIRD-PARTY-DATA-NOTICES.md). Reusing them means following those licenses, not the MIT license above.

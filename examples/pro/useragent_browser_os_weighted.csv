@@ -16,6 +16,9 @@
 # and OS-family are drawn from here; version numbers are generated internally by the
 # UserAgent filter (see its own javadoc) so this table doesn't need updating on every browser
 # release.
+# Source: StatCounter Global Stats (https://gs.statcounter.com), licensed CC BY-SA 3.0. The weights
+# in this file adapt those figures, so this file is itself distributed under CC BY-SA 3.0
+# (https://creativecommons.org/licenses/by-sa/3.0/). That applies to this data file only.
 25.8,Chrome,Windows
 7.4,Edge,Windows
 3.7,Firefox,Windows

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  EU order stream across three markets, on Faker-built customer pools.
+
+  Faker supplies locale-correct customer vocabularies (de_DE / fr_FR / es_ES);
+  SpiceGrinder supplies the market mix and the order economics.
+
+  Same Mix + Constant + FlatFile shape as samples/pro/person-model.xml: the
+  market label and the customer are chosen inside the same branch, so they
+  can never disagree.
+-->
+<dataset seed="42">
+	<root node="Order"/>
+	<nodes>
+		<Append name="Order">
+			<input name="Customer"/>
+			<input name="ItemCount"/>
+			<input name="OrderValue"/>
+		</Append>
+
+		<Mix name="Customer">
+			<input name="GermanBranch" weight="0.50"/>
+			<input name="FrenchBranch" weight="0.30"/>
+			<input name="SpanishBranch" weight="0.20"/>
+		</Mix>
+
+		<Append name="GermanBranch">
+			<input name="DeLabel"/>
+			<input name="GermanPool"/>
+		</Append>
+		<Constant name="DeLabel" value="DE" type="string"/>
+		<FlatFile name="GermanPool" file="customers-de.csv" skipHeader="true" mode="unweighted"/>
+
+		<Append name="FrenchBranch">
+			<input name="FrLabel"/>
+			<input name="FrenchPool"/>
+		</Append>
+		<Constant name="FrLabel" value="FR" type="string"/>
+		<FlatFile name="FrenchPool" file="customers-fr.csv" skipHeader="true" mode="unweighted"/>
+
+		<Append name="SpanishBranch">
+			<input name="EsLabel"/>
+			<input name="SpanishPool"/>
+		</Append>
+		<Constant name="EsLabel" value="ES" type="string"/>
+		<FlatFile name="SpanishPool" file="customers-es.csv" skipHeader="true" mode="unweighted"/>
+
+		<Poisson name="ItemCount" lambda="2.2"/>
+		<Lognormal name="OrderValue" mu="4.1" sigma="0.8"/>
+	</nodes>
+</dataset>

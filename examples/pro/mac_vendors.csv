@@ -1,9 +1,6 @@
 # Real 3-byte OUI (Organizationally Unique Identifier) prefixes, assigned by the IEEE
-# Registration Authority to real vendors. Sourced from the Wireshark project's own manuf
-# database (a widely used, actively-maintained third-party mirror derived from the IEEE's
-# public MA-L registry, not hand-transcribed from memory) plus direct vendor-specific lookups
-# for entries not present in the fetched excerpt (Raspberry Pi Foundation, Google, Amazon
-# Technologies, TP-Link, cross-checked against independent public OUI lookup services).
+# Registration Authority. Each prefix checked on 2026-09-24 against the IEEE's public MA-L
+# registry listing (standards-oui.ieee.org/oui/oui.csv); vendor names shortened by us.
 # Unweighted -- FlatFile mode="unweighted" samples these uniformly, not by real market share
 # (no cited per-vendor device-population figure used).
 00:05:02,Apple

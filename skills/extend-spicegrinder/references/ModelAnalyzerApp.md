@@ -30,7 +30,7 @@ For each model file given, `ModelAnalyzerApp`:
 4. Prints a report to **stdout**.
 5. By default, embeds the results back onto the model file's dataset attributes (see EMBEDDED ATTRIBUTES), including `analysis.timestamp` — `--no-write` skips this.
 
-Multiple files may be given on one invocation; each is analyzed independently.
+Multiple files may be given on one invocation; each is analyzed independently. One of them may be `-` instead of a path, meaning "read this model from stdin" (used once per invocation, not repeated) — content-sniffed as XML or JSON, matching `Grind`/`ModelValidatorApp`; Compact (`.sgm`) needs a real file. Reading from stdin without `--no-write` is rejected (exit 2) rather than silently downgraded: writing results back is the default, and there is no file for stdin to write them onto. Pass `--no-write` explicitly when analyzing a model from stdin.
 
 Edition comes from the artifact (`LicenseBuildEdition`) by default, same as `Grind`. `--pro`/`--free` exist to test the *other* edition's policy on a build where the classes are still physically present — not the normal way to select an edition.
 
@@ -40,6 +40,7 @@ Edition comes from the artifact (`LicenseBuildEdition`) by default, same as `Gri
 |---|---|
 | `--no-throughput` | Skip observation sampling — static analysis only. |
 | `--samples N` | Observations to sample for throughput (default 5000). |
+| `--warmup-ms N` | Generate for N milliseconds, untimed, before the throughput sample, so the JVM has finished optimizing the model's code (default 0). A fresh JVM takes a few seconds to reach full speed on a heavy model; without a warm-up the throughput shown can be several times slower than steady state. |
 | `--no-write` | Print the report only; do not update the model file. |
 | `--pro` | Force Pro edition policy for this run (testing; no-op on a Free artifact). |
 | `--free` | Force Free edition policy for this run (testing), even on a Pro artifact. |
@@ -51,8 +52,19 @@ Edition comes from the artifact (`LicenseBuildEdition`) by default, same as `Gri
 | `--isolate-raw` | Log raw per-node benchmark components via the diagnostic instrumentation stream. Needs `--diagnostic` (or the stream already enabled via persisted config) to actually produce output. No effect without `--isolate`. |
 | `--diagnostic` | Enable the diagnostic instrumentation stream for this run. |
 | `-h`, `--help` | Print usage and exit. |
-| `--version` | Print the version (e.g. `1.0.0 Alpha 1 (Build 1)`) and exit. |
+| `--version` | Print the version (e.g. `1.0.0 Beta 2 (Build 1)`) and exit. |
 | `--json` | Emit one JSON report to stdout instead of human-readable text. See OUTPUT (JSON) below. |
+
+## HOW FAR TO TRUST THE COMPLEXITY SCORE
+
+The score weighs each component by a cost measured on 11 machines of different sizes and makers (Intel and AMD x64, AWS Graviton and Apple Silicon ARM), 2026-09-26. Across 66 sample models it tracks real generation speed closely: on each machine, the score explains 96% to 99% of the difference in speed between models (R² 0.96-0.99), slightly better on x64 than on ARM. It measures generation only: writing the rows out (formatting, streaming, files) adds a cost per row that the score leaves out on purpose, since it depends on where the rows go, not on the model.
+
+**ARM and x64 differ for some components, and the weights don't adjust for it yet.** Components that lean on `pow`, `log` and `exp` cost relatively more on ARM, and a few cost relatively less. Relative to other work, on ARM:
+- `Pareto` costs about 2.5x as much as on x64, and `Weibull` about 1.9x, on both Graviton and Apple Silicon.
+- `Lognormal` and the FHIR renderers cost about 1.9x as much on Graviton, but only about 1.0-1.3x on Apple Silicon: ARM chips aren't all alike either.
+- `Mix` and `Triangular` cost about 0.6x as much.
+
+So on ARM the score can underrate a model dominated by `Pareto` or `Weibull` and overrate one dominated by `Mix`. We've measured only three ARM machines (two sizes of one Graviton chip and one Mac), which isn't enough variety to build separate ARM weights we'd trust. We'll revisit it as we measure more. If the score matters for your own hardware, you can measure it and override any weight (see Customization, "component weights").
 
 ## ISOLATED BENCHMARK
 
@@ -61,7 +73,7 @@ default stays safe; the extended data is opt-in.
 
 ## EMBEDDED ATTRIBUTES
 
-Written onto the model's dataset attributes unless `--no-write` is given. Prior `analysis.*` keys are replaced on each run.
+Written onto the model's dataset attributes unless `--no-write` is given: on `<dataset>` in XML, as keys of the `dataset` object in JSON, as `analysis.<key> = <value>` lines in compact (`.sgm`). Prior `analysis.*` keys are replaced on each run, in place, and nothing else in the file changes: comments anywhere, attribute and key order, indentation, quoting and line endings stay exactly as written. New keys go where the old ones were; on a first run they go after the other `<dataset>` attributes (XML, on their own lines when the tag is already one attribute per line or would pass 100 columns), before `root` (JSON), or before the first node (compact). They're written in the order of the table below. The edited file is re-read and checked to be the same model with only `analysis.*` changed before it's saved; if it isn't, the file is left alone and the run fails for that file.
 
 | Attribute | Meaning |
 |-----------|---------|

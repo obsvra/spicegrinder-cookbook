@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Sample SpiceGrinder model: Canadian street addresses, formatted the way Canada Post writes them.
+
+  Location: real city/province/postal code triples from city_province_postal_ca.csv (GeoNames,
+  CC BY 4.0), weighted by how many real postal codes each row stands for, so a large city comes up
+  as often as its share of postal codes. Streets: the most common real street names from Statistics
+  Canada's 2021 Road Network File, in two tables. A Quebec address draws from street_names_qc_weighted.csv
+  (French names, type first: rue Principale); every other province from street_names_ca_weighted.csv.
+  That's the role="street.QC" input below. Unit designators follow the region too: app/bureau/unité
+  in Quebec, Apt/Unit/Suite elsewhere (formats.properties, address.unitLabels.*).
+
+  Output, one address per row: "123 King St Apt 4, Toronto ON  M5V 2T6" (Canada Post: no comma
+  before the province, two spaces before the postal code). Extract splits it into columns, the same
+  as a US address.
+
+  Nominal realism, like the US sample: city, province and postal code agree with each other, but the
+  street isn't claimed to exist in that city.
+-->
+<dataset>
+	<root node="CanadianAddress"/>
+	<nodes>
+		<Address name="CanadianAddress" country="CA">
+			<input name="Location" role="location"/>
+			<input name="Street" role="street"/>
+			<input name="QuebecStreet" role="street.QC"/>
+		</Address>
+
+		<FlatFile name="Location"
+			file="samples/pro/city_province_postal_ca.csv"
+			mode="weighted"
+			weightColumn="0"/>
+		<FlatFile name="Street" file="samples/pro/street_names_ca_weighted.csv" mode="weighted"/>
+		<FlatFile name="QuebecStreet"
+			file="samples/pro/street_names_qc_weighted.csv"
+			mode="weighted"/>
+	</nodes>
+</dataset>

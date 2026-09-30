@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Sample SpiceGrinder model: a street address split into separate columns with Extract.
+
+  Same Address wiring as samples/pro/address.xml (real city/state/zip triples from
+  city_state_zip.csv, a real street name from street_names_weighted.csv, street number and
+  optional unit generated internally). Address produces one structured data point; on its own
+  it prints as a single line ("2607 Chestnut St, Woodville, VA 22749"). Extract replaces it with
+  the named fields, one column each, for a layout with separate street, city, state and ZIP
+  columns.
+
+  Fields available on an address: number, street, unit, city, region, postalCode, country, and
+  streetLine (number, street and unit together). Text fields stay text, so a ZIP like 02134
+  keeps its leading zero (the Location FlatFile reads the ZIP column as text via textColumns).
+
+  Output: one Observation of [streetLine, city, region, postalCode] per pull.
+-->
+<dataset>
+	<root node="AddressColumns"/>
+	<nodes>
+		<Extract name="AddressColumns" fields="streetLine,city,region,postalCode">
+			<input name="ShippingAddress"/>
+		</Extract>
+
+		<Address name="ShippingAddress">
+			<input name="Location" role="location"/>
+			<input name="Street" role="street"/>
+		</Address>
+
+		<FlatFile name="Location"
+			file="samples/pro/city_state_zip.csv"
+			textColumns="2"
+			mode="unweighted"/>
+		<FlatFile name="Street" file="samples/pro/street_names_weighted.csv" mode="weighted"/>
+	</nodes>
+</dataset>

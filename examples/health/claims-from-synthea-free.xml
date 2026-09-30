@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  FREE-TIER variant of samples/pro/health/claims-from-synthea.xml.
+
+  The Pro version uses FlatFile to pull a whole member row out of a
+  Synthea-derived pool. Free has no FlatFile and no string type, so this model
+  emits the row index instead:
+
+      MEMBER_ROW  0-39, an index into member-pool.csv
+
+  Join it against the pool downstream to recover the member. The claim
+  economics are identical to the Pro model, because they were always Free.
+
+  Pool size must match the Uniform max below. The shipped pool is 40 rows.
+-->
+<dataset seed="42">
+	<root node="ClaimLine"/>
+	<nodes>
+		<Append name="ClaimLine">
+			<input name="MemberRow"/>
+			<input name="ServiceUnits"/>
+			<input name="BilledAmount"/>
+		</Append>
+
+		<ToInteger name="MemberRow" mode="floor">
+			<input name="RowDraw"/>
+		</ToInteger>
+		<Uniform name="RowDraw" min="0" max="40"/>
+
+		<Poisson name="ServiceUnits" lambda="2.5"/>
+		<Lognormal name="BilledAmount" mu="6.4" sigma="0.9"/>
+	</nodes>
+</dataset>

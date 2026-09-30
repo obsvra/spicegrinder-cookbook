@@ -22,4 +22,4 @@ Upon user request, or when the user demonstrates confusion or lack of understand
 
 ## Output Format
 
-Provide a natural language description of what the provided model file in intended to accomplish. Provide a level of confidence for your analysis.
+Provide a natural language description of what the provided model file is intended to accomplish. Provide a level of confidence for your analysis.

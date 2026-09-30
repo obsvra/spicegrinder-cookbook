@@ -1,0 +1,106 @@
+# Top 100 most common street names in Canada outside Quebec, weighted by the number of census
+# subdivisions (municipalities) that have that exact street. Adapted from Statistics Canada, 2021
+# Census Road Network File, 2021. This does not constitute an endorsement by Statistics Canada of
+# this product. (Statistics Canada Open Licence.) Written the way Canada Post writes them:
+# English street types after the name, French types before it except after an ordinal (1re Av).
+# Rebuild with scripts/data/build_canada_address_tables.py.
+923,Main St
+573,Railway Ave
+327,King St
+309,Queen St
+300,Church St
+261,Centre St
+247,George St
+245,Maple St
+244,1 Ave
+242,First Ave
+230,River Rd
+227,2 Ave
+214,John St
+213,First St
+213,Second St
+210,Victoria St
+209,Second Ave
+208,Pine St
+206,Water St
+205,James St
+204,Park St
+203,Elm St
+199,William St
+182,Mill St
+175,3 Ave
+172,Airport Rd
+171,Albert St
+171,Spruce St
+160,Mill Rd
+159,Third St
+156,Church Rd
+153,Birch St
+151,Elizabeth St
+149,Oak St
+149,Third Ave
+148,Park Ave
+141,1 Hwy
+141,Beach Rd
+141,North St
+138,Railway St
+137,Sunset Dr
+134,Cedar St
+134,Station Rd
+133,1 St W
+132,1 St E
+132,2 Hwy
+131,Cemetery Rd
+131,Charles St
+131,Mary St
+129,Fourth St
+129,Front St
+129,Riverside Dr
+125,Lakeview Dr
+119,Main Rd
+119,Maple Ave
+118,2 St
+117,4 Ave
+116,Fourth Ave
+116,West St
+115,Edward St
+115,Poplar St
+115,Wellington St
+114,50 Ave
+113,Tower Rd
+112,1 St
+112,Park Rd
+111,Princess St
+111,Willow St
+110,3 Hwy
+107,50 St
+106,4 St
+106,Service Rd
+105,11 Hwy
+105,49 St
+104,3 St
+104,51 St
+104,Henry St
+103,Lakeshore Dr
+103,Smith Rd
+102,16 Hwy
+102,High St
+102,Hill St
+101,49 Ave
+101,Boundary Rd
+101,School Rd
+100,52 St
+99,48 St
+99,51 Ave
+99,Young St
+98,Fifth St
+97,Ontario St
+94,48 Ave
+94,Ash St
+94,Union St
+93,5 Ave
+93,52 Ave
+93,Nelson St
+92,Ridge Rd
+91,Scott St
+89,2 St W

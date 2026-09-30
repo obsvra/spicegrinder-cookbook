@@ -34,4 +34,4 @@ Questions, feedback, or something in this repo looks wrong: [support@obsvra.com]
 
 ## License
 
-[MIT](LICENSE) for `skills/*/SKILL.md`, `examples/`, and everything else authored for this repo, with two exceptions: the bundled skill reference docs (`skills/*/references/`) are real SpiceGrinder product documentation, not covered by that MIT grant — see [NOTICE.md](NOTICE.md). `community-models/` is contributed content, licensed separately under [CC0](community-models/LICENSE).
+[MIT](LICENSE) for `skills/*/SKILL.md`, the example models in `examples/`, and everything else authored for this repo, with three exceptions: the bundled skill reference docs (`skills/*/references/`) are real SpiceGrinder product documentation, not covered by that MIT grant — see [NOTICE.md](NOTICE.md). The reference data tables the example models read come from third-party sources and keep their own licenses, credited in [`examples/THIRD-PARTY-DATA-NOTICES.md`](examples/THIRD-PARTY-DATA-NOTICES.md). `community-models/` is contributed content, licensed separately under [CC0](community-models/LICENSE).

@@ -5,7 +5,7 @@
       {
         "type": "MultivariateNormal",
         "name": "Vitals",
-        "attributes": {"dimension": "3", "means": "72,118,98", "sigmas": "8,12,1.5"}
+        "attributes": {"means": "72,118,98", "sigmas": "8,12,1.5", "dimension": "3"}
       }
     ]
   }

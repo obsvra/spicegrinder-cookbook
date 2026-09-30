@@ -26,6 +26,8 @@
 			<input name="BrowserOs"/>
 		</UserAgent>
 
-		<FlatFile name="BrowserOs" file="samples/pro/useragent_browser_os_weighted.csv" mode="weighted"/>
+		<FlatFile name="BrowserOs"
+			file="samples/pro/useragent_browser_os_weighted.csv"
+			mode="weighted"/>
 	</nodes>
 </dataset>

@@ -1,0 +1,106 @@
+# Top 100 most common street names in Quebec, weighted by the number of census
+# subdivisions (municipalities) that have that exact street. Adapted from Statistics Canada, 2021
+# Census Road Network File, 2021. This does not constitute an endorsement by Statistics Canada of
+# this product. (Statistics Canada Open Licence.) Written the way Canada Post writes them:
+# English street types after the name, French types before it except after an ordinal (1re Av).
+# Rebuild with scripts/data/build_canada_address_tables.py.
+385,rue Principale
+244,rue des Érables
+242,rue de l'Église
+217,rue des Pins
+202,rue du Parc
+191,rue des Cèdres
+188,rue des Bouleaux
+143,rue Saint-Joseph
+136,rue Bellevue
+135,1re Av
+132,2e Av
+124,4e Rang
+122,rue Roy
+118,6e Rang
+117,rue Saint-Pierre
+116,3e Av
+110,rue des Peupliers
+108,rue Saint-Jean
+107,rue du Moulin
+106,4e Av
+105,3e Rang
+105,rue Notre-Dame
+105,rue Saint-Louis
+104,5e Rang
+103,rue des Saules
+101,2e Rang
+98,rue des Lilas
+97,5e Av
+96,ch de la Montagne
+95,7e Rang
+95,rue des Mélèzes
+94,rue Morin
+92,rue de la Fabrique
+92,rue du Ruisseau
+90,rue des Épinettes
+88,rue Gagnon
+88,rue Richard
+87,rue Martin
+87,rue de la Montagne
+86,rue des Trembles
+84,9e Rang
+84,rue Saint-Paul
+84,rue des Chênes
+83,rue Robert
+81,10e Rang
+80,ch de la Rivière
+80,rue Tremblay
+80,rue des Ormes
+79,rue des Merisiers
+78,8e Rang
+78,rue des Loisirs
+77,rue Bélanger
+77,rue Industrielle
+76,rue du Boisé
+75,rue des Sapins
+74,rue Côté
+74,rue Pelletier
+74,rue de la Rivière
+73,1re Rue
+73,6e Av
+73,rue Champlain
+72,rue des Hirondelles
+72,rue des Mésanges
+71,7e Av
+71,rang Saint-Joseph
+71,rue Gauthier
+70,rue Bernard
+70,rue Caron
+69,1er Rang
+69,ch des Érables
+68,2e Rue
+68,8e Av
+68,rue des Frênes
+67,ch du Lac
+67,rue Bouchard
+67,rue Cartier
+67,rue Saint-Jacques
+67,rue Sainte-Anne
+67,rue des Pionniers
+66,rue Saint-Georges
+66,rue du Collège
+66,rue du Lac
+65,rue des Tilleuls
+64,rue Laurier
+64,rue Martel
+64,rue du Couvent
+64,rue du Domaine
+63,rue Montcalm
+63,rue Saint-André
+63,rue Saint-Jean-Baptiste
+63,rue des Colibris
+62,4e Rue
+62,rue Desjardins
+62,rue des Cerisiers
+61,9e Av
+61,rue Saint-Laurent
+60,3e Rue
+60,rue Guy
+60,rue Sainte-Marie
+60,rue de la Colline

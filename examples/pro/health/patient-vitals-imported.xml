@@ -17,10 +17,7 @@
 
 		<Import name="NominalLib" file="vitals-nominal-lib.xml" prefix="nom"/>
 
-		<MultivariateNormal name="Spike"
-			dimension="3"
-			means="130,85,88"
-			sigmas="10,15,3"/>
+		<MultivariateNormal name="Spike" means="130,85,88" sigmas="10,15,3" dimension="3"/>
 
 		<Constant name="WaitGen" value="8" type="double"/>
 		<Constant name="DurGen" value="2" type="double"/>

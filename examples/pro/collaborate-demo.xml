@@ -20,7 +20,9 @@
 <dataset>
 	<root node="Watcher"/>
 	<nodes>
-		<CollaborationWatcher name="Watcher" collaborate.primary="BeaconA" collaborate.secondary="BeaconB">
+		<CollaborationWatcher name="Watcher"
+			collaborate.primary="BeaconA"
+			collaborate.secondary="BeaconB">
 			<input name="Source"/>
 		</CollaborationWatcher>
 		<Constant name="Source" value="1" type="double"/>

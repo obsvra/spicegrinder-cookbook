@@ -5,7 +5,7 @@
   Two independent real reference tables: city/state/zip (city_state_zip.csv, real USPS
   triples via GeoNames, so those three are always mutually consistent) and street name
   (street_names_weighted.csv, the top 100 most common real US street names, weighted by how
-  many real cities have that exact name). Street number and an optional unit are generated
+  many counties have a road with that exact name, from the Census Bureau's TIGER/Line data). Street number and an optional unit are generated
   internally, independent of both.
 
   Deliberately nominal, not truly realistic — the street is not claimed to exist in the
@@ -16,15 +16,28 @@
   Output: one Observation of [address] per pull, address rendered as a single-line string
   ("123 Main St, Apt 4, Springfield, IL 62704") via AddressDataPoint's default format.
 -->
-<dataset>
+<dataset analysis.version="1"
+	analysis.timestamp="2026-09-24T14:47:32.711269Z"
+	analysis.mode="PARTIAL"
+	analysis.node_count="3"
+	analysis.min_depth="2"
+	analysis.max_depth="2"
+	analysis.score="30"
+	analysis.custom_component_count="3"
+	analysis.obs_per_sec="156250.000"
+	analysis.sample_count="5000"
+	analysis.sample_duration_ms="32"
+	analysis.summary="partial — 3 custom component(s) excluded from predicted average: nodes=3 minDepth=2 maxDepth=2 score=30; customs=[ShippingAddress:Address, Location:FlatFile, Street:FlatFile]">
 	<root node="ShippingAddress"/>
 	<nodes>
 		<Address name="ShippingAddress">
 			<input name="Location" role="location"/>
 			<input name="Street" role="street"/>
 		</Address>
-
-		<FlatFile name="Location" file="samples/pro/city_state_zip.csv" mode="unweighted"/>
+		<FlatFile name="Location"
+			file="samples/pro/city_state_zip.csv"
+			textColumns="2"
+			mode="unweighted"/>
 		<FlatFile name="Street" file="samples/pro/street_names_weighted.csv" mode="weighted"/>
 	</nodes>
 </dataset>

@@ -4,9 +4,9 @@
   (nameBased="false").
 
   No name input needed at all — the local part is a random common English word plus a
-  random number (e.g. "zookeeper32"), drawn from email_words.txt (8,089 real, frequency-
-  ranked common English words, filtered for length and appropriateness — see that file's
-  own header comment for the source and filtering). The "domain" input is the same real
+  random number (e.g. "garden32"), drawn from email_words.txt (5,432 common English words
+  from SCOWL, filtered for length and appropriateness — see that file's own header comment
+  for the source and filtering). The "domain" input is the same real
   weighted email-provider list used by samples/pro/email.xml.
 
   Same collision-without-PII disclosure as the name-based mode: a generated address can in

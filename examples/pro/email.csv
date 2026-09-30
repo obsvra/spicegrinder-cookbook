@@ -1,12 +1,12 @@
 # seed=42 -- reproduce with: grind --seed 42 --count 10 samples/pro/email.xml
 dim0
-brooksa|icloud.com
-michelleross40|icloud.com
-afoster|gmail.com
-maryh|protonmail.com
-thomasj|icloud.com
-justin.peterson92|gmail.com
-ruth.ramos|gmail.com
-jjackson|icloud.com
-stewarta|outlook.com
-jean.patel93|gmail.com
+brooksa@icloud.com
+michelleross40@icloud.com
+afoster@gmail.com
+maryh@protonmail.com
+thomasj@icloud.com
+justin.peterson92@gmail.com
+ruth.ramos@gmail.com
+jjackson@icloud.com
+stewarta@outlook.com
+jean.patel93@gmail.com

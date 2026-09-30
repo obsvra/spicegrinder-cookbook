@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  SHOWCASE (Pro): a complete, blocked NACHA ACH file.
+
+  Why synthetic: a payments pipeline has to be tested against files that are
+  structurally valid (correct record lengths, a correct entry hash, totals
+  that reconcile, blocking to a multiple of ten), and real ACH files are
+  full of live account numbers that cannot leave the bank.
+
+  Three layers, deliberately separate:
+    RoutingNumber / Lognormal / Constant   the values
+    NachaEntryRender                       one payment, one 94-char record
+    NachaFileAssembler                     N records, one complete file
+
+  The middle layer is the only part that knows about NACHA. Swap it for a
+  different render filter and the same payment model emits a different format.
+
+  Run it with raw output, which writes the file verbatim. The exact command is
+  in ach-file.txt beside this file: XML comments cannot contain a double hyphen,
+  so the flags can't be written here.
+
+  Dates are fixed parameters rather than the system clock, so the same model
+  and seed produce the same file bytes on any machine, on any day.
+-->
+<dataset seed="42">
+	<root node="AchFile"/>
+	<nodes>
+		<NachaFileAssembler name="AchFile"
+			count="8"
+			companyName="ACME PAYROLL"
+			companyId="1234567890"
+			companyEntryDescription="PAYROLL"
+			originatingDfi="12102537"
+			destinationRouting="021000021"
+			destinationName="FEDERAL RESERVE"
+			originName="ACME PAYROLL INC"
+			serviceClassCode="220"
+			standardEntryClass="PPD">
+			<input name="Entry"/>
+		</NachaFileAssembler>
+
+		<NachaEntryRender name="Entry" transactionCode="22">
+			<input name="ReceivingBank" role="routing"/>
+			<input name="AccountNumber" role="account"/>
+			<input name="NetPay" role="amount"/>
+			<input name="Employee" role="name"/>
+		</NachaEntryRender>
+
+		<RoutingNumber name="ReceivingBank"/>
+		<Constant name="AccountNumber" value="000123456789" type="string"/>
+
+		<!-- Net pay: clusters around a typical paycheck with a long right tail -->
+		<Lognormal name="NetPay" mu="7.6" sigma="0.5"/>
+
+		<Constant name="Employee" value="EMPLOYEE NAME" type="string"/>
+	</nodes>
+</dataset>

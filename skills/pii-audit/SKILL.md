@@ -19,7 +19,7 @@ Upon user request, or when the user indicates a potential PII risk.
 
 2) Use any embedded comments in the model file for hints.
 
-3) Scan the model for business objects that have a fictionalOnly toggle (Phone, SSN, CreditCard, IPAddress, IPv6Address) and flag any left at default when the stated use case is compliance-sensitive test data.
+3) Scan the model for business objects that have a `fictionalOnly` parameter (the catalog from step 1 lists which ones do) and flag any left at its default of `false` when the stated use case is compliance-sensitive test data.
 
 ## Output Format
 

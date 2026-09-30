@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  FREE-TIER variant of samples/pro/software/orders-multi-locale.xml.
+
+  The Pro version uses FlatFile to pull a whole customer row out of a
+  Faker-built pool. Free has no FlatFile and no string type, so instead this
+  model emits the two numbers you need to find that row yourself:
+
+      MARKET  0 = DE, 1 = FR, 2 = ES   (weighted 50/30/20)
+      ROW     0-199, an index into that market's pool
+
+  Join them against the pools downstream (SQL, pandas, a shell script) to get
+  the customer. More work than the Pro version, and a real thing you can do
+  today on the Free build.
+
+  Pool sizes must match the Uniform max below. All three Faker pools are 200
+  rows; change max if yours differ.
+-->
+<dataset seed="42">
+	<root node="Order"/>
+	<nodes>
+		<Append name="Order">
+			<input name="Market"/>
+			<input name="CustomerRow"/>
+			<input name="ItemCount"/>
+			<input name="OrderValue"/>
+		</Append>
+
+		<Categorical name="Market" weights="0.50,0.30,0.20"/>
+
+		<ToInteger name="CustomerRow" mode="floor">
+			<input name="RowDraw"/>
+		</ToInteger>
+		<Uniform name="RowDraw" min="0" max="200"/>
+
+		<Poisson name="ItemCount" lambda="2.2"/>
+		<Lognormal name="OrderValue" mu="4.1" sigma="0.8"/>
+	</nodes>
+</dataset>

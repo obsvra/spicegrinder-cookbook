@@ -1,0 +1,12 @@
+# seed=42 -- reproduce with: grind --seed 42 --count 10 samples/pro/address-ca.xml
+dim0
+"8935 Riverside Dr, Saint John NB  E2K 3X9"
+"3795 King St, Niagara Falls ON  L2J 2Z4"
+"4955 Nelson St, Cornwall ON  K6H 1B4"
+"1935 rue des Loisirs, Joliette QC  J6E 3G6"
+"7488 Beach Rd, Prince Albert SK  S6V 6T4"
+"1109 Airport Rd Apt 961, Ajax ON  L1T 3V2"
+"9768 Centre St, Burlington ON  L7L 4H4"
+"1653 Main St, Cranbrook BC  V1C 4N9"
+"7325 Station Rd, Mississauga ON  L4Y 1E2"
+"3587 rue Gauthier, Quebec QC  G3K 0V1"

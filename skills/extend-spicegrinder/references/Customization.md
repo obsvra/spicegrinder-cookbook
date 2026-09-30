@@ -16,7 +16,7 @@ Anyone with a compiled SpiceGrinder library on the classpath can add new generat
 
 > **This entire document describes a Pro feature.** Dynamic extension — loading any generator or filter that isn't one of SpiceGrinder's own built-in `core.defaults.generators`/ `core.defaults.filters` classes — requires SpiceGrinder Pro and is enforced at model-load time, whether you register it via package scanning (Option A below), explicit registration (Option B), or a fully-qualified class name in XML/`<definitions>` (Option C).
 
-> A Free build rejects all three with a clear `LicenseException`. If you're writing tooling, documentation, or an AI-assisted workflow that walks someone through this guide, make that requirement explicit up front rather than letting a Free user discover it only after writing and compiling a custom component — see [Implementation-Status.md](Implementation-Status.md) for the real exploit this was verified against and fixed for.
+> A Free build rejects all three with a clear `LicenseException`. If you're writing tooling, documentation, or an AI-assisted workflow that walks someone through this guide, make that requirement explicit up front rather than letting a Free user discover it only after writing and compiling a custom component.
 
 > **A related but different Pro feature**: this guide is about writing and registering your *own* generator/filter classes, loaded the normal way through `ModelLoader`. If instead you want to construct one of SpiceGrinder's own *built-in* classes (`Uniform`, `Append`, etc.) directly from your own Java code — bypassing a model file entirely — that's `com.obsvra.spicegrinder.core.factories.ComponentFactory`, also Pro-only. Built-in generator/filter constructors are package-private on purpose; `new Uniform(...)` from outside their package won't compile on either edition. `ComponentFactory.construct(...)` is the sanctioned path, and throws a clear `LicenseException` on Free. **If your app is multithreaded, read [§8.1](#81-concurrent-generation-is-not-safe--you-must-serialize-it-yourself) before you call generation from more than one thread** — SpiceGrinder is single-threaded by default and using it in a multi-threaded environment requires adding a layer of thread-safety yourself.
 
@@ -101,7 +101,9 @@ These already implement the common bookkeeping (name, dimension, synchronous fla
     name        = "MyGenerator",          // XML element name (defaults to simple class name)
     description = "Short human description",
     category    = "generator",            // "generator" | "filter" | custom
-    hidden      = false                   // true = do not show in normal discovery
+    hidden      = false,                  // true = do not show in normal discovery
+    input       = "",                     // filters with one plain input: what it must supply
+    details     = ""                      // longer Markdown reference text (a text block reads well)
 )
 public class MyGenerator extends Generator { ... }
 ```
@@ -115,7 +117,8 @@ public class MyGenerator extends Generator { ... }
     description  = "Event rate (must be > 0)",
     required     = true,
     defaultValue = "1.0",
-    category     = "Distribution"
+    category     = "Distribution",
+    order        = 0              // first positional argument in .sgm shorthand; see table below
 )
 private double rate = 1.0;
 ```
@@ -142,6 +145,21 @@ private List<String> inputSlot;   // carrier for discovery; wiring may live else
 | `minOccurrences` | Minimum count when multiple (0 = none unless `required`) |
 | `maxOccurrences` | Maximum count (0 = unlimited) |
 | `attributes` | Child attribute names for each occurrence (GUI table columns) |
+| `order` | Position of this parameter in the compact (`.sgm`) format's `Component(arg1, arg2, ...)` shorthand, and its row in property panels. Set it on every parameter: 0, 1, 2, ..., unique within the component. `-1` (the default) falls back to the order fields are declared in, which Java doesn't guarantee, and an unset parameter sorts *before* 0, so adding one to an ordered component shifts every positional argument after it. Add new parameters at the end with the next number. |
+
+**Enumerated parameters** (a fixed set of accepted values):
+
+```java
+@Parameter(
+    name          = "mode",
+    defaultValue  = "standard",
+    description   = "standard | large-lambda",
+    allowedValues = {"standard", "large-lambda"}
+)
+private String modeText = "standard";
+```
+
+`allowedValues` lists the canonical choices for UIs (a GUI dropdown instead of a free-text field), docs, and agents — it shows up as `"allowedValues": [...]` in `ComponentLibraryApp --json`/`GET /v1/components`/`list_components` (see [ComponentLibraryApp.md](ComponentLibraryApp.md#output-json)), `[]` when unset. **It's descriptive, not enforced** — your own `configure()`/parsing logic is still the sole source of truth for what the parameter actually accepts, and may accept more than this list documents (extra aliases, case variants, etc.). Only set it when your own code really does restrict the parameter to that finite set; leave it off for free-form or numeric parameters, even if the description mentions example values.
 
 Supported field types for automatic conversion (scalar path):
 
@@ -201,10 +219,10 @@ public class Skellam extends Generator {
     @Override
     public void configure(Collection<Pair<String,String>> settings, NodeMap registry)
             throws Exception {
-        // Manual parsing -- the pattern most of Core's own distributions actually use.
-        // ReflectiveConfigurer.apply(...) (see Uniform/Normal/Exponential in Core) is a
-        // real, valid alternative for simple scalar-only fields; this shows the more
-        // common style since it's what you'll see reading most of the codebase.
+        // Manual parsing, shown here to illustrate the escape hatch. It's the less
+        // common pattern in Core: a handful of generators (Constant, MultivariateNormal)
+        // parse this way because they check several fields together; most, including
+        // the real Skellam, call ReflectiveConfigurer.apply(...) instead.
         for (Pair<String, String> pair : settings) {
             String key = pair.getKey().toLowerCase();
             String val = pair.getValue();
@@ -357,7 +375,7 @@ The base `Filter` class already provides a default `configure` that wires `<inpu
 Every generator reports `isSynchronous()`: whether it needs to stay "in lock-step" with sibling generators even on cycles where its own output isn't the one actually used (a `Sequence`/counter-style generator hidden behind a selector is the classic case — if it only
 advances when selected, its value silently desyncs from wall-clock/draw-count expectations the moment something else is chosen instead).
 
-**In most cases you don't need to do anything.** `Filter`'s default `configure()` already resolves this correctly for the common shape — a filter whose inputs are all structurally equivalent (always read on every call, like `Append`/`Drop`/`Redimension`/`Calculate`, or all
+**In most cases you don't need to do anything.** `Filter`'s default `configure()` already resolves this correctly for the common shape — a filter whose inputs are all structurally equivalent (always read on every call, like `Append`/`Arrange`/`Redimension`/`Calculate`, or all
 equally "candidate branches," like `Mix`'s inputs): if the model writes an explicit `synchronous="true"`/`"false"` (or `sync="..."`) attribute on your filter's XML element, that wins outright; otherwise your filter automatically inherits `isSynchronous() == true` if *any*
 of its resolved inputs is itself synchronous. This means a synchronous generator's need to keep advancing propagates transparently through however many wrapper filters sit between it
 and the selector that actually decides whether to call it — the model author never has to manually re-flag every intermediate node in the chain.
@@ -569,6 +587,28 @@ Product p = ((ObjectDataPoint<Product>) input.getNextObservation().getAt(0)).get
 
 Two constraints worth knowing before reaching for this: `Convert`'s single `<input>` must be single-dimension (a raw string column, not a raw multi-column row — project down first if your source is naturally multi-column), and the target type needs a genuinely accessible no-arg constructor, since that's what `Convert` reflectively invokes before calling `deserialize()`.
 
+### 9.4 Composite Values with Named Fields (Pro)
+
+The built-in business objects that build a whole value from parts (`Address`, `PersonAssembler`, `Email`, `Phone`, `CreditCard`) output one data point per value. It prints whole (`2607 Chestnut St, Woodville, VA 22749`), and a model can still reach each part: `Extract` replaces it with the fields you name, one column each. A custom component gets the same behavior by producing an `IStructuredDataPoint` (`com.obsvra.spicegrinder.core.interfaces`), which has three parts:
+
+- `fieldNames()`: the field names, in a fixed order. `Extract` checks against this list and prints it in its error messages.
+- `get(name)`: one field as its own data point, or `null` for an unknown name. Pick each field's type once and keep it: text for anything whose digits are an identifier (a postal code, an account number), numeric only for real quantities. An empty optional field is an empty string, not `null`.
+- `stringValue()`: the canonical, real-world rendering of the whole value.
+
+Two optional extras:
+
+- **Format templates.** Extend `AbstractStructuredDataPoint` (`com.obsvra.spicegrinder.business.datapoints`) instead of implementing the interface directly, and `stringValue()` is rendered from a template such as `{givenName} {surname}`. In `configure()`, call `FormatConfig.getInstance().resolve(owner, type, formatParam, locale, fields)` (`com.obsvra.spicegrinder.core.config`) with your node's own `format` and `locale` parameters. Users can then set or override `format.<type>.<locale>` in `~/.spicegrinder/formats.properties`, or per node with `format`, the same as for the built-ins. In a template, `{field}` inserts a field, and a `[...]` segment is dropped when every field inside it is empty.
+- **Load-time field checks.** Implement `IStructuredSource` on the producing generator or filter, returning the field list for the output position that holds the composite. Then a misspelled field in a downstream `Extract` fails when the model loads, not on the first row.
+
+**Reusing a built-in type.** Often you don't need a new data point at all: produce an existing one. `AddressDataPoint` is international in shape (street number, street, unit, city, region, postal code as text, country), even though the bundled `Address` filter only generates US and Canadian data. A custom generator that builds `new AddressDataPoint(10, "Downing St", "", "London", "", "SW1A 2AA", "GB")` works with `Extract` and with templates as-is. An address picks its locale from its country, so these two lines in `~/.spicegrinder/formats.properties` make it print as `10 Downing St, London, SW1A 2AA`:
+
+```properties
+format.locale.GB=en_GB
+format.address.en_GB={number} {street}[, {unit}], {city}, {postalCode}
+```
+
+US addresses keep the bundled US format.
+
 ---
 
 ## 10. Checklist for a New Component
@@ -576,8 +616,8 @@ Two constraints worth knowing before reaching for this: `Convert`'s single `<inp
 1. Implement `IGenerator` (or `IFilter`) — or extend the convenient base class.
 2. Provide a public constructor that takes a single `String name`.
 3. Annotate the class with `@ComponentInfo` (optional but recommended).
-4. Annotate configurable fields with `@Parameter`.
-5. If your fields are simple scalars, you don't need to write `configure(...)` at all — `IGenerator`'s default reflectively binds every `@Parameter`-annotated field for you. Override `configure` only when you need something beyond that: manual parsing (loop over the `Collection<Pair<String,String>>` and match keys/aliases yourself; see `Skellam` in §5, the pattern most of Core's own distributions use, often because they want a single combined validation check across multiple fields rather than one), explicit `ReflectiveConfigurer.apply(this, descriptor, settings)` calls if you want the binding to happen at a specific point relative to other logic, input wiring (§9), or extra validation.
+4. Annotate configurable fields with `@Parameter`, giving each an explicit `order` (0, 1, 2, ...) so its position in the compact `.sgm` format stays fixed.
+5. If your fields are simple scalars, you don't need to write `configure(...)` at all — `IGenerator`'s default reflectively binds every `@Parameter`-annotated field for you. Override `configure` only when you need something beyond that: manual parsing (loop over the `Collection<Pair<String,String>>` and match keys/aliases yourself; see `Skellam` in §5 — the less common pattern in Core, used when a component wants a single combined validation check across multiple fields rather than one), explicit `ReflectiveConfigurer.apply(this, descriptor, settings)` calls if you want the binding to happen at a specific point relative to other logic, input wiring (§9), or extra validation.
 6. Place the class on the classpath in a package that will be scanned, **or** register it explicitly, **or** refer to it by fully-qualified name in XML.
 7. (Optional) Ship a small sample XML snippet so users know the attribute names.
 
@@ -608,7 +648,7 @@ Keeping your custom components well-annotated therefore pays off both for XML us
 
 `ModelComplexity`'s score formula weights every node by a per-class cost multiplier — how expensive that component type is, relative to baseline, measured from real isolated-benchmark runs. Every component not explicitly weighted defaults to `1.0`, so your custom generator/filter works fine with no extra steps — it just won't be distinguished from a cheap one in complexity scores until you tell SpiceGrinder otherwise.
 
-Once you've profiled it — `ModelAnalyzerApp --isolate --isolate-raw` against a model that exercises it (see the perf-models/README.md pattern this project uses for its own built-ins) — add its weight to `~/.spicegrinder/component-weights.properties`:
+Once you've profiled it — `ModelAnalyzerApp --isolate --isolate-raw --diagnostic` against a model that exercises it (`--isolate-raw` records nothing unless the diagnostic stream is on, via `--diagnostic` or `instrumentation.properties`) (see the perf-models/README.md pattern this project uses for its own built-ins) — add its weight to `~/.spicegrinder/component-weights.properties`:
 
 ```properties
 # Fully-qualified class name, not the short/XML name -- unambiguous even if someone else's

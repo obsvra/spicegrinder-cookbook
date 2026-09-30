@@ -12,7 +12,9 @@
   Gender is chosen 50/50 by Mix; the matching given-name FlatFile is paired with it in the
   same branch, so gender and given name are always consistent per observation.
 
-  Output: one PersonDataPoint per observation (gender | given | surname).
+  Output: one PersonDataPoint per observation, printed as "Sophia Peterson" (template
+  format.person.en_US). Its gender, givenName and surname fields can be split into separate
+  columns with Extract (see samples/pro/address-columns.xml for the pattern).
 -->
 <dataset>
 	<root node="Person"/>

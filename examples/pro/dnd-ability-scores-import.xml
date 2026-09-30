@@ -8,7 +8,7 @@
   composing it as a reusable library piece).
 
   Everything downstream of the die roll (Redimension bundling three rolls into a
-  3-dimension observation, Calculate summing them, Drop discarding the raw-copy dimensions,
+  3-dimension observation, Calculate summing them, Arrange keeping only the sum,
   the final Redimension bundling six stat-sums into one 6-dimension observation: STR, DEX,
   CON, INT, WIS, CHA, in that order) is unchanged from the Free version. Only the
   Uniform+ToInteger pair became one Import node.
@@ -26,12 +26,12 @@
 			<input name="ThreeDice"/>
 		</Calculate>
 
-		<Drop name="DropCopies" excludes="1,2">
+		<Arrange name="KeepSum" columns="0">
 			<input name="Sum"/>
-		</Drop>
+		</Arrange>
 
 		<Redimension name="SixStats" dimension="6">
-			<input name="DropCopies"/>
+			<input name="KeepSum"/>
 		</Redimension>
 	</nodes>
 </dataset>

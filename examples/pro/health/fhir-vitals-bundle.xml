@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  SHOWCASE (Pro): a FHIR R4 Bundle carrying one patient and their vital-sign
+  observations, verified against HL7's own official validator (0 errors).
+
+  Why synthetic: a system that consumes FHIR needs to be tested against
+  resources that are actually conformant, not merely well-formed JSON, and
+  real vitals mean real patient records.
+
+  Three layers, deliberately separate, same shape as the NACHA showcase:
+    PersonAssembler / Date / Normal          the values
+    FhirPatientRender / FhirObservationRender / FhirBloodPressureRender
+                                              one resource each
+    FhirBundleAssembler                      N resources, one Bundle
+
+  Patient-to-observation linking uses the Collaborate channel rather than a
+  normal input: each Observation asks the Patient node directly for its
+  current reference, instead of being wired into the Patient's own input
+  tree, so generating three observations for one patient does not silently
+  regenerate that patient three times. Every resource's id comes from one
+  shared FhirIdRegistry for the same reason: three separately-declared
+  Observation nodes each keeping their own local counter would all mint id
+  "1" on the first pull of a bundle, three different resources sharing one
+  id inside the same Bundle. A single shared counter, reached through
+  Collaborate, closes that off structurally rather than by author care.
+
+  FhirBloodPressureRender exists because the naive rendering, two
+  independent Observations coded 8480-6 and 8462-4, looks reasonable and is
+  not conformant: the spec's own bp profile requires one Observation coded
+  85354-9 carrying both readings as components, no top-level value at all.
+  Running the real validator is what caught this; well-formed JSON alone
+  would not have.
+
+  Run it with raw output, which writes the Bundle verbatim, from the
+  repository root (its name/surname pools are the repo-root-relative
+  samples/pro/*.csv files, the same convention samples/pro/person-model.xml
+  already uses). The exact command is in fhir-vitals-bundle.json beside this
+  file, not here: XML comments cannot contain a double hyphen, so the flags
+  can't be written in this comment.
+
+  Effective dates are fixed parameters, never the system clock, so the same
+  model and seed produce the same bytes today and next year.
+-->
+<dataset seed="42">
+	<root node="VitalsBundle"/>
+	<nodes>
+		<FhirBundleAssembler name="VitalsBundle" id="vitals-1" type="collection">
+			<input name="Pat"/>
+			<input name="HeartRateObs"/>
+			<input name="BloodPressureObs"/>
+		</FhirBundleAssembler>
+
+		<FhirIdRegistry name="Ids"/>
+
+		<FhirPatientRender name="Pat" collaborate.idRegistry="Ids">
+			<input name="Who" role="person"/>
+			<input name="DOB" role="birthDate"/>
+		</FhirPatientRender>
+
+		<PersonAssembler name="Who">
+			<input name="GenderGiven" role="genderGiven"/>
+			<input name="Surname" role="surname"/>
+		</PersonAssembler>
+
+		<Mix name="GenderGiven">
+			<input name="MaleBranch" weight="0.5"/>
+			<input name="FemaleBranch" weight="0.5"/>
+		</Mix>
+
+		<Append name="MaleBranch">
+			<input name="MaleLabel"/>
+			<input name="MaleGivenFile"/>
+		</Append>
+		<Constant name="MaleLabel" value="male" type="string"/>
+		<FlatFile name="MaleGivenFile" file="samples/pro/male_names.csv" mode="unweighted"/>
+
+		<Append name="FemaleBranch">
+			<input name="FemaleLabel"/>
+			<input name="FemaleGivenFile"/>
+		</Append>
+		<Constant name="FemaleLabel" value="female" type="string"/>
+		<FlatFile name="FemaleGivenFile" file="samples/pro/female_names.csv" mode="unweighted"/>
+
+		<FlatFile name="Surname" file="samples/pro/surnames.csv" mode="unweighted"/>
+
+		<Date name="DOB" minAge="18" asOf="2026-08-17">
+			<input name="BirthYear"/>
+		</Date>
+		<Uniform name="BirthYear" min="1950" max="2008"/>
+
+		<!-- Independent marginals, not a shared MultivariateNormal draw: each Observation
+		     render pulls its own input once per bundle cycle, and a node can have only one
+		     consumer, so three separately referenced consumers of the same MVN node would each
+		     trigger their own independent 3-dim draw, not one shared draw sliced three ways.
+		     Real cross-vital correlation is what the Modeling 101 vitals showcase already
+		     demonstrates; this showcase's job is proving the FHIR render plus Collaborate pattern. -->
+		<FhirObservationRender name="HeartRateObs"
+			code="8867-4"
+			display="Heart rate"
+			unit="beats/minute"
+			unitCode="/min"
+			collaborate.idRegistry="Ids"
+			collaborate.patient="Pat">
+			<input name="HR"/>
+		</FhirObservationRender>
+		<Normal name="HR" mean="72" stddev="8"/>
+
+		<FhirBloodPressureRender name="BloodPressureObs"
+			collaborate.idRegistry="Ids"
+			collaborate.patient="Pat">
+			<input name="Sys" role="systolic"/>
+			<input name="Dia" role="diastolic"/>
+		</FhirBloodPressureRender>
+		<Normal name="Sys" mean="118" stddev="12"/>
+		<Normal name="Dia" mean="98" stddev="1.5"/>
+	</nodes>
+</dataset>

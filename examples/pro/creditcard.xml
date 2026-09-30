@@ -29,6 +29,8 @@
 			<input name="Network"/>
 		</CreditCard>
 
-		<FlatFile name="Network" file="samples/pro/creditcard_networks_weighted.csv" mode="weighted"/>
+		<FlatFile name="Network"
+			file="samples/pro/creditcard_networks_weighted.csv"
+			mode="weighted"/>
 	</nodes>
 </dataset>

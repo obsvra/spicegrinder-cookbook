@@ -15,7 +15,16 @@
     samples/pro/health/clinical-trial-multi-site.xml and
     samples/docs/showcase-multi-site-trial.md
 -->
-<dataset analysis.version="1" analysis.timestamp="2026-09-05T02:04:38.471702Z" analysis.mode="FULLY_COMPUTED" analysis.node_count="3" analysis.min_depth="2" analysis.max_depth="2" analysis.score="30" analysis.custom_component_count="0" analysis.predicted_avg_depth="2.000000" analysis.summary="fully computed: nodes=3 minDepth=2 maxDepth=2 predictedAvgDepth=2.000 score=30">
+<dataset analysis.version="1"
+	analysis.timestamp="2026-09-05T02:04:38.471702Z"
+	analysis.mode="FULLY_COMPUTED"
+	analysis.node_count="3"
+	analysis.min_depth="2"
+	analysis.max_depth="2"
+	analysis.score="30"
+	analysis.custom_component_count="0"
+	analysis.predicted_avg_depth="2.000000"
+	analysis.summary="fully computed: nodes=3 minDepth=2 maxDepth=2 predictedAvgDepth=2.000 score=30">
 	<root node="PatientOutcome"/>
 	<nodes>
 		<Mix name="PatientOutcome" synchronous="false">

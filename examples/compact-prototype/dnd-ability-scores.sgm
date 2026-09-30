@@ -1,6 +1,5 @@
-# .sgm (compact-format) translation of dnd-ability-scores.xml -- same model, same output,
-# just the terser function-call-style syntax instead of XML/JSON. See
-# Model-File-Format-Reference.md for the full compact-format grammar.
+# Prototype .sgm translation of samples/dnd-ability-scores.xml -- see
+# docs/internal/Compact-Model-Format-Design.md's "Sample conversion exercise" section.
 
 dataset.root = SixStats
 
@@ -8,5 +7,5 @@ Die = Uniform(1, 7)
 D6 = ToInteger(Die, mode="floor")
 ThreeDice = Redimension(D6, dimension=3)
 Sum = Calculate(ThreeDice, expression="y[0] = x[0] + x[1] + x[2]")
-DropCopies = Drop(Sum, excludes=(1, 2))
-SixStats = Redimension(DropCopies, dimension=6)
+KeepSum = Arrange(Sum, columns=(0))
+SixStats = Redimension(KeepSum, dimension=6)
