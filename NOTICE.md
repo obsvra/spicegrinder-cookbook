@@ -4,7 +4,7 @@ This repository uses three different license terms depending on which files you'
 
 ## Excluded from the MIT license: bundled skill reference docs
 
-Everything under `skills/*/references/` (`Customization.md`, `ModelAnalyzerApp.md`, `Model-File-Format-Reference.md`, and the `component-catalog.md` snapshots) is a copy of SpiceGrinder's own product documentation, included here only so a skill has something to ground itself in when SpiceGrinder isn't installed locally.
+Everything under `plugins/spicegrinder/skills/*/references/` (`Customization.md`, `ModelAnalyzerApp.md`, `Model-File-Format-Reference.md`, and the `component-catalog.md` snapshots) is a copy of SpiceGrinder's own product documentation, included here only so a skill has something to ground itself in when SpiceGrinder isn't installed locally.
 
 These files are **not** covered by this repository's MIT license. They remain:
 
@@ -18,7 +18,7 @@ Everything under `community-models/` is licensed under CC0 1.0 Universal, not MI
 
 ## Everything else
 
-`skills/*/SKILL.md`, `CONTRIBUTING.md`, this file, the GitHub Actions workflow, and the example models under `examples/` (the `.xml`, `.json` and `.sgm` files, their `.csv` output records and the READMEs) are covered by the root [LICENSE](LICENSE) (MIT).
+`plugins/spicegrinder/skills/*/SKILL.md`, `CONTRIBUTING.md`, this file, the GitHub Actions workflow, and the example models under `examples/` (the `.xml`, `.json` and `.sgm` files, their `.csv` output records and the READMEs) are covered by the root [LICENSE](LICENSE) (MIT).
 
 ## Separately licensed: reference data tables under examples/
 

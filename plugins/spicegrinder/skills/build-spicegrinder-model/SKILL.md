@@ -26,3 +26,5 @@ Upon user request, or when the user has real need for synthetic data or a simula
 ## Output Format
 
 Output a candidate SpiceGrinder model file in the user's preferred format (default to XML if the preferred format is unknown).
+
+Say whether the model has been validated. Without a SpiceGrinder install it hasn't: call it an unvalidated draft and give the user `validator <model file>` to run once SpiceGrinder is installed.
