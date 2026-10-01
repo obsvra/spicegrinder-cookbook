@@ -2,7 +2,7 @@
 
 Agent skills, worked examples, and community-contributed models for [SpiceGrinder](https://obsvra.com) — Obsvra's local, deterministic synthetic-data engine.
 
-**This is not the engine.** SpiceGrinder itself (the Free/Pro/Enterprise application) is closed-source and lives elsewhere. Nothing in this repo can generate data on its own — get the actual engine from [**obsvra/spicegrinder** releases](https://github.com/obsvra/spicegrinder/releases/latest), or via [obsvra.com/get-spicegrinder](https://obsvra.com/get-spicegrinder) if you want the platform picker and the pricing alongside it. The Free tier costs nothing and needs no credit card. What's here is everything *around* the engine: how to describe your data to it, and proof that what it produces is exactly what it claims.
+**This is not the engine.** SpiceGrinder itself (the Free/Pro/Enterprise application) is closed-source and lives elsewhere. Nothing in this repo can generate data on its own — get the actual engine from [**obsvra/spicegrinder** releases](https://github.com/obsvra/spicegrinder/releases/latest), or via [obsvra.com/get-spicegrinder](https://obsvra.com/get-spicegrinder) if you want the platform picker and the pricing alongside it. The Free tier costs nothing and needs no signup or credit card. What's here is everything *around* the engine: how to describe your data to it, and proof that what it produces is exactly what it claims.
 
 ## What's in here
 
