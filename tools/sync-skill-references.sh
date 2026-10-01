@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Refresh skills/*/references/ from the SpiceGrinder source tree.
+# Refresh plugins/spicegrinder/skills/*/references/ from the SpiceGrinder source tree.
 #
 # Why this exists: in the private repo those reference files are symlinks into
 # docs/, so they can never go stale. Here they have to be real files, which means
@@ -40,7 +40,7 @@ changed=0
 checked=0
 held=0
 
-for skill_dir in "$ROOT"/skills/*/; do
+for skill_dir in "$ROOT"/plugins/spicegrinder/skills/*/; do
   skill="$(basename "$skill_dir")"
   src_refs="$SRC/agent/skills/$skill/references"
   [[ -d "$src_refs" ]] || { echo "  $skill: no references/ upstream, skipping"; continue; }
