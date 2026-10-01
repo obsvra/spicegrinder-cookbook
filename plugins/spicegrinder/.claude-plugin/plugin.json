@@ -17,5 +17,8 @@
     "deterministic",
     "pii",
     "modeling"
-  ]
+  ],
+  "documentationUrl": "https://obsvra.com/docs",
+  "privacyPolicyUrl": "https://obsvra.com/privacy",
+  "supportUrl": "https://obsvra.com/contact"
 }
