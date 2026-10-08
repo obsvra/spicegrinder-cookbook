@@ -8,7 +8,7 @@ These extend the Free-tier showcases with **Perturb** (anomaly injection) and **
 | `health/patient-vitals.xml` | `health/patient-vitals-perturbed.xml` | Timed clinical/sensor spikes via Perturb |
 | | `health/patient-vitals-imported.xml` | Same + nominal physiology as Import library |
 | | `health/vitals-nominal-lib.xml` | Reusable library fragment |
-| `health/clinical-trial-arms.xml` | `health/clinical-trial-multi-site.xml` | **Parameterized sub-models**: one shared per-site library, `<Import>` 4x with different `<declare>` overrides — see [showcase-multi-site-trial.md](../docs/showcase-multi-site-trial.md) |
+| `health/clinical-trial-arms.xml` | `health/clinical-trial-multi-site.xml` | **Parameterized sub-models**: one shared per-site library, `<Import>` 4x with different `<declare>` overrides — see the multi-site clinical trial showcase in the SpiceGrinder documentation (obsvra.com) |
 | | `health/site-arm-lib.xml` | Reusable, `<declare>`-parameterized library |
 | `software/network-latency.xml` | `software/network-latency-perturbed.xml` | Outage-style RTT spikes |
 | | `software/network-latency-imported.xml` | Import + Perturb |

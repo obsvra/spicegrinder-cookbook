@@ -19,12 +19,13 @@ This page is the data section of SpiceGrinder's `THIRD-PARTY-NOTICES.md`, copied
 | `mac_vendors.csv` | IEEE Registration Authority, MA-L public listing (standards-oui.ieee.org) | Public factual data |
 | `vin_manufacturers.csv` | NHTSA vPIC database (vpic.nhtsa.dot.gov) | Public domain (US government work) |
 | `useragent_browser_os_weighted.csv` | StatCounter Global Stats (https://gs.statcounter.com) | CC BY-SA 3.0; this file is an adaptation and is itself distributed under CC BY-SA 3.0 |
+| `useragent.csv` | Recorded output of `useragent.xml`, ten user-agent strings sampled from `useragent_browser_os_weighted.csv` (StatCounter Global Stats, https://gs.statcounter.com) | CC BY-SA 3.0; this file is derived from the adaptation above and is itself distributed under CC BY-SA 3.0 |
 | `creditcard_networks_weighted.csv` | Market-share figures from WalletHub's published compilation (wallethub.com) | Facts, credited |
 | `email_domains_weighted.csv` | Provider user-share figures from SellCell's published compilation (sellcell.com) | Facts, credited |
 | `domain_tlds.csv` | Top-level domains, checked against Hostinger's and domaindetails.com's published registration statistics | Facts, credited |
 | `iban_countries.csv`, `isbn_registration_groups.csv`, `business_suffixes.csv` | Standard codes and naming conventions (ISO 13616, the International ISBN Agency's group identifiers, US business-entity suffixes) | Facts |
 | `software/customers-de.csv`, `-fr.csv`, `-es.csv` | Generated with Faker (github.com/joke2k/faker) by `samples/pro/software/build-pools.py` | Faker is MIT-licensed, Copyright (c) 2012 Daniele Faraglia |
-| `health/member-pool.csv` | Generated with Synthea (github.com/synthetichealth/synthea), as described in `samples/docs/showcase-synthea-claims.md` | Synthea is Apache-2.0-licensed; the records are synthetic |
+| `health/member-pool.csv` | Generated with Synthea (github.com/synthetichealth/synthea), as described in the Synthea claims showcase in the SpiceGrinder documentation (obsvra.com) | Synthea is Apache-2.0-licensed; the records are synthetic |
 
 ### Required notices
 

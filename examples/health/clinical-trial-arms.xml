@@ -13,7 +13,7 @@
   - Pro: custom PatientOutcome DataPoint (site, arm, covariates)
   - Pro: Import site-level sub-models for multi-center trials, see
     samples/pro/health/clinical-trial-multi-site.xml and
-    samples/docs/showcase-multi-site-trial.md
+    the multi-site trial showcase (SpiceGrinder documentation, obsvra.com)
 -->
 <dataset analysis.version="1"
 	analysis.timestamp="2026-09-05T02:04:38.471702Z"
