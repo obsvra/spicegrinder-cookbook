@@ -24,7 +24,7 @@
   deliberately showing "override some or all of the declared values," not "override
   everything every time."
 
-  See samples/docs/showcase-multi-site-trial.md for the full walkthrough.
+  See the multi-site trial showcase in the SpiceGrinder documentation (obsvra.com) for the full walkthrough.
 -->
 <dataset>
 	<root node="TrialOutcome"/>

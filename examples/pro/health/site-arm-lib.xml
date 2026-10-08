@@ -5,7 +5,7 @@
   <declare> so one file can represent every site in a multi-center trial instead of one
   hand-duplicated copy per site. Reused by
   samples/pro/health/clinical-trial-multi-site.xml — see that file's own header and
-  samples/docs/showcase-multi-site-trial.md for the full walkthrough.
+  the multi-site trial showcase in the SpiceGrinder documentation (obsvra.com) for the full walkthrough.
 
   Real multi-center trials see genuine site-to-site heterogeneity: different patient
   populations, standard-of-care baselines, protocol adherence, so a single global p doesn't

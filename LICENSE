@@ -24,5 +24,15 @@ SOFTWARE.
 
 This license covers this repository's own tooling and content: everything
 under skills/ (excluding skills/*/references/, see NOTICE.md) and everything
-under examples/. It does NOT cover community-models/, which is licensed
-separately under CC0 -- see community-models/LICENSE.
+under examples/ except the files listed below. It does NOT cover
+community-models/, which is licensed separately under CC0 -- see
+community-models/LICENSE.
+
+EXCEPTION: this license does NOT cover the following files, which remain under
+the Creative Commons Attribution-ShareAlike 3.0 Unported License (CC BY-SA 3.0,
+https://creativecommons.org/licenses/by-sa/3.0/) with attribution to StatCounter
+Global Stats, as NOTICE.md and examples/THIRD-PARTY-DATA-NOTICES.md explain.
+Anything derived from them must carry the same license.
+
+    examples/pro/useragent_browser_os_weighted.csv
+    examples/pro/useragent.csv

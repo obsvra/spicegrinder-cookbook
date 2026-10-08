@@ -16,9 +16,18 @@ Redistributing them as part of this repository (or a fork of it) for the purpose
 
 Everything under `community-models/` is licensed under CC0 1.0 Universal, not MIT — see [`community-models/LICENSE`](community-models/LICENSE). This is deliberate: contributions come from many different people over time, and CC0's public-domain dedication avoids needing to track per-file attribution/license compliance for hundreds of small community submissions. Each contribution's own `README.md` credits its author as a matter of repository convention, independent of what the license itself requires.
 
+## Not covered by the MIT license: share-alike data files
+
+The following files are NOT covered by this repository's MIT license, and neither is anything derived from them:
+
+- `examples/pro/useragent_browser_os_weighted.csv`
+- `examples/pro/useragent.csv`
+
+`useragent_browser_os_weighted.csv` adapts browser and operating-system share figures from StatCounter Global Stats (https://gs.statcounter.com), which StatCounter licenses under the Creative Commons Attribution-ShareAlike 3.0 Unported License (https://creativecommons.org/licenses/by-sa/3.0/). `useragent.csv` is the recorded output of a model that samples from that table, so it is derived from it. Both files remain under CC BY-SA 3.0, with attribution to StatCounter Global Stats (the attribution text is in `examples/THIRD-PARTY-DATA-NOTICES.md`). If you copy, adapt or build on them you must keep the attribution, make clear that yours is an adaptation, and license the result under CC BY-SA 3.0 as well. The root LICENSE (MIT) does not apply to them. The model file `examples/pro/useragent.xml` only refers to the table by path and contains none of its data, so it stays under MIT.
+
 ## Everything else
 
-`plugins/spicegrinder/skills/*/SKILL.md`, `CONTRIBUTING.md`, this file, the GitHub Actions workflow, and the example models under `examples/` (the `.xml`, `.json` and `.sgm` files, their `.csv` output records and the READMEs) are covered by the root [LICENSE](LICENSE) (MIT).
+`plugins/spicegrinder/skills/*/SKILL.md`, `CONTRIBUTING.md`, this file, the GitHub Actions workflow, and the example models under `examples/` (the `.xml`, `.json` and `.sgm` files, their `.csv` output records, except the two share-alike files listed above, and the READMEs) are covered by the root [LICENSE](LICENSE) (MIT).
 
 ## Separately licensed: reference data tables under examples/
 
