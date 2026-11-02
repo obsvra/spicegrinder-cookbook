@@ -1,7 +1,7 @@
 {
   "name": "spicegrinder",
   "displayName": "SpiceGrinder",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Six skills for working with SpiceGrinder, Obsvra's local, deterministic synthetic-data engine: draft a model from a description, fit one to a real data sample, explain an existing model, write custom generators and filters, audit a model for PII risk, and profile it for performance. Grounded in the real component catalog.",
   "author": {
     "name": "Obsvra",
