@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  A grocery store's day as one ProcessFlow: shopping, then the checkout lane with the fewest customers (PRO: ProcessFlow).
+
+  The clock is in minutes. The store is open for 840 minutes (14 hours) and shut for 600, and the day repeats every 1,440 minutes. Customers arrive at a rate that
+  changes by the hour (the rate is a profile of points, in customers a minute: 40, 60, 80, 100, 120, 100, 80, 90, 130, 160, 140, 100, 70 and 40 an hour, about 1,310 a day, with a
+  lunch bump and an evening peak; no arrivals while the store is shut).
+  Each customer has a basket of items (attribute "items": a Lognormal rounded up to a whole number, median 10, mean about 14).
+    Shopping    a delay station (Shop:inf): nobody waits; the time is (4 + 0.8 * items) minutes times a Gamma factor of mean 1 (serviceScale)
+    Checkout    a group of lanes (Lane[6]:1, the count is the declare "lanes"): the customer joins the lane with the fewest customers present when shopping ends
+                and stays in it; the time is (0.9 + 0.1 * items) minutes times a Gamma speed factor of mean 1 and standard deviation 0.35
+  One row is one customer who has left (output="entities"). Output columns, 7 per row: 0 the clock time the customer left, 1 customer number, 2 minutes in the store
+  (shopping, waiting and checkout), 3 minutes waiting in a lane, 4 minutes in service (shopping plus checkout), 5 visits (2), 6 the number of items.
+
+  To run it:        grind with a count of 130000 on samples/pro/process-flow-checkout.xml        (about 100 days); change the number of lanes with the declare "lanes"
+  What to look for: measured on 100 days of this seed (first ten dropped) the mean wait in a lane is 22.1 minutes with 4 lanes, 5.1 with 5, 1.0 with 6, 0.33 with 7 and 0.14
+                    with 8, and the mean time in the store is 39.6, 22.5, 18.5, 17.8 and 17.6 minutes. (A model of the same store built by hand, as a Recur that keeps each lane's
+                    departure times, gave 22.2, 5.0, 1.0, 0.31 and 0.13: the same answer in one node.) The lanes are numbered and a tie goes to the lowest, so lane 1 is the
+                    busiest. This model has no way to stop at closing: the run is a row count, and customers still in the store at closing are the rows whose exit time is after
+                    minute 840 of their day.
+-->
+<dataset columns="exitTime, customer, sojourn, wait, service, visits, items" seed="20261014">
+  <definitions>
+    <declare name="lanes" value="6"/>
+  </definitions>
+  <root node="Store"/>
+  <nodes>
+    <Exponential name="Gap" lambda="1.0"/>
+    <Lognormal name="Basket" mu="2.2" sigma="0.9"/>
+    <Calculate name="Items" expression="y[0] = ceil(x[0])"><input name="Basket"/></Calculate>
+    <Gamma name="ShopFactor" shape="4" scale="0.25"/>
+    <Gamma name="PaceFactor" shape="8.16" scale="0.12254901960784313"/>
+    <ProcessFlow name="Store" stations="Shop:inf, Lane[${lanes}]:1" entry="Shop" routing="Shop>Lane:1" output="entities"
+                 attributes="items" serviceScale="Shop: 4 + 0.8 * items; Lane: 0.9 + 0.1 * items"
+                 rate="0:0.6667, 60:1.0, 120:1.3333, 180:1.6667, 240:2.0, 300:1.6667, 360:1.3333, 420:1.5, 480:2.1667, 540:2.6667, 600:2.3333, 660:1.6667, 720:1.1667, 780:0.6667, 840:0"
+                 ratePeriod="1440">
+      <input name="Gap" role="arrival"/>
+      <input name="Items" role="entity"/>
+      <input name="ShopFactor" role="service.Shop"/>
+      <input name="PaceFactor" role="service.Lane"/>
+    </ProcessFlow>
+  </nodes>
+</dataset>

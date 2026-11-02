@@ -14,7 +14,7 @@
 
   Output: one Observation of [ein] per pull, rendered as "12-3456789".
 -->
-<dataset>
+<dataset columns="ein">
 	<root node="Employer"/>
 	<nodes>
 		<EIN name="Employer"/>

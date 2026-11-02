@@ -16,7 +16,7 @@
 
   Output: one Observation of [ipv6Address] per pull.
 -->
-<dataset>
+<dataset columns="ipv6Address">
 	<root node="ClientIp"/>
 	<nodes>
 		<IPv6Address name="ClientIp"/>

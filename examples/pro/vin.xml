@@ -19,13 +19,13 @@
 
   Output: one Observation of [vin] per pull, rendered as the bare 17-character string.
 -->
-<dataset>
+<dataset columns="vin">
 	<root node="Vehicle"/>
 	<nodes>
 		<VIN name="Vehicle">
 			<input name="Manufacturer"/>
 		</VIN>
 
-		<FlatFile name="Manufacturer" file="samples/pro/vin_manufacturers.csv" mode="unweighted"/>
+		<FlatFile name="Manufacturer" file="vin_manufacturers.csv" mode="unweighted"/>
 	</nodes>
 </dataset>

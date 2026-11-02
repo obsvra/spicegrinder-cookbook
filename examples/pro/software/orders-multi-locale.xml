@@ -9,7 +9,7 @@
   market label and the customer are chosen inside the same branch, so they
   can never disagree.
 -->
-<dataset seed="42">
+<dataset columns="market, fullName, city, postcode, itemCount, orderValue" seed="42">
 	<root node="Order"/>
 	<nodes>
 		<Append name="Order">

@@ -13,7 +13,7 @@
 
   Pool size must match the Uniform max below. The shipped pool is 40 rows.
 -->
-<dataset seed="42">
+<dataset columns="memberRow, serviceUnits, billedAmount" seed="42">
 	<root node="ClaimLine"/>
 	<nodes>
 		<Append name="ClaimLine">

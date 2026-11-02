@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Simulation 101, lesson 5.2: the row rule and the write rules of SharedState, with nothing random in the way (PRO).
+
+  One cell, level, starting at 100. Every row three nodes write it:
+    Receive   an `add` writer that adds 10 (a delivery)
+    Sell      an `add` writer that adds -4 (a sale)
+    Reset     a `set` writer that writes 50 in row 5 and, in every other row, writes back what it read (so it changes nothing)
+  A cell may have one `set` writer and any number of `add` writers. At the end of a row the cell becomes the set value (or its old value if nobody set it)
+  plus the sum of the add amounts, whichever node ran first. Reads are one row behind: Seen shows the value at the end of the previous row.
+
+  Output columns: 0 the row number, 1 what Seen read (level at the end of the previous row), 2 what Reset wrote, 3 the delivery, 4 the sale.
+  Expected: Seen shows 100, 106, 112, 118, 124 in rows 1 to 5; Reset writes 50 in row 5, so the level at the end of row 5 is 50 + 10 - 4 = 56
+  (set first, then the adds), and Seen shows 56 in row 6, 62 in row 7, and so on.
+  To run it:        grind with a count of 10 on samples/pro/inventory-shared-rules.xml
+  What to look for: a read never shows a write of the same row; the Reset row does not depend on where Receive and Sell sit in the tree.
+  13 nodes.
+-->
+<dataset columns="row, seen, reset, delivery, sale" seed="502">
+  <root node="Row"/>
+  <nodes>
+    <SharedState name="Store" cells="level=100"/>
+    <Sequence name="Count" start="1" step="1"/>
+    <StateRead name="Seen" collaborate.state="Store" cells="level"/>
+    <StateRead name="ForReset" collaborate.state="Store" cells="level"/>
+    <Append name="ResetIn">
+      <input name="Count"/>
+      <input name="ForReset"/>
+    </Append>
+    <Calculate name="ResetValue" dimension="1" expression="y[0] = if(x[0] == 5, 50, x[1])">
+      <input name="ResetIn"/>
+    </Calculate>
+    <StateWrite name="Reset" collaborate.state="Store" cells="level" mode="set">
+      <input name="ResetValue"/>
+    </StateWrite>
+    <Constant name="Delivery" value="10" type="double"/>
+    <StateWrite name="Receive" collaborate.state="Store" cells="level" mode="add">
+      <input name="Delivery"/>
+    </StateWrite>
+    <Constant name="Sale" value="-4" type="double"/>
+    <StateWrite name="Sell" collaborate.state="Store" cells="level" mode="add">
+      <input name="Sale"/>
+    </StateWrite>
+    <Sequence name="RowNumber" start="1" step="1"/>
+    <Append name="Row">
+      <input name="RowNumber"/>
+      <input name="Seen"/>
+      <input name="Reset"/>
+      <input name="Receive"/>
+      <input name="Sell"/>
+    </Append>
+  </nodes>
+</dataset>

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  An emergency department where the room and the physician are different resources (Pro).
+
+  Patients arrive about every 15 minutes (a Poisson stream), are triaged by one nurse (about 5 minutes), are treated by a physician in a room (about 20 minutes), and then
+  recover in the SAME room (about 30 minutes) before leaving. There are 5 rooms and 2 physicians.
+    resources="Room:5, Physician:2"      two pools of units
+    needs="Treatment: Room + Physician"  a treatment starts only when a room AND a physician are free, and holds one of each
+    keeps="Treatment: Room"              the room is not given back when the treatment ends: the patient keeps it for the recovery
+    releases="Recovery: Room"            the room is given back when the recovery ends
+  The physician goes back to the pool when the treatment ends, so the next patient waiting for a physician starts at once. Without keeps, the room would be free
+  during recovery and the model would understate how often every room is full. The old way to write this (one station with min(rooms, physicians) servers) cannot show
+  either shortage separately, and makes one of the two levers do nothing.
+  Time is in minutes. Output columns, 9 per row: 0 time, 1 patient, 2 station (0 Triage, 1 Treatment, 2 Recovery), 3 event type (0 arrive, 1 start, 2 finish, 3 exit), 4 queue,
+  5 busy, 6 patients in the department, then the free units after the event: 7 free rooms, 8 free physicians.
+  The waiting time of a patient for treatment is the time from their arrive row to their start row at station 1; it includes waiting for a room or for a physician.
+
+  To run it:        grind with a count of 20000 on samples/pro/process-flow-ed-resources.xml
+  What to look for: over 20,000 patients (seed 7): 34 percent start treatment at once and the mean wait for treatment is 32 minutes. With the declare rooms set to 7: 44 percent and
+                    19 minutes; with physicians set to 3: 61 percent and 10.5 minutes; with rooms set to 4: 16 percent and 96 minutes. Both pools are 67 percent busy on average, yet the
+                    waits differ: the pools hold up each other.
+-->
+<dataset columns="time, patient, station, type, queue, busy, inSystem, freeRooms, freePhysicians" seed="20261015">
+  <definitions>
+    <declare name="rooms" value="5"/>
+    <declare name="physicians" value="2"/>
+  </definitions>
+  <root node="ED"/>
+  <nodes>
+    <Exponential name="Gap" lambda="0.0666667"/>
+    <Exponential name="TriageTime" lambda="0.2"/>
+    <Exponential name="TreatTime" lambda="0.05"/>
+    <Exponential name="RecoverTime" lambda="0.0333333"/>
+    <ProcessFlow name="ED" stations="Triage:1, Treatment:inf, Recovery:inf" entry="Triage" routing="Triage>Treatment:1; Treatment>Recovery:1"
+                 resources="Room:${rooms}, Physician:${physicians}" needs="Treatment: Room + Physician" keeps="Treatment: Room" releases="Recovery: Room">
+      <input name="Gap" role="arrival"/>
+      <input name="TriageTime" role="service.Triage"/>
+      <input name="TreatTime" role="service.Treatment"/>
+      <input name="RecoverTime" role="service.Recovery"/>
+    </ProcessFlow>
+  </nodes>
+</dataset>

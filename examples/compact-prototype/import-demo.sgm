@@ -5,6 +5,7 @@
 # no format-specific logic, so this should just work).
 
 dataset.root = Head
+dataset.columns = "value"
 
 Head = Mix((Lib, 1), (Local, 1))
 

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  A call centre: staff by shift, callers who hang up, and a line that fills (Pro).
+
+  Callers arrive all day (a Poisson stream whose rate peaks at 9:00 and again at 14:00), wait for an agent, and talk for about 5 minutes. Time is in hours.
+    schedule="Agents: 0:2, 8:${day}, 18:3"    the number of agents follows the clock: 2 overnight, ${day} from 08:00, 3 from 18:00 (repeating every 24 hours);
+                                                a drop never cuts a call off, the agent finishes first
+    timeouts="Agents: patience > exit"        a caller who has waited as long as their own patience (a draw of the Patience input, mean 6 minutes) hangs up
+    queueLimit="Agents: 6 > exit"             a caller who finds 6 already waiting gets a busy signal and is lost
+  Output columns, 8 per row: 0 time, 1 caller, 2 station, 3 event type (0 arrive, 1 start, 2 finish, 3 exit, 7 capacity step, 10 timeout, 11 balk), 4 queue,
+  5 busy, 6 callers in the system, 7 the agents available after the event.
+  Wait for an agent: from a caller's arrive row to their start row. Callers lost: the timeout and balk rows.
+
+  To run it:        grind with a count of 20000 on samples/pro/process-flow-callcentre.xml (the run ends itself after two days); to compare day-shift sizes use the
+                    experiment tool over the declare day, with the measure lost = (count(c3 == 10) + count(c3 == 11)) / (count(c3 == 0) + count(c3 == 11))
+  What to look for: over 20 seeds of two days, the share of callers lost (hung up or turned away) is 0.41 with 3 day agents, 0.31 with 4, 0.16 with 6, 0.093 with 8 and
+                    0.066 with 10; the busy signals fall from 137 to 7 callers over two days and the hang-ups from 619 to 114. The overnight agents (2) are the same in all.
+-->
+<dataset columns="time, caller, station, type, queue, busy, inSystem, agents" seed="20261015">
+  <definitions>
+    <declare name="day" value="6" type="int" min="1" max="40"/>
+  </definitions>
+  <root node="Centre"/>
+  <nodes>
+    <Exponential name="Arrival" lambda="1"/>
+    <Exponential name="Talk" lambda="12"/>
+    <Exponential name="Patience" lambda="10"/>
+    <ProcessFlow name="Centre" stations="Agents:2" entry="Agents" schedule="Agents: 0:2, 8:${day}, 18:3" schedulePeriod="24"
+                 rate="0:6, 6:12, 9:90, 12:50, 14:80, 18:40, 22:12" rateMode="linear" ratePeriod="24"
+                 timeouts="Agents: patience > exit" queueLimit="Agents: 6 > exit" until="48">
+      <input name="Arrival" role="arrival"/>
+      <input name="Talk" role="service.Agents"/>
+      <input name="Patience" role="patience.Agents"/>
+    </ProcessFlow>
+  </nodes>
+</dataset>

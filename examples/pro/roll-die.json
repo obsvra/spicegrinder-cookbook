@@ -1,0 +1,32 @@
+{
+  "dataset": {
+    "root": "Roll",
+    "columns": "roll",
+    "declarations": [
+      {"name": "d", "value": "6"}
+    ],
+    "nodes": [
+      {
+        "type": "Uniform",
+        "name": "Base",
+        "attributes": {"min": "0", "max": "$d"}
+      },
+      {
+        "type": "Calculate",
+        "name": "Die",
+        "attributes": {"expression": "y[0] = x[0] + 1"},
+        "inputs": [
+          {"name": "Base"}
+        ]
+      },
+      {
+        "type": "ToInteger",
+        "name": "Roll",
+        "attributes": {"mode": "floor"},
+        "inputs": [
+          {"name": "Die"}
+        ]
+      }
+    ]
+  }
+}

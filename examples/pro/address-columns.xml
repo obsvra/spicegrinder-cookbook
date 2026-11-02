@@ -15,7 +15,7 @@
 
   Output: one Observation of [streetLine, city, region, postalCode] per pull.
 -->
-<dataset>
+<dataset columns="streetLine, city, region, postalCode">
 	<root node="AddressColumns"/>
 	<nodes>
 		<Extract name="AddressColumns" fields="streetLine,city,region,postalCode">
@@ -28,9 +28,9 @@
 		</Address>
 
 		<FlatFile name="Location"
-			file="samples/pro/city_state_zip.csv"
+			file="city_state_zip.csv"
 			textColumns="2"
 			mode="unweighted"/>
-		<FlatFile name="Street" file="samples/pro/street_names_weighted.csv" mode="weighted"/>
+		<FlatFile name="Street" file="street_names_weighted.csv" mode="weighted"/>
 	</nodes>
 </dataset>

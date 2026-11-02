@@ -17,7 +17,7 @@
 
   Output: [Source value, BeaconA current value, BeaconB current value] per observation.
 -->
-<dataset>
+<dataset columns="source, beaconA, beaconB">
 	<root node="Watcher"/>
 	<nodes>
 		<CollaborationWatcher name="Watcher"

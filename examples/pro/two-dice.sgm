@@ -1,0 +1,17 @@
+# Pro: one die library, imported twice, rolled as two different dice.
+#
+# roll-die.sgm declares the number of sides (d, default 6). Here it is imported once as it stands, a d6
+# (the die behind the ability scores in dnd-ability-scores-import.xml), and once with the override d="20",
+# a d20 (the die for an attack roll). Append puts the two rolls side by side, so each row is one d6 and one
+# d20: dim0 is 1 to 6, dim1 is 1 to 20.
+#
+# One thing is easy to get wrong: an override must be NAMED, d="20". It is matched to the library's
+# declared d. A bare value after the file name, Import("roll-die.sgm", 20), is not an override, and
+# quietly gives a d6.
+#
+# The same model exists as two-dice.xml and two-dice.json; all three give the same rows for the same seed.
+dataset.root = Pair
+dataset.columns = "d6, d20"
+D6 = Import("roll-die.sgm")
+D20 = Import("roll-die.sgm", d="20")
+Pair = Append(D6, D20)

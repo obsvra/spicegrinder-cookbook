@@ -15,13 +15,13 @@
 
   Output: one Observation of [mac] per pull, rendered as the bare colon-separated hex string.
 -->
-<dataset>
+<dataset columns="macAddress">
 	<root node="Device"/>
 	<nodes>
 		<MACAddress name="Device">
 			<input name="Vendor"/>
 		</MACAddress>
 
-		<FlatFile name="Vendor" file="samples/pro/mac_vendors.csv" mode="unweighted"/>
+		<FlatFile name="Vendor" file="mac_vendors.csv" mode="unweighted"/>
 	</nodes>
 </dataset>

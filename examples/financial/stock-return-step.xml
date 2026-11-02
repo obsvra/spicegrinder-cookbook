@@ -8,7 +8,7 @@
   - Pro: Perturb to inject crash days
   - Pro: custom PricePath business object over many steps
 -->
-<dataset>
+<dataset columns="logReturn">
 	<root node="LogReturn"/>
 	<nodes>
 		<Normal name="LogReturn" mean="0.0004" sigma="0.012"/>

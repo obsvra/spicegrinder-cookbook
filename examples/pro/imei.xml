@@ -15,7 +15,7 @@
 
   Output: one Observation of [imei] per pull, rendered as the bare 15-digit string.
 -->
-<dataset>
+<dataset columns="imei">
 	<root node="Device"/>
 	<nodes>
 		<IMEI name="Device"/>

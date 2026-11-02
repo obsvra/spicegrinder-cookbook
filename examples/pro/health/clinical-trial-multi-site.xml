@@ -26,7 +26,7 @@
 
   See the multi-site trial showcase in the SpiceGrinder documentation (obsvra.com) for the full walkthrough.
 -->
-<dataset>
+<dataset columns="responded">
 	<root node="TrialOutcome"/>
 	<nodes>
 		<Mix name="TrialOutcome" synchronous="false">

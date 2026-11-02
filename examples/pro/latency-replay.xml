@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Simulation 101, lesson 4.5, replaying history (PRO: FlatFile, declare + Import).  "Would that day's traffic have breached the SLO under the new deploy?"
+     Two imports of latency-slo-lib.xml read the SAME recorded day (latency-traffic-trace.csv, 1,440 minutes, invented data), each with its own parameters:
+       Baseline   median 30 ms, sigma 0.8 (the library defaults)
+       NewDeploy  median 33 ms, sigma 0.87
+     ONE ROW = ONE MINUTE.  Columns 0..2 Baseline: requests, share slower than the 250 ms SLO, slow requests.  Columns 3..5 the same for NewDeploy.
+     onExhaustion="repeat" (in the library): row 1441 is row 1 again, so a count of 2,880 replays two days.
+     There is no randomness: the seed changes nothing.   3 nodes in this file; each import brings the library's 10 nodes
+     (its root takes the import's name): 21 in all. -->
+<dataset columns="baselineRequests, baselineSlowShare, baselineSlow, newRequests, newSlowShare, newSlow" seed="405">
+  <root node="Both"/>
+  <nodes>
+    <Import name="Baseline" file="latency-slo-lib.xml"/>
+    <Import name="NewDeploy" file="latency-slo-lib.xml" median="33" sigma="0.87"/>
+    <Append name="Both">
+      <input name="Baseline"/>
+      <input name="NewDeploy"/>
+    </Append>
+  </nodes>
+</dataset>

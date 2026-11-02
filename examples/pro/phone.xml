@@ -21,13 +21,13 @@
   Output: one Observation of [phoneNumber] per pull, rendered as "(201) 234-5678"
   (PhoneDataPoint's default format).
 -->
-<dataset>
+<dataset columns="phoneNumber">
 	<root node="ContactNumber"/>
 	<nodes>
 		<Phone name="ContactNumber">
 			<input name="AreaCode"/>
 		</Phone>
 
-		<FlatFile name="AreaCode" file="samples/pro/area_codes.csv" mode="unweighted"/>
+		<FlatFile name="AreaCode" file="area_codes.csv" mode="unweighted"/>
 	</nodes>
 </dataset>

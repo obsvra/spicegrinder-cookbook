@@ -1,6 +1,7 @@
 {
   "dataset": {
     "root": "Transaction",
+    "columns": "count, amount",
     "nodes": [
       {
         "type": "Mix",

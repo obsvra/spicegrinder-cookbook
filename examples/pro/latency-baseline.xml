@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Simulation 101, lesson 4.1 (PRO). One request's latency (ms) from the shared library latency-lib.xml with its defaults:
+     median 30 ms, sigma 0.3. The Import is named Sys; one row = one request. 1 node in this file (+ the 5 in the library). -->
+<dataset columns="latency" seed="401">
+  <root node="Sys"/>
+  <nodes>
+    <Import name="Sys" file="latency-lib.xml"/>
+  </nodes>
+</dataset>

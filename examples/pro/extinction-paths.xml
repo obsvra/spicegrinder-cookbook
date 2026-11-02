@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  A probability from many paths: how often does a fluctuating population die out within 50 years? (Pro, for the declares)
+
+  One Recur holds a population N and a latched flag. Each row is a year: the population grows by exp(r x (1 - N/K) + sigma x Z) with Z a standard normal draw
+  (growth slows near the carrying capacity K, sigma is the year-to-year variability), is capped at K, and counts as extinct when it falls below 1. The flag
+  (column 1) becomes 1 on extinction and stays 1. resetEvery="50" starts a fresh population every 50 rows, so a run of 50 x R rows holds R independent
+  50-year paths.
+  Output columns, 2 per row, named in the dataset (population, extinct): 0 the population, 1 the extinct flag. The declares carry a type and a range, so a bad
+  value (a K of 0.5 or a sigma of 7) is refused when the model loads, with the declare named.
+  The levers are declares: K (carrying capacity), sigma (variability), r (growth rate), N0 (starting population). N0 (default 10) is the starting population, written into initial as a declared value.
+
+  To run it once:        grind with a count of 100 on samples/pro/extinction-paths.xml
+  To get the probability: the experiment tool runs it over a grid of K and sigma with many paths and gives the fraction of paths that went extinct, with its
+                          Wilson interval: give it a count of 50000 rows, a path length of 50 rows, 5 seeds, the grid K = 20, 50, 100 and sigma = 0.2, 0.6, and the
+                          measures extinct = max(c1) > 0 and final = last(c0) (see Experiment.md for the exact command). That is 1,000 paths per seed; max(c1) is 1 for a
+                          path that went extinct, so its mean is the probability.
+  What to look for: extinction becomes rarer as K grows and commoner as sigma grows; the interval narrows with more seeds or more paths.
+-->
+<dataset seed="20261015" columns="population, extinct">
+  <definitions>
+    <declare name="K" value="50" type="int" min="2" max="10000"/>
+    <declare name="sigma" value="0.4" type="number" min="0" max="3"/>
+    <declare name="r" value="0.3" type="number" min="-1" max="3"/>
+    <declare name="N0" value="10" type="int" min="1" max="10000"/>
+  </definitions>
+  <root node="Population"/>
+  <nodes>
+    <Normal name="Shock" mean="0" sigma="1"/>
+    <Recur name="Population" initial="${N0}, 0" resetEvery="50"
+           expression="let n = s[0]; let grown = min(${K}, n * exp(${r} * (1 - n / ${K}) + ${sigma} * x[0])); let dead = if(grown &lt; 1, 1, 0); y[0] = if(dead > 0, 0, grown); y[1] = max(s[1], dead)">
+      <input name="Shock"/>
+    </Recur>
+  </nodes>
+</dataset>

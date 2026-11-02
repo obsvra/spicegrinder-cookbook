@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  An ATM with cash that runs out and a machine that can fail in the middle of a transaction (Pro).
+
+  Customers arrive about every 3 minutes (a Poisson stream) to withdraw cash; each transaction takes about a minute. Time is in minutes.
+    attributes="amount"                                   each customer wants an amount, drawn from the Wants input (here 20 to 200, in steps of 20)
+    stocks="ATM: level=${cash} reorder=2000 refill=${cash} delay=240"   the machine starts with ${cash} in it, an order for ${cash} more is placed when it falls below 2000,
+                                                          and the cash arrives 240 minutes later; max (the most the machine holds) is not set here
+    uses="ATM: amount"                                    a transaction takes the customer's amount out of the machine when it starts, and does not start unless the machine holds
+                                                          at least that much: customers wait (or leave: patience) while the cash is short
+    breakdowns="ATM" breakdownMode="ATM: lose"            a failure during a transaction loses the customer (a lose row, then an exit row with the lost flag) and the cash
+                                                          already counted out; the machine is repaired after about 30 minutes and fails again after about 12 hours
+    timeouts="ATM: 20 > exit"                             a customer who has waited 20 minutes gives up
+  Output columns, 10 per row: 0 time, 1 customer, 2 station, 3 event type (0 arrive, 1 start, 2 finish, 3 exit, 8 down, 9 up, 10 timeout, 12 lose, 13 restock), 4 queue, 5 busy,
+  6 customers in the system, 7 the amount wanted, 8 the cash in the machine after the event, 9 the servers available (1, or 0 while it is down).
+
+  To run it:        grind with a count of 8000 on samples/pro/process-flow-atm.xml (the run ends itself after two days); to compare cash levels use the experiment tool over the declare cash
+  What to look for: the cash column falls by the amount at each start row and jumps at each restock row (type 13); while it is short, customers wait and the timeout rows (type 10)
+                    cluster. Over the two days of seed 20261016, 950 customers arrive: 442 give up with cash 6,000, 201 with 20,000 and 81 with 60,000 (the rest of those are waits
+                    during repairs, and 0 to 2 customers are lost in mid-transaction).
+-->
+<dataset columns="time, customer, station, type, queue, busy, inSystem, amount, cash, servers" seed="20261016">
+  <definitions>
+    <declare name="cash" value="6000" type="int" min="100" max="1000000"/>
+  </definitions>
+  <root node="Machine"/>
+  <nodes>
+    <Exponential name="Gap" lambda="0.3333333"/>
+    <Exponential name="TransactionTime" lambda="1"/>
+    <Exponential name="Up" lambda="0.0013889"/>
+    <Exponential name="Repair" lambda="0.0333333"/>
+    <Uniform name="WantsRaw" min="1" max="11"/>
+    <Calculate name="Wants" expression="y[0] = 20 * floor(x[0])"><input name="WantsRaw"/></Calculate>
+    <ProcessFlow name="Machine" stations="ATM:1" entry="ATM" attributes="amount"
+                 stocks="ATM: level=${cash} reorder=2000 refill=${cash} delay=240" uses="ATM: amount"
+                 breakdowns="ATM" breakdownMode="ATM: lose" timeouts="ATM: 20 > exit" until="2880">
+      <input name="Gap" role="arrival"/>
+      <input name="TransactionTime" role="service.ATM"/>
+      <input name="Wants" role="entity"/>
+      <input name="Up" role="up.ATM"/>
+      <input name="Repair" role="down.ATM"/>
+    </ProcessFlow>
+  </nodes>
+</dataset>

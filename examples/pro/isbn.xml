@@ -19,7 +19,7 @@
 
   Output: one Observation of [isbn] per pull, rendered as the bare 13-digit string.
 -->
-<dataset>
+<dataset columns="isbn">
 	<root node="Book"/>
 	<nodes>
 		<ISBN name="Book">
@@ -27,7 +27,7 @@
 		</ISBN>
 
 		<FlatFile name="RegistrationGroup"
-			file="samples/pro/isbn_registration_groups.csv"
+			file="isbn_registration_groups.csv"
 			mode="unweighted"/>
 	</nodes>
 </dataset>

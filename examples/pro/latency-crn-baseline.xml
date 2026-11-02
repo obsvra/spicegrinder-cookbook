@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Simulation 101, lesson 4.3, fair comparisons (PRO: Import). The CURRENT service: median 30 ms (the library default), sigma 0.8.
+     One row = one request; the single column is its latency in ms.
+     Its sibling is latency-crn-newdeploy.xml (median 33, sigma 0.87). Both import latency-lib.xml under the SAME name, Sys.
+     Every node's random stream comes from the seed and the node's full name (here Sys.Spread), so with the same seed the two files draw
+     exactly the same standard normal numbers and differ only in their parameters: common random numbers.
+     Latency = median * exp(sigma * Z) with the same Z in both files. Rename the import in one file and the two stop sharing draws.
+     Compare: run Grind with the same seed and 100000 rows on this file and on the sibling.   1 node in this file (+ 5 from the library). -->
+<dataset columns="latency" seed="404">
+  <root node="Sys"/>
+  <nodes>
+    <Import name="Sys" file="latency-lib.xml" sigma="0.8"/>
+  </nodes>
+</dataset>

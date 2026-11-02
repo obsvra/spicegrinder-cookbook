@@ -15,13 +15,13 @@
 
   Output: one Observation of [email] per pull, rendered as "local@domain".
 -->
-<dataset>
+<dataset columns="email">
 	<root node="ContactEmail"/>
 	<nodes>
-		<Email name="ContactEmail" nameBased="false">
+		<Email name="ContactEmail" nameBased="false" wordListFile="email_words.txt">
 			<input name="Domain" role="domain"/>
 		</Email>
 
-		<FlatFile name="Domain" file="samples/pro/email_domains_weighted.csv" mode="weighted"/>
+		<FlatFile name="Domain" file="email_domains_weighted.csv" mode="weighted"/>
 	</nodes>
 </dataset>

@@ -6,6 +6,7 @@
 # exercising decision 4's forward references.
 
 dataset.root = TrialOutcome
+dataset.columns = "responded"
 
 TrialOutcome = Mix((AcademicCenter, 0.40), (CommunityHospital, 0.30), (RuralSite, 0.20), (IntlSite, 0.10), synchronous=false)
 

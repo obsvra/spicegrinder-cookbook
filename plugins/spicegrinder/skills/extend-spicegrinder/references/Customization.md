@@ -47,6 +47,12 @@ Anyone with a compiled SpiceGrinder library on the classpath can add new generat
 | `IRandom` | `com.obsvra.spicegrinder.core.interfaces` | Abstraction over random-number generation |
 | `IObservation` | `com.obsvra.spicegrinder.core.interfaces` | Collection of `IDataPoint`s returned by a generator |
 | `IDataPoint` / `INumericDataPoint` | `com.obsvra.spicegrinder.core.interfaces` | Single discrete value inside an observation |
+| `ISerializable` | `com.obsvra.spicegrinder.core.interfaces` | A business object `Convert` can build from text (§9.3); Pro |
+| `IStructuredDataPoint` / `IStructuredSource` | `com.obsvra.spicegrinder.core.interfaces` | A value with named fields, and a producer that declares them (§9.4); Pro |
+| `ICollaborationTarget` / `ICollaborationConsumer` | `com.obsvra.spicegrinder.core.interfaces` | The node being read through the Collaborate channel, and the node that reads it (§9.5); Pro |
+| `IDistribution`, `ICostSized` | `com.obsvra.spicegrinder.core.interfaces` | Experimental: a distribution that can work inside `Copula`, and a component that reports its own size for complexity scoring |
+
+The interfaces you implement (`IGenerator`, `IFilter`, `IRandom`, `ICollaborationTarget` and the data point interfaces) are Stable (see "API stability" below), except `IDistribution` and `ICostSized`, which are Experimental.
 
 ### Minimal Generator Contract
 
@@ -78,6 +84,22 @@ Collection<IGenerator> getInputs();
 void addInput(IGenerator input) throws NotImplementedException;
 void addInputs(Collection<IGenerator> inputs) throws NotImplementedException;
 ```
+
+### API stability
+
+From 1.0, every public type in SpiceGrinder's extension surface carries an `@ApiStatus` marking (`com.obsvra.spicegrinder.core.annotations.ApiStatus`), which appears in the Javadoc:
+
+- **Stable**: won't be removed or changed incompatibly in any 1.x release. Interfaces you implement never gain a method you'd have to write; new methods arrive with default implementations, and the release notes list each one so you can check it against your own method names.
+- **Experimental**: usable and documented, but may change in a 1.x release. Every change is listed in the release notes.
+- **Internal**: public only for SpiceGrinder's own use. Don't depend on it. Anything without a marking is Internal.
+
+A marking on a member overrides its type's marking, which overrides the package's. The model-file format (XML and JSON) is stable in the same sense: a model that loads in 1.0 loads with the same meaning in every 1.x release. The compact format (`.sgm`) is Experimental, but every 1.x release reads the `.sgm` files 1.0 writes.
+
+The built-in components' static `Create(...)` factories are Experimental; `ComponentFactory.construct(...)` is the Stable way to build one from Java. The built-in `CollaborationBeacon`, `CollaborationWatcher` and `Mixture` are worked examples, not part of the promise.
+
+Two behaviors to know when embedding: `ModelLoader.load(...)` applies the model's embedded seed to the process-wide random source, and generators read that source once, when they're constructed (see §8). Build each model after setting the random source you want it to use.
+
+When you build a graph from code, the `Import` generator names its library's nodes' random streams under the `Import` node's own name, as `<Import name="..."/>` does in a model file, so two `Import`s of the same library under one seed draw different values. The library's own `<dataset seed>` is applied only if the process has no seed yet. See [Determinism](Determinism.md#seeds-custom-generators-and-code).
 
 ---
 
@@ -348,11 +370,11 @@ public class MySecureRandom implements IRandom {
 Randoms.set(new MySecureRandom());
 ```
 
-`Randoms` is process-wide static state (`Randoms.get()` returns whatever was last set, or the default source if `set(...)` was never called). Generators read it **once, at construction time** — every default distribution's `(String name)` constructor calls `Randoms.get()` and keeps the result (see `Skellam` in §5) — so `Randoms.set(...)` only affects generators built *after* the call. There's no per-generator reseed-in-place; to change the random source for an already-built model, rebuild it (e.g. reload via `ModelLoader`) after calling `Randoms.set(...)`. For reproducible-but-different-per-dataset seeding rather than a different `IRandom` implementation entirely, see `Randoms.applyDatasetSeed(Long)` instead, which is what the embedded-seed and `--seed`/`--no-seed` CLI handling in `Grind` uses.
+`Randoms` is process-wide static state (`Randoms.get()` returns whatever was last set, or the default source if `set(...)` was never called). Generators read it **once, at construction time** — every default distribution's `(String name)` constructor calls `Randoms.get()` and keeps the result (see `Skellam` in §5) — so `Randoms.set(...)` only affects generators built *after* the call. There's no per-generator reseed-in-place; to change the random source for an already-built model, rebuild it (e.g. reload via `ModelLoader`) after calling `Randoms.set(...)`. `ModelLoader` goes further by default: it builds each node inside a scope that gives it its own random stream, derived from the dataset's seed and the node's name, so `Randoms.get()` in a node's constructor or `configure()` returns that node's stream (with `streams="shared"` it returns the one shared source instead). See [section 9.6](#96-execution-contract-for-components) and the [Model File Format Reference](Model-File-Format-Reference.md#random-streams). An `IRandom` installed with `Randoms.set(...)` is used by a load that has no seed of its own; a load that has a seed (every driver run) replaces it with its own streams. For reproducible-but-different-per-dataset seeding rather than a different `IRandom` implementation entirely, see `Randoms.applyDatasetSeed(Long)` instead, which is what the embedded-seed and `--seed`/`--no-seed` CLI handling in `Grind` uses.
 
 ### 8.1 Concurrent generation is not safe — you must serialize it yourself
 
-**If you're embedding SpiceGrinder in your own multithreaded application** (direct construction via `ComponentFactory`, or any other path that ends up calling `getNextObservation()` from more than one thread), this is the one thing in this whole guide most likely to fail silently: two threads calling `getNextObservation()` concurrently on generators sharing the same `IRandom`/`RandomGenerator` — which, per the paragraph above, is the *normal* case, since every generator built in one `Randoms.set(...)` window shares one instance — is not safe. `Randoms.current` itself is `volatile`, so swapping which source is active (`Randoms.set(...)`) is safe to do from another thread; that's a different guarantee from concurrent *draws* being safe, and it isn't one. The JDK's modern `RandomGenerator` algorithms this project targets are not documented as thread-safe for concurrent use by a single instance, and nothing in `IRandom`/`Randoms`/the default generators adds locking on top of that.
+**If you're embedding SpiceGrinder in your own multithreaded application** (direct construction via `ComponentFactory`, or any other path that ends up calling `getNextObservation()` from more than one thread), this is the one thing in this whole guide most likely to fail silently: two threads calling `getNextObservation()` concurrently on generators sharing the same `IRandom`/`RandomGenerator` — which, per the paragraph above, is the *normal* case, since every generator built in one `Randoms.set(...)` window shares one instance — is not safe. (With the loader's default per-node streams each node has its own instance, but they are still drawn from whichever thread pulls the graph, so the advice below is unchanged.) `Randoms.current` itself is `volatile`, so swapping which source is active (`Randoms.set(...)`) is safe to do from another thread; that's a different guarantee from concurrent *draws* being safe, and it isn't one. The JDK's modern `RandomGenerator` algorithms this project targets are not documented as thread-safe for concurrent use by a single instance, and nothing in `IRandom`/`Randoms`/the default generators adds locking on top of that.
 
 This is exactly why `ModelServiceApp` runs every `/generate`/`/stream` call through a single background worker per process, one job at a time — a deliberate design choice, not an oversight (see [Service API Reference](Service-API-Reference.md#concurrency-model)). If you're using the Service API, this is already handled for you. **If you're using direct construction in your own app, it isn't** — nothing stops you from calling generation from multiple threads yourself, and nothing will warn you if you do. Serialize calls into any given generator graph yourself (a single worker thread/executor per graph is the simplest correct shape, mirroring what the Service API already does internally) if your application is multithreaded.
 
@@ -385,6 +407,8 @@ Sequence(synchronous="true") -> Append (no explicit synchronous) -> Mix (no expl
 ```
 
 Here, `Append` inherits `synchronous == true` from the `Sequence`, and `Mix` in turn inherits it from `Append` — so `Mix`'s own existing "force-advance synchronous-but-unselected inputs" logic correctly keeps the `Sequence` ticking even on cycles where `Mix` picks its other branch, with zero attributes written anywhere except on the original `Sequence`.
+
+The `synchronous`/`sync` attribute is honored on `Sequence` and on every generator that extends `Generator`, whether or not the generator's own `configure()` reads it: the loader applies it after `configure()` runs. A generator that implements `IGenerator` directly, without extending `Generator`, reports whatever its own `isSynchronous()` returns and ignores the attribute. The rule for a filter that chooses between its inputs is in [section 9.6](#96-execution-contract-for-components).
 
 **When you *do* need to think about it**: only when your filter has *heterogeneous* input roles — some inputs are genuine "branches" whose synchronicity should matter, others are meta/parameter-like inputs (a schedule, a count, a threshold generator) whose synchronicity is irrelevant to whether the branches stay in lock-step. The built-in `Perturb` filter is the concrete example: it takes four inputs (`normal`, `disturbance`, `wait`, `duration`), but only
 `normal`/`disturbance` are branches in the relevant sense — an unusual model that happened to plug a synchronous generator in as the `wait` schedule shouldn't silently flip `Perturb` itself into synchronous mode. `Perturb` handles this by overriding
@@ -609,6 +633,80 @@ format.address.en_GB={number} {street}[, {unit}], {city}, {postalCode}
 
 US addresses keep the bundled US format.
 
+### 9.5 Collaborating Components (Pro)
+
+Most data in a model flows down the `<input>` tree: a filter calls `getNextObservation()` on each of its inputs, and every node has exactly one consumer. Sometimes a component needs to *read* state that belongs to another node without pulling it, for example the current patient's reference, a shared clock, or the next number in a sequence that several renderers share. The Collaborate channel is for that. A component that needs another node's state names it with a `collaborate.<role>` attribute:
+
+```xml
+<FhirIdRegistry name="Ids"/>
+<FhirPatientRender name="Pat" collaborate.idRegistry="Ids">...</FhirPatientRender>
+<FhirObservationRender name="HR" collaborate.patient="Pat" collaborate.idRegistry="Ids">...</FhirObservationRender>
+```
+
+Two interfaces in `com.obsvra.spicegrinder.core.interfaces` define the roles:
+
+- **`ICollaborationTarget`**: the node being read. It has one method, `IObservation collaborate(IObservation input)`. `input` is whatever the caller sends (an empty observation for a plain read); the return value is the target's answer. The target decides what collaboration means for its type.
+- **`ICollaborationConsumer`**: a marker for the node doing the reading. Implement it on any component that accepts `collaborate.<role>` attributes; without it, the loader rejects those attributes as unknown parameters.
+
+**Writing a consumer.** Resolve each reference in your own `configure()`, check its type, and keep it. Never pass it to `addInput()`: a collaborator isn't an input, and it must stay invisible to `getInputs()`.
+
+```java
+@Override
+public void configure(Collection<Pair<String, String>> settings, NodeMap registry) throws Exception {
+    super.configure(settings, registry);
+    for (Pair<String, String> p : settings) {
+        if ("collaborate.clock".equalsIgnoreCase(p.getKey())) {
+            IGenerator node = registry.getNode(p.getValue());
+            if (!(node instanceof ICollaborationTarget target)) {
+                throw new Exception(getName() + ": collaborate.clock must name an ICollaborationTarget");
+            }
+            clock = target;            // keep it; do NOT call addInput(node)
+        }
+    }
+}
+
+@Override
+public IObservation getNextObservation() throws SpiceGrinderException {
+    double now = ((INumericDataPoint) clock.collaborate(new Observation(0)).getAt(0)).doubleValue();
+    ...
+}
+```
+
+**Writing a target.** Implement `ICollaborationTarget` on a generator or filter, alongside its normal `getNextObservation()`. Document what `collaborate()` returns, its dimension, and what happens if it's called before the node's first pull (return an initial value, or throw `CollaborationException`).
+
+**The determinism rules.** SpiceGrinder guarantees that the same model and seed produce the same output. The Collaborate channel keeps that guarantee only if every target and consumer follows these rules:
+
+1. **`collaborate()` never draws a random number and never calls `getNextObservation()`**, on itself or any other node. Collaboration must never change which random numbers the `<input>` tree consumes.
+2. **A read doesn't advance anything.** If `collaborate()` is a read (the usual case), it must not change any state that `getNextObservation()` depends on. `CollaborationBeacon` and `FhirPatientRender` work this way: reading them a thousand times changes nothing.
+3. **A service target may advance its own state, but not randomly.** A target whose purpose is to hand something out, like `FhirIdRegistry` minting the next ID, may change its own state on each call, as long as the result depends only on that state and the call's `input`. Say so in its documentation.
+4. **Reads see the latest pull.** A read returns the target's state as of its most recent `getNextObservation()`. Within one row, whether that's this row's state or the previous row's depends on where the target sits in the pull order relative to the consumer. The result is deterministic, but moving nodes around in the tree can change it. A target may define stricter semantics of its own.
+5. **Don't collaborate during `configure()`.** Store the reference, but don't call `collaborate()` or rely on the target's configured state (such as its dimension) until generation starts. Collaborate references aren't part of the configure order, so the target may not be configured yet.
+6. **No call-back loops.** A `collaborate()` implementation must not call back, directly or indirectly, into the node that called it. Nothing detects such a loop; the result is a stack overflow.
+
+Collaborate references aren't checked by `ModelValidator` and don't count toward complexity scores. An unknown or wrong-type reference fails in the consumer's own `configure()`, so make that error message clear.
+
+`CollaborationBeacon` and `CollaborationWatcher` (`com.obsvra.spicegrinder.examples`) are small worked examples of a target and a consumer. They aren't covered by the 1.0 compatibility promise; for production use, write your own target as shown above.
+
+### 9.6 Execution contract for components
+
+The [Model File Format Reference](Model-File-Format-Reference.md#how-a-model-runs) describes what a model author can rely on: one row is one pull of the root, and when state advances and random numbers are drawn. These are the matching rules for a component you write.
+
+**`getNextObservation()` is the only place your component advances.** The engine calls it once for each time a parent pulls you, with no begin-row or end-row callback. Do all of your drawing and state changes there. Return a new `IObservation` each time, and treat `IDataPoint`s as immutable: filters pass them through without copying. State you keep between calls (a counter, a buffer, a running total) carries from one row to the next, and from one call to the next in a long run, exactly as `Sequence`, `Pool` and `Recur` do.
+
+**Capture the random source when you are constructed or configured, never at draw time.** Store `Randoms.get()` in a field in your `(String name)` constructor, like the built-ins do, or in `configure()`. The loader runs both inside your node's random-stream scope, so you get your node's own stream (or the shared one, under `streams="shared"`). Outside that scope, such as inside `getNextObservation()`, `Randoms.get()` returns the process-wide source, which is not your node's stream, so a seed would no longer reproduce your draws. Draw only from the source you captured, so a seed reproduces your output.
+
+**Don't pull or draw in `configure()`.** Configure order is the order of the input graph, not a row. Loading a model draws nothing, and a draw at load time would be a draw no row owns. (`Perturb` used to read its first wait in `configure()`; it now reads it on its first pull.)
+
+**Pull your inputs deterministically.** Which inputs you pull, how often, and in what order must depend only on the values you have read and on your own draws. If you pull a variable number of times (rejection sampling, choosing a branch), say so in your `@ComponentInfo` details, because it shifts what the nodes under you draw and, in `streams="shared"` models, every later draw.
+
+**Honor `synchronous` if you choose between inputs.** If your filter pulls only some of its inputs, and `isSynchronous()` is true, also pull each unchosen input that reports `isSynchronous()` and discard its value (see section 9.1). `Mix`, `Perturb` and `Address` follow this rule.
+
+**There is no reset.** SpiceGrinder 1.0 has no `reset()` on `IGenerator` or `IFilter`. A replication is a freshly loaded graph: seed, then load. Don't rely on `configure()` being called again to reinitialize you, and don't offer a reset of your own that skips the random stream. Nothing tells you when a run ends, so don't depend on a final call.
+
+**Throwing stops the run.** Throw a `SpiceGrinderException` (`InvalidParameterException` for a bad value) with your node's name when you can't produce a value. The engine doesn't roll anything back, and it doesn't call you again for that run: the rows already written stay written, and a Service call that failed drops its cached graph. What each way of running a model does with the rows before a failure is in [How a model runs](Model-File-Format-Reference.md#how-a-model-runs).
+
+**Collaboration targets.** `collaborate()` is called from inside the consumer's own `getNextObservation()` and sees your state as of your most recent pull; it can be called before your first pull. The determinism rules for a target, including what it may and may not change, are in [section 9.5](#95-collaborating-components-pro).
+
 ---
 
 ## 10. Checklist for a New Component
@@ -617,9 +715,11 @@ US addresses keep the bundled US format.
 2. Provide a public constructor that takes a single `String name`.
 3. Annotate the class with `@ComponentInfo` (optional but recommended).
 4. Annotate configurable fields with `@Parameter`, giving each an explicit `order` (0, 1, 2, ...) so its position in the compact `.sgm` format stays fixed.
+   Don't use `name`, `stream`, `seed` or anything starting with `collaborate.` as a parameter name or alias: those attributes mean the same thing on every node, and the registry refuses a component that declares one. (`synchronous`, with the alias `sync`, may be declared, because it mirrors the universal attribute. Use it with caution: if you declare it, keep its meaning, a synchronous node still advances when a `Mix`, `Perturb` or `Address` doesn't use its value, and don't reuse the name for anything else. The loader already applies the attribute to every generator that extends `Generator`, so a different meaning would conflict with it.)
 5. If your fields are simple scalars, you don't need to write `configure(...)` at all — `IGenerator`'s default reflectively binds every `@Parameter`-annotated field for you. Override `configure` only when you need something beyond that: manual parsing (loop over the `Collection<Pair<String,String>>` and match keys/aliases yourself; see `Skellam` in §5 — the less common pattern in Core, used when a component wants a single combined validation check across multiple fields rather than one), explicit `ReflectiveConfigurer.apply(this, descriptor, settings)` calls if you want the binding to happen at a specific point relative to other logic, input wiring (§9), or extra validation.
 6. Place the class on the classpath in a package that will be scanned, **or** register it explicitly, **or** refer to it by fully-qualified name in XML.
 7. (Optional) Ship a small sample XML snippet so users know the attribute names.
+8. Avoid the short names of built-in components, including `Recur`, `Markov`, `SharedState` and `ProcessFlow`: whichever is registered last would shadow the other.
 
 ---
 
@@ -659,3 +759,5 @@ com.acme.spice.extensions.MyExpensiveGenerator=6.8
 Note that the `--isolate` functionality has a tendency to significantly overweigh very simple components. If you have every reason to believe your component is simple, just leave it at the default `1.0` weight.
 
 See `docs/component-weights.properties.example` for the full format (this file is also how you'd override a *bundled* weight for your own measured hardware, not just add new ones — the two use cases share the same mechanism). No code change or SpiceGrinder rebuild needed either way; the file is read at first use and merged on top of the bundled default.
+
+The same file holds one setting that isn't a component: `output.perColumn`, the cost of writing one output column, which the analyzer uses for its separate `outputScore` (see the analyzer's manual page). It is very machine dependent (the best value ranged from 0.67 to 2.42 across 12 machines, against a shipped 1.46), so measure it on the platform you will run on, by timing a wide and a narrow model through `Grind` there, and override it the same way (`output.perColumn=2.0`); an organization can also set or enforce it as the key `weights.output.perColumn` (see Organization-config.md).

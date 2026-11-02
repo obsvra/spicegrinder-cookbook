@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Simulation 101, lesson 5.2: the cell-for-cell translation of the 5.1 store, and why it is a different store (PRO).
+
+  This keeps the two pipeline columns of the 5.1 Recur node as two cells and moves orders along them one place a day:
+    cell stock      units on the shelf at the end of the day
+    cell tomorrow   the order that arrives at the start of the next day
+    cell after      the order that arrives the day after that (the order placed in the last row)
+    cell lost, demand   as in inventory-shared-store.xml
+  Policy reads the three cells and orders Q = 40 when stock + tomorrow + after is at most R = 16 (the inventory position at the end of the
+  previous day); the new order goes into `after`, and `after` moves into `tomorrow`.
+  Because every read is one row behind, the order is decided one day later than in the 5.1 store and still takes 2 more days to arrive: three days
+  from the end of the day whose stock it looked at, where 5.1 took two. Same demand, same seed, same R and Q, but more stockouts (see lesson 5.2).
+  inventory-shared-store.xml is the version with the right pipeline length.
+
+  Output columns: 0 stock at the end of the day, 1 the order arriving tomorrow morning, 2 units lost today, 3 the day's demand, 4 the order placed today (it arrives the morning after tomorrow).
+  To run it:        grind with a count of 365 on samples/pro/inventory-shared-cellwise.xml   (one year)
+  10 nodes.
+-->
+<dataset columns="stock, orderTomorrow, lost, demand, orderPlaced" seed="501">
+  <root node="Day"/>
+  <nodes>
+    <SharedState name="Store" cells="stock=40, tomorrow=0, after=0, lost=0, demand=0"/>
+    <StateRead name="ShelfForPolicy" collaborate.state="Store" cells="stock, tomorrow, after"/>
+    <Calculate name="Policy" dimension="1" expression="y[0] = if(x[0] + x[1] + x[2] &lt;= 16, 40, 0)">
+      <input name="ShelfForPolicy"/>
+    </Calculate>
+    <StateWrite name="PlaceOrder" collaborate.state="Store" cells="after" mode="set">
+      <input name="Policy"/>
+    </StateWrite>
+    <StateRead name="ShelfForSales" collaborate.state="Store" cells="stock, tomorrow, after"/>
+    <NegativeBinomial name="Demand" r="8" p="0.5"/>
+    <Append name="Morning">
+      <input name="ShelfForSales"/>
+      <input name="Demand"/>
+    </Append>
+    <Calculate name="Sales" dimension="4"
+               expression="y[0] = max(0, x[0] + x[1] - x[3]); y[1] = x[2]; y[2] = max(0, x[3] - x[0] - x[1]); y[3] = x[3]">
+      <input name="Morning"/>
+    </Calculate>
+    <StateWrite name="Close" collaborate.state="Store" cells="stock, tomorrow, lost, demand" mode="set">
+      <input name="Sales"/>
+    </StateWrite>
+    <Append name="Day">
+      <input name="Close"/>
+      <input name="PlaceOrder"/>
+    </Append>
+  </nodes>
+</dataset>

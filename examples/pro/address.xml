@@ -16,7 +16,7 @@
   Output: one Observation of [address] per pull, address rendered as a single-line string
   ("123 Main St, Apt 4, Springfield, IL 62704") via AddressDataPoint's default format.
 -->
-<dataset analysis.version="1"
+<dataset columns="address" analysis.version="1"
 	analysis.timestamp="2026-09-24T14:47:32.711269Z"
 	analysis.mode="PARTIAL"
 	analysis.node_count="3"
@@ -35,9 +35,9 @@
 			<input name="Street" role="street"/>
 		</Address>
 		<FlatFile name="Location"
-			file="samples/pro/city_state_zip.csv"
+			file="city_state_zip.csv"
 			textColumns="2"
 			mode="unweighted"/>
-		<FlatFile name="Street" file="samples/pro/street_names_weighted.csv" mode="weighted"/>
+		<FlatFile name="Street" file="street_names_weighted.csv" mode="weighted"/>
 	</nodes>
 </dataset>

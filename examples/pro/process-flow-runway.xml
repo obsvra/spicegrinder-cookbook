@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  A runway that shrinks in bad weather, where landings go before take-offs (Pro).
+
+  Aircraft arrive all day, half to land and half to depart, in a rate that peaks at noon. Time is in hours. Both kinds need a runway for about 2 minutes (landing) or
+  1.5 minutes (take-off), and there are two runways, except in a weather window from 07:00 to 10:00 when only one can be used.
+    resources="Runway:2"                              a pool of two runway units; each landing or take-off takes one for its length
+    poolSchedule="Runway: 0:2, 7:1, 10:2"             the pool follows the clock (repeating every 24 hours): 1 unit from 07:00 to 10:00; a drop never ends an operation in progress
+    contend="Landing > Takeoff"                       when a unit comes free and both kinds are waiting, a landing goes first (an aircraft in the air cannot wait)
+    serviceScale="Takeoff: if(mod(time, 24) > 18, 1.3, 1)"   after 18:00 a take-off takes 30 percent longer: the clock (time) is a name in serviceScale
+  Output columns, 9 per row: 0 time, 1 aircraft, 2 station (0 Landing, 1 Takeoff), 3 event type (0 arrive, 1 start, 2 finish, 3 exit, 7 pool step), 4 queue, 5 busy, 6 aircraft
+  in the system, 7 free runway units after the event, 8 the servers available at the row's station (always unlimited here, shown as a large number).
+  The delay of an aircraft is the time from its arrive row to its start row. Departures wait longer than arrivals because landings have priority.
+
+  To run it:        grind with a count of 20000 on samples/pro/process-flow-runway.xml (the run ends itself after two days)
+  What to look for: the pool steps appear as type 7 rows at 7:00 and 10:00 each day; the queue of Takeoff builds in the weather window while Landing hardly queues; without
+                    the contend option the two queues would be about the same.
+-->
+<dataset columns="time, aircraft, station, type, queue, busy, inSystem, freeRunways, servers" seed="20261016">
+  <root node="Airport"/>
+  <nodes>
+    <Exponential name="Gap" lambda="1"/>
+    <Exponential name="LandTime" lambda="30"/>
+    <Exponential name="DepartTime" lambda="40"/>
+    <ProcessFlow name="Airport" stations="Landing:inf, Takeoff:inf" entry="Landing:0.5, Takeoff:0.5"
+                 resources="Runway:2" needs="Landing: Runway; Takeoff: Runway" poolSchedule="Runway: 0:2, 7:1, 10:2" schedulePeriod="24" contend="Landing > Takeoff"
+                 serviceScale="Takeoff: if(mod(time, 24) > 18, 1.3, 1)"
+                 rate="0:20, 6:50, 12:70, 18:50, 22:20" rateMode="linear" ratePeriod="24" until="48">
+      <input name="Gap" role="arrival"/>
+      <input name="LandTime" role="service.Landing"/>
+      <input name="DepartTime" role="service.Takeoff"/>
+    </ProcessFlow>
+  </nodes>
+</dataset>

@@ -6,8 +6,13 @@
   fresh for every die roll. Here it's a standalone, importable sub-model instead, meant to
   be pulled in via Import wherever a die roll belongs. See
   samples/pro/dnd-ability-scores-import.xml for the model that does that.
+
+  The next layer up is samples/pro/roll-die.xml: the same die with the number of sides as a
+  declared parameter (d4, d8, d20...). At its default it is the same die as this file: with
+  streams="shared" on the dataset it gives exactly the same rows for the same seed (with the
+  default per-node streams the import prefix is part of each node's identity, so the draws differ).
 -->
-<dataset>
+<dataset columns="roll">
 	<root node="D6"/>
 	<nodes>
 		<Uniform name="Die" min="1" max="7"/>

@@ -9,7 +9,7 @@
     samples/pro/financial/claims-imported.xml           — Import decomposition
     samples/pro/financial/claims-core-lib.xml           — reusable Frequency+Severity library
 -->
-<dataset seed="42">
+<dataset columns="claimCount, severity" seed="42">
 	<root node="ClaimObservation"/>
 	<nodes>
 		<Append name="ClaimObservation">

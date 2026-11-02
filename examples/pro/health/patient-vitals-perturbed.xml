@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<dataset seed="42"
+<dataset columns="heartRate, systolicBp, spo2" seed="42"
 	analysis.version="1"
 	analysis.timestamp="2026-09-05T02:04:38.320451Z"
 	analysis.mode="PARTIAL"

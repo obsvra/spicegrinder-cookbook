@@ -22,7 +22,7 @@
   Dates are fixed parameters rather than the system clock, so the same model
   and seed produce the same file bytes on any machine, on any day.
 -->
-<dataset seed="42">
+<dataset columns="achFile" seed="42">
 	<root node="AchFile"/>
 	<nodes>
 		<NachaFileAssembler name="AchFile"

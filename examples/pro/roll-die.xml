@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Pro/Import library: roll a die with ANY number of sides.
+
+  The next layer up from samples/pro/d6-lib.xml. That file is a die fixed at six faces; this
+  one takes the number of sides as a declared parameter (d, default 6), so one library file
+  serves a d4, d6, d8, d10, d12, d20, d100... An importing model picks the die by overriding d:
+
+      <Import name="D20" file="roll-die.xml" d="20"/>
+
+  See samples/pro/two-dice.xml for a model that imports it twice, once as it stands (a d6) and
+  once as a d20.
+
+  How it works: Uniform draws from [0, d), Calculate adds 1 to give [1, d+1), and ToInteger
+  (floor) turns that into the whole numbers 1 through d, each equally likely. The +1 is its
+  own step because a declared parameter only substitutes where it is the WHOLE attribute value
+  ($d), never inside an expression like "$d + 1".
+
+  Left at its default (d = 6), this is the same die as d6-lib.xml: with streams="shared" on the
+  dataset it gives exactly the same rows for the same seed (with the default per-node streams the
+  import prefix is part of each node's identity, so the draws differ).
+  The same library exists as roll-die.json and roll-die.sgm; all three give the same rows for
+  the same seed.
+-->
+<dataset columns="roll">
+	<root node="Roll"/>
+	<definitions>
+		<declare name="d" value="6"/>
+	</definitions>
+	<nodes>
+		<Uniform name="Base" min="0" max="$d"/>
+
+		<Calculate name="Die" expression="y[0] = x[0] + 1">
+			<input name="Base"/>
+		</Calculate>
+
+		<ToInteger name="Roll" mode="floor">
+			<input name="Die"/>
+		</ToInteger>
+	</nodes>
+</dataset>

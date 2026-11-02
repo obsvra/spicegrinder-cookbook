@@ -9,5 +9,6 @@
 # purpose, to prove the fix, not by oversight.
 
 dataset.root = Vitals
+dataset.columns = "heartRate, systolicBp, spo2"
 
 Vitals = MultivariateNormal(means=(72, 118, 98), sigmas=(8, 12, 1.5))

@@ -14,7 +14,7 @@
 
   Output: one Observation of [domainName] per pull.
 -->
-<dataset>
+<dataset columns="domainName">
 	<root node="Website"/>
 	<nodes>
 		<DomainName name="Website">
@@ -25,7 +25,7 @@
 			<input name="Word"/>
 			<input name="TLD"/>
 		</Append>
-		<FlatFile name="Word" file="samples/pro/email_words.txt" mode="unweighted"/>
-		<FlatFile name="TLD" file="samples/pro/domain_tlds.csv" mode="unweighted"/>
+		<FlatFile name="Word" file="email_words.txt" mode="unweighted"/>
+		<FlatFile name="TLD" file="domain_tlds.csv" mode="unweighted"/>
 	</nodes>
 </dataset>

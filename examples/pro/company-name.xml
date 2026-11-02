@@ -15,7 +15,7 @@
 
   Output: one Observation of [companyName] per pull.
 -->
-<dataset>
+<dataset columns="companyName">
 	<root node="Vendor"/>
 	<nodes>
 		<CompanyName name="Vendor">
@@ -27,8 +27,8 @@
 			<input name="Word2"/>
 			<input name="Suffix"/>
 		</Append>
-		<FlatFile name="Word1" file="samples/pro/email_words.txt" mode="unweighted"/>
-		<FlatFile name="Word2" file="samples/pro/email_words.txt" mode="unweighted"/>
-		<FlatFile name="Suffix" file="samples/pro/business_suffixes.csv" mode="unweighted"/>
+		<FlatFile name="Word1" file="email_words.txt" mode="unweighted"/>
+		<FlatFile name="Word2" file="email_words.txt" mode="unweighted"/>
+		<FlatFile name="Suffix" file="business_suffixes.csv" mode="unweighted"/>
 	</nodes>
 </dataset>

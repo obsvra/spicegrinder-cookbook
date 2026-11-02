@@ -17,7 +17,7 @@
   Nominal realism, like the US sample: city, province and postal code agree with each other, but the
   street isn't claimed to exist in that city.
 -->
-<dataset>
+<dataset columns="address">
 	<root node="CanadianAddress"/>
 	<nodes>
 		<Address name="CanadianAddress" country="CA">
@@ -27,12 +27,12 @@
 		</Address>
 
 		<FlatFile name="Location"
-			file="samples/pro/city_province_postal_ca.csv"
+			file="city_province_postal_ca.csv"
 			mode="weighted"
 			weightColumn="0"/>
-		<FlatFile name="Street" file="samples/pro/street_names_ca_weighted.csv" mode="weighted"/>
+		<FlatFile name="Street" file="street_names_ca_weighted.csv" mode="weighted"/>
 		<FlatFile name="QuebecStreet"
-			file="samples/pro/street_names_qc_weighted.csv"
+			file="street_names_qc_weighted.csv"
 			mode="weighted"/>
 	</nodes>
 </dataset>

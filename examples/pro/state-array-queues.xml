@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Six queues in a SharedState array, one served each step (Pro).
+
+  Six queues receive customers at different rates, and a single server serves the LONGEST queue each step (the lowest-numbered on a tie). The six lengths live in
+  one SharedState cell array, q[1..6] (the cells q1 to q6, all starting at 0), instead of six cells listed by hand:
+    StateRead  cells="q[1..6]"       the six lengths as of the end of the previous step, six columns
+    Step (Calculate)                 adds the arrivals, takes one customer from the longest queue (if it has one), and gives the six new lengths and the number of
+                                     the queue served (1 to 6)
+    StateWrite cells="q[1..6], -"    stores the six new lengths; the "-" marks the seventh column, the queue served, as NOT stored, so it passes through to the output
+                                     without a cell of its own
+  The arrivals are Poisson with means 0.11 to 0.16 per step (written Poisson lambda="0.1${i}" for i = 1 to 6, one node each by foreach: Arrive1 to Arrive6), 0.81 in all
+  against a service rate of 1 per step.
+  Output columns, 7 per row: 0 to 5 the length of queue 1 to 6 after the step, 6 the queue served (1 to 6).
+
+  To run it:        grind with a count of 100000 on samples/pro/state-array-queues.xml
+  What to look for: the queue served (column 6) is mostly the longest queue, so the lengths stay close together; the lengths start at 0, so early rows are lower.
+-->
+<dataset columns="q1, q2, q3, q4, q5, q6, served" seed="20261015">
+  <root node="Write"/>
+  <nodes>
+    <SharedState name="Queues" cells="q[1..6]=0"/>
+    <StateRead name="Now" collaborate.state="Queues" cells="q[1..6]"/>
+    <Poisson name="Arrive${i}" foreach="i=1..6" lambda="0.1${i}"/>
+    <Append name="Arrivals">
+      <input name="Arrive${i}" foreach="i=1..6"/>
+    </Append>
+    <Append name="Both">
+      <input name="Now"/>
+      <input name="Arrivals"/>
+    </Append>
+    <Calculate name="Step" dimension="7"
+               expression="let k = argmax(x[0..5]);&#10;@foreach j=0..5&#10;y[${j}] = x[${j}] + x[${j+6}] - (k == ${j}) * (x[${j}] > 0);&#10;@end&#10;y[6] = k + 1">
+      <input name="Both"/>
+    </Calculate>
+    <StateWrite name="Write" collaborate.state="Queues" cells="q[1..6], -">
+      <input name="Step"/>
+    </StateWrite>
+  </nodes>
+</dataset>

@@ -8,7 +8,7 @@
 
   Output: one Observation of [givenName, surname] per pull.
 -->
-<dataset>
+<dataset columns="givenName, surname">
 	<root node="Name"/>
 	<nodes>
 		<Append name="Name">
@@ -16,7 +16,7 @@
 			<input name="Surname"/>
 		</Append>
 
-		<FlatFile name="GivenName" file="samples/pro/male_names_weighted.csv" mode="weighted"/>
-		<FlatFile name="Surname" file="samples/pro/surnames_weighted.csv" mode="weighted"/>
+		<FlatFile name="GivenName" file="male_names_weighted.csv" mode="weighted"/>
+		<FlatFile name="Surname" file="surnames_weighted.csv" mode="weighted"/>
 	</nodes>
 </dataset>

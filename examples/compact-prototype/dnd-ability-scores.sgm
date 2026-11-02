@@ -1,7 +1,8 @@
 # Prototype .sgm translation of samples/dnd-ability-scores.xml -- see
-# docs/internal/Compact-Model-Format-Design.md's "Sample conversion exercise" section.
+# the compact-format design notes' "Sample conversion exercise" section.
 
 dataset.root = SixStats
+dataset.columns = "str, dex, con, int, wis, cha"
 
 Die = Uniform(1, 7)
 D6 = ToInteger(Die, mode="floor")

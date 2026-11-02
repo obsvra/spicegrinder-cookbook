@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Two lifts through a working day: up-traffic in the morning, down-traffic in the evening (Pro).
+
+  People reach a two-level building at random (about one every 5 minutes) and either go up from the lobby or come down from the upper level. Which they do depends on the clock:
+  90 percent go up in the first two hours, half and half in the next two, and 90 percent go down in the last two. The entity input is therefore chosen by the clock:
+    <input ... role="entity"/>        the traffic mix from time 0 (Bernoulli 0.1 of coming down)
+    <input ... role="entity@120"/>    from minute 120 (0.5)
+    <input ... role="entity@240"/>    from minute 240 (0.9)
+  Entities start at Door (instant), which sends those with dir=1 to the Lobby and dir=2 to UpperDep with the conditional edges Door[dir=1]>Lobby and Door[dir=2]>UpperDep; each is carried
+  to the other level by a lift (carry), and arrives at UpperArr or LobbyArr, where it leaves. The two lifts are a fleet of 2 with capacity 4, speed 1 level-unit a minute (10 units
+  between the levels), 1 minute lost at a stop and 0.2 per person, and park=Lobby sends an idle lift back to the lobby.
+  Time is in minutes. Output columns, 10 per row: 0 time, 1 person, 2 station (0 Door, 1 Lobby, 2 UpperDep, 3 UpperArr, 4 LobbyArr), 3 event type (0 arrive, 1 start, 2 finish, 3 exit,
+  4 call, 5 board, 6 alight), 4 queue, 5 busy, 6 people in the building, 7 dir (1 up, 2 down), 8 lift (0 or 1, or -1), 9 people in that lift. The wait for a lift is the time from a
+  person's call row to their board row. With output="entities" a row is a person who has left and the columns include rideWait and ride.
+
+  To run it:        grind with a count of 2000 on samples/pro/process-flow-lifts-day.xml (the run ends after six hours)
+  What to look for: with output="entities", counting people by the time they leave (the experiment tool with the keep option on column 0), the share going down is 0.11 in the first two hours, 0.45 in the
+                    next two and 0.84 in the last two (30 seeds); the mean wait for a lift is 5.7, 5.6 and 5.6 minutes. Without the entity@time inputs the mix could not change with the clock.
+-->
+<dataset columns="time, person, station, type, queue, busy, inSystem, dir, lift, inLift" seed="20261016">
+  <root node="Building"/>
+  <nodes>
+    <Exponential name="Gap" lambda="0.2"/>
+    <Bernoulli name="DownMorning" p="0.1"/>
+    <Bernoulli name="DownMidday" p="0.5"/>
+    <Bernoulli name="DownEvening" p="0.9"/>
+    <Calculate name="Morning" expression="y[0] = 1 + x[0]"><input name="DownMorning"/></Calculate>
+    <Calculate name="Midday" expression="y[0] = 1 + x[0]"><input name="DownMidday"/></Calculate>
+    <Calculate name="Evening" expression="y[0] = 1 + x[0]"><input name="DownEvening"/></Calculate>
+    <Constant name="Z1" value="0"/>
+    <Constant name="Z2" value="0"/>
+    <Constant name="Z3" value="0"/>
+    <Constant name="Z4" value="0"/>
+    <Constant name="Z5" value="0"/>
+    <ProcessFlow name="Building" stations="Door, Lobby, UpperDep, UpperArr, LobbyArr" entry="Door" attributes="dir" until="360"
+                 routing="Door[dir=1]>Lobby:1; Door[dir=2]>UpperDep:1; Lobby>UpperArr:1; UpperDep>LobbyArr:1"
+                 positions="Lobby:0, LobbyArr:0, UpperDep:10, UpperArr:10"
+                 fleets="Lift:2 capacity=4 speed=1 stop=1 load=0.2 home=Lobby park=Lobby"
+                 carry="Lobby>UpperArr:Lift; UpperDep>LobbyArr:Lift">
+      <input name="Gap" role="arrival"/>
+      <input name="Morning" role="entity"/>
+      <input name="Midday" role="entity@120"/>
+      <input name="Evening" role="entity@240"/>
+      <input name="Z1" role="service.Door"/>
+      <input name="Z2" role="service.Lobby"/>
+      <input name="Z3" role="service.UpperDep"/>
+      <input name="Z4" role="service.UpperArr"/>
+      <input name="Z5" role="service.LobbyArr"/>
+    </ProcessFlow>
+  </nodes>
+</dataset>

@@ -1,6 +1,7 @@
 {
   "dataset": {
     "root": "Vitals",
+    "columns": "heartRate, systolicBp, spo2",
     "nodes": [
       {
         "type": "MultivariateNormal",

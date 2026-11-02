@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Simulation 101, lesson 5.2: the lesson 5.1 store rebuilt with SharedState (PRO).
+
+  The same store as samples/simulation/inventory-recur-store.xml, one row per day: demand NegativeBinomial(r=8, p=0.5) (mean 8, variance 16),
+  reorder point R = 16, order quantity Q = 40, lost sales, 40 units on the shelf at the start and nothing on order. The state is no longer
+  inside one Recur node. It lives in a SharedState named Store, and separate nodes read it and write it:
+    cell stock    units on the shelf at the end of the day
+    cell due      the order that arrives at the start of the next day (0 for none)
+    cell lost     units of demand lost today        (written so the day's numbers go through the same door; nothing reads them)
+    cell demand   the day's demand                  (same)
+  Policy (a Calculate of its own) reads stock and due and decides the order; PlaceOrder writes it into due.
+  Sales reads stock and due and the day's demand, and Close writes the new stock, the lost units and the demand.
+
+  A read gives the value as of the end of the previous row, and a write takes effect for the next row. So in row n the Policy sees the stock at the end
+  of day n-1, which is when the 5.1 store made the same decision, and the order it places arrives at the start of row n+1, exactly when the 5.1 order
+  placed at the end of day n-1 arrived. One cell for the pipeline is enough: the one-row delay of the loop is the other day of the 2-day lead time.
+  With the same seed this model gives the same stock, lost and demand columns as inventory-recur-store.xml, day for day.
+
+  Output columns: 0 stock at the end of the day, 1 units lost today, 2 the day's demand, 3 the order that arrives tomorrow morning (it is the
+  5.1 model's "due tomorrow" column).  The order of the nodes in the file, and of the two subtrees under the root Append, changes nothing but the column order.
+
+  To run it:        grind with a count of 365 on samples/pro/inventory-shared-store.xml   (one year)
+  What to look for: the same service numbers as lesson 5.1 (about 16.1 stockout days a year, fill rate 97.6%, 71.3 orders a year, average stock 21.0).
+  10 nodes (the store plus 9 that read, decide, write and record).
+-->
+<dataset columns="stock, lost, demand, orderDue" seed="501">
+  <root node="Day"/>
+  <nodes>
+    <SharedState name="Store" cells="stock=40, due=0, lost=0, demand=0"/>
+    <StateRead name="ShelfForPolicy" collaborate.state="Store" cells="stock, due"/>
+    <Calculate name="Policy" dimension="1" expression="y[0] = if(x[0] + x[1] &lt;= 16, 40, 0)">
+      <input name="ShelfForPolicy"/>
+    </Calculate>
+    <StateWrite name="PlaceOrder" collaborate.state="Store" cells="due" mode="set">
+      <input name="Policy"/>
+    </StateWrite>
+    <StateRead name="ShelfForSales" collaborate.state="Store" cells="stock, due"/>
+    <NegativeBinomial name="Demand" r="8" p="0.5"/>
+    <Append name="Morning">
+      <input name="ShelfForSales"/>
+      <input name="Demand"/>
+    </Append>
+    <Calculate name="Sales" dimension="3"
+               expression="y[0] = max(0, x[0] + x[1] - x[2]); y[1] = max(0, x[2] - x[0] - x[1]); y[2] = x[2]">
+      <input name="Morning"/>
+    </Calculate>
+    <StateWrite name="Close" collaborate.state="Store" cells="stock, lost, demand" mode="set">
+      <input name="Sales"/>
+    </StateWrite>
+    <Append name="Day">
+      <input name="Close"/>
+      <input name="PlaceOrder"/>
+    </Append>
+  </nodes>
+</dataset>

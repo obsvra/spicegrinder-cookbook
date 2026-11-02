@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Simulation 101, lesson 5.3: a store as a library (PRO: SharedState, declare + Import).
+
+  The store of lesson 5.2 with a different supply side: it does not order from the outside world, it asks a warehouse. One row is one day.
+    cell stock   units on the shelf at the end of the day
+    cell rcv     units that arrive at the start of the next day (the library clears it every row; the importing model adds the shipment)
+    cell req     the request sent to the warehouse (Q units, or 0), written by the store's policy
+    cell dem     the day's demand, written by the importing model (the store has customers, but they live outside the library)
+    cell lost, seen   the day's lost units and the demand the store saw (written so the day's numbers go through the same door)
+  Policy: if stock + rcv + req <= R, request Q.  The three terms are the shelf, the shipment arriving now and the request the warehouse is still filling.
+  Sales:  stock := max(0, stock + rcv - dem); lost := max(0, dem - stock - rcv).
+  Lost sales. A shortfall at the warehouse is never made up: a request is filled in full, in part, or not at all, and what is not shipped is not owed.
+
+  Declared parameters (overridable per Import; a declare replaces a whole attribute value, so R and Q travel as Constant columns and the
+  cells string is declared as a whole):   R (default 32)   Q (default 12)   cells (default "stock=40, rcv=0, req=0, dem=0, lost=0, seen=0")
+
+  Run on its own the store has no customers and no supplier: every row is the same (nothing sells, nothing is requested, the shelf stays at 40).
+  Its use is to be imported: samples/pro/inventory-warehouse.xml imports it twice.
+  Output columns: 0 stock at the end of the day, 1 units lost today, 2 the demand the store saw today, 3 the request it sent today.
+  Lead time, counted from the end of the day the policy looked at: 3 days (one for the policy's read, one for the warehouse's read, one in the shipment's cell).
+  14 nodes.
+-->
+<dataset columns="stock, lost, demand, request">
+  <root node="Day"/>
+  <definitions>
+    <declare name="cells" value="stock=40, rcv=0, req=0, dem=0, lost=0, seen=0"/>
+    <declare name="R" value="32"/>
+    <declare name="Q" value="12"/>
+  </definitions>
+  <nodes>
+    <SharedState name="Store" cells="$cells"/>
+    <StateRead name="ShelfForPolicy" collaborate.state="Store" cells="stock, rcv, req"/>
+    <Constant name="Rcol" value="$R" type="double"/>
+    <Constant name="Qcol" value="$Q" type="double"/>
+    <Append name="PolicyIn">
+      <input name="ShelfForPolicy"/>
+      <input name="Rcol"/>
+      <input name="Qcol"/>
+    </Append>
+    <Calculate name="Policy" dimension="1" expression="y[0] = if(x[0] + x[1] + x[2] &lt;= x[3], x[4], 0)">
+      <input name="PolicyIn"/>
+    </Calculate>
+    <StateWrite name="PlaceRequest" collaborate.state="Store" cells="req" mode="set">
+      <input name="Policy"/>
+    </StateWrite>
+    <StateRead name="ShelfForSales" collaborate.state="Store" cells="stock, rcv, dem"/>
+    <Calculate name="Sales" dimension="3"
+               expression="y[0] = max(0, x[0] + x[1] - x[2]); y[1] = max(0, x[2] - x[0] - x[1]); y[2] = x[2]">
+      <input name="ShelfForSales"/>
+    </Calculate>
+    <StateWrite name="Close" collaborate.state="Store" cells="stock, lost, seen" mode="set">
+      <input name="Sales"/>
+    </StateWrite>
+    <Constant name="Zero" value="0" type="double"/>
+    <StateWrite name="ClearReceipts" collaborate.state="Store" cells="rcv" mode="set">
+      <input name="Zero"/>
+    </StateWrite>
+    <Append name="Pair">
+      <input name="Close"/>
+      <input name="PlaceRequest"/>
+      <input name="ClearReceipts"/>
+    </Append>
+    <Arrange name="Day" columns="0,1,2,3">
+      <input name="Pair"/>
+    </Arrange>
+  </nodes>
+</dataset>

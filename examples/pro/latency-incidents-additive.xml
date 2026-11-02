@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Simulation 101, lesson 4.4, incidents that ADD delay (PRO: Perturb with mode="add").  One row = one request.
+     Column 0  latency in ms.   Column 1  incident flag: 0 while healthy, 1 during an incident (the model reports its own state).
+       Healthy   Lognormal, median 30 ms (mu = ln 30 = 3.4011973816621555), sigma 0.3: the request as it is without an incident
+       Extra     Lognormal, median 170 ms (mu = ln 170 = 5.135798437050262), sigma 0.5: the delay a slow dependency ADDS to a request
+       Gap       healthy requests between incidents: Exponential with mean 5,000 (lambda 0.0002), rounded UP to a whole number with ToInteger
+       Length    requests per incident: Geometric(p = 0.002), mean 500
+     Same incident schedule as latency-incidents.xml.  The difference is in what an incident does: with the default mode="replace" the
+     degraded latency replaces the healthy one; with mode="add" an incident request takes the healthy latency AND the extra delay, so
+     its latency is Healthy + Extra (mean 31.4 + 192.6 = 224.0 ms, median about 201 ms) and never less than the healthy request it started
+     from.  The healthy node is pulled on every row, whatever the phase.  The flag is added the same way: both branches are two columns
+     (latency, flag), the healthy branch carries a flag of 0 and the incident branch a flag of 1, and Perturb adds them column by column,
+     so the flag column reads 0 + 1 during an incident.  The Lognormal nodes and Perturb are synchronous as in latency-incidents.xml.
+     Expected share of requests inside an incident about 500 / (5,000.5 + 500) = 9.09%; incidents per 1,000,000 requests about 181.8.
+     A day of 1,000,000 requests: run Grind with a count of 1000000 on this file.     10 nodes. -->
+<dataset columns="latency, inIncident" seed="404">
+  <root node="Latency"/>
+  <nodes>
+    <Lognormal name="HealthyLatency" mu="3.4011973816621555" sigma="0.3" synchronous="true"/>
+    <Lognormal name="ExtraDelay" mu="5.135798437050262" sigma="0.5" synchronous="true"/>
+    <Constant name="Zero" value="0" type="double"/>
+    <Constant name="One" value="1" type="double"/>
+    <Append name="Healthy">
+      <input name="HealthyLatency"/>
+      <input name="Zero"/>
+    </Append>
+    <Append name="Incident">
+      <input name="ExtraDelay"/>
+      <input name="One"/>
+    </Append>
+    <Exponential name="GapRaw" lambda="0.0002"/>
+    <ToInteger name="Gap" mode="ceiling">
+      <input name="GapRaw"/>
+    </ToInteger>
+    <Geometric name="IncidentLength" p="0.002"/>
+    <Perturb name="Latency" repeat="true" synchronous="true" mode="add">
+      <input name="Healthy" role="normal"/>
+      <input name="Incident" role="disturbance"/>
+      <input name="Gap" role="wait"/>
+      <input name="IncidentLength" role="duration"/>
+    </Perturb>
+  </nodes>
+</dataset>
