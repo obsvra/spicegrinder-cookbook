@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  The subway with real trains: how full do they get, and who is left on the platform? (Pro; every number is a placeholder)
+
+  The same ten places, three lines and demand as samples/pro/process-flow-subway.xml, but the lines now run trains instead of drawing each rider's wait:
+    network="Metro: walk=3 ...; Red = A B C D E back hop=2 stop=0.5 turn=2 trains=${red} capacity=${capacity}; ..."   the lines, their trains and how many riders a train holds
+    transit="Gate>exit: Metro from=o to=d"   a rider who passes the gate rides the network from place o to place d and then leaves
+  A line with trains has no headway: its trains start evenly spaced round the cycle (Red 24 minutes, Green 18, Blue 15, so 6, 6 and 5 minutes apart with the declares
+  red=4, green=3 and blue=3) and keep running. At a place the riders whose leg ends there get off, the riders waiting there board in the order they came up to the
+  capacity, and the train leaves after its stop (0.5 minute, more at the ends). A rider who finds the train full is left on the platform for the next one (a denied
+  row). One train stands at a platform at a time, so a train that catches up with the one ahead waits behind it: that is how trains bunch. Routes are still the least
+  expected time from the headways above and do not change when a train is full.
+  Output is the event log, 14 named columns per row: time, rider (0 for a train alone), station (the gate, or -1 on a depart row), type, queue (riders waiting on that
+  platform), busy, inSystem, od, o, d, vehicle (the train, 0 to 9, or -1), load (riders aboard after the event), place (0 A to 9 J) and line (0 Red, 1 Green, 2 Blue).
+  The types are 0 arrive, 1 start, 2 finish, 3 exit, 4 call (reaches the platform), 5 board, 6 alight, 14 depart (a train leaves a place; its load is what it carries on)
+  and 15 denied (left behind by a train). Arrivals stop at 18 h and the run ends when the last rider leaves.
+
+  To run it:        grind with a count of 100000 on samples/pro/process-flow-subway-trains.xml (a full day is some two million rows; the run ends itself)
+  What to look for: filter type = 14 and group by vehicle to see each train's load round its cycle; the busiest trains carry more than a hundred riders in the early
+                    and end parts of the day. Try capacity=60 to see riders denied and the loads pinned at the limit, or red=2 for thin service.
+-->
+<dataset seed="20261024" columns="time, rider, station, type, queue, busy, inSystem, od, o, d, vehicle, load, place, line">
+  <definitions>
+    <declare name="red" value="4" type="int" min="1" max="12"/>
+    <declare name="green" value="3" type="int" min="1" max="12"/>
+    <declare name="blue" value="3" type="int" min="1" max="12"/>
+    <declare name="capacity" value="200" type="int" min="1" max="2000"/>
+  </definitions>
+  <root node="Subway"/>
+  <nodes>
+    <Exponential name="Gap" lambda="1"/>
+    <Constant name="Instant" value="0"/>
+    <Categorical name="EarlyPair" weights="12 12 12 3 12 12 12 3 3 1 4 4 1 4 4 4 1 1 1 4 4 1 4 4 4 1 1 1 4 4 1 4 4 4 1 1 3 12 12 12 12 12 12 3 3 1 4 4 4 1 4 4 1 1 1 4 4 4 1 4 4 1 1 1 4 4 4 1 4 4 1 1 3 12 12 12 3 12 12 12 3 3 12 12 12 3 12 12 12 3"/>
+    <Categorical name="MidPair" weights="1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1"/>
+    <Categorical name="EndPair" weights="1 1 1 4 1 1 1 4 4 12 3 3 12 3 3 3 12 12 12 3 3 12 3 3 3 12 12 12 3 3 12 3 3 3 12 12 4 1 1 1 1 1 1 4 4 12 3 3 3 12 3 3 12 12 12 3 3 3 12 3 3 12 12 12 3 3 3 12 3 3 12 12 4 1 1 1 4 1 1 1 4 4 1 1 1 4 1 1 1 4"/>
+    <Calculate name="EarlyRider" dimension="3" expression="let o = floor(x[0] / 9); let j = x[0] - 9 * o; y[0] = x[0]; y[1] = o; y[2] = j + (j >= o)"><input name="EarlyPair"/></Calculate>
+    <Calculate name="MidRider" dimension="3" expression="let o = floor(x[0] / 9); let j = x[0] - 9 * o; y[0] = x[0]; y[1] = o; y[2] = j + (j >= o)"><input name="MidPair"/></Calculate>
+    <Calculate name="EndRider" dimension="3" expression="let o = floor(x[0] / 9); let j = x[0] - 9 * o; y[0] = x[0]; y[1] = o; y[2] = j + (j >= o)"><input name="EndPair"/></Calculate>
+    <ProcessFlow name="Subway" stations="Gate:inf" routing="Gate>exit:1" attributes="od, o, d" closes="1080"
+                 rate="0:50, 240:30, 840:45" rateMode="step"
+                 network="Metro: walk=3 places=A,B,C,D,E,F,G,H,I,J;
+                          Red   = A B C D E   back hop=2 stop=0.5 turn=2   trains=${red} capacity=${capacity};
+                          Green = C G I J     back hop=2 stop=0.5 turn=1.5 trains=${green} capacity=${capacity};
+                          Blue  = B F G H D C loop hop=2 stop=0.5          trains=${blue} capacity=${capacity}"
+                 transit="Gate>exit: Metro from=o to=d">
+      <input name="Gap" role="arrival"/>
+      <input name="EarlyRider" role="entity"/>
+      <input name="MidRider" role="entity@240"/>
+      <input name="EndRider" role="entity@840"/>
+      <input name="Instant" role="service.Gate"/>
+    </ProcessFlow>
+  </nodes>
+</dataset>

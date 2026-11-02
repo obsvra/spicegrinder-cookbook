@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ProcessFlow, a network: a walk-in clinic with three stations and routing (PRO: ProcessFlow).
+
+  Patients arrive at random, on average one every 2 minutes (Exponential, lambda 0.5), and go through
+    Reception  2 clerks   service Exponential, mean 3 minutes     then always to Triage
+    Triage     1 nurse    service Exponential, mean 1.5 minutes   then to the Doctor with probability 0.7, otherwise home
+    Doctor     3 doctors  service Exponential, mean 6 minutes     then home with probability 0.9, back to Triage with probability 0.1 (a second look)
+  Every station has one first-come-first-served line. One row is one patient who has left (output="entities"), so averages over the rows are the patient averages.
+  Output columns, 6 per row: 0 the time the patient left (minutes)   1 patient number (in order of arrival; rows are in order of leaving, so not in this order)
+    2 minutes in the clinic   3 minutes spent waiting in lines (all visits)   4 minutes in service (all visits)   5 visits to stations
+  Closed forms (an open Jackson network: each station behaves as an M/M/c queue with its own arrival rate):
+    station         arrivals per minute   utilization   mean wait in line (minutes)
+    Reception       0.5000                0.7500        3.857
+    Triage          0.5376                0.8065        6.250
+    Doctor          0.3763                0.7527        4.625
+    visits per patient 2.828      service per patient 9.129 minutes      wait per patient 14.059 minutes      time in the clinic 23.188 minutes
+
+  To run it:        grind with a count of 1000000 on samples/pro/process-flow-clinic.xml
+  What to look for: after the first few thousand patients, the averages of columns 2 to 5 are near 23.19, 14.06, 9.13 and 2.83. The clinic starts empty, and
+                    consecutive patients' waits are correlated, so compare batch means, not single rows. Change servers in stations= to see how the waits respond.
+-->
+<dataset columns="exitTime, patient, sojourn, wait, service, visits" seed="20261014">
+  <root node="Clinic"/>
+  <nodes>
+    <Exponential name="Gap" lambda="0.5"/>
+    <Exponential name="ReceptionTime" lambda="0.3333333333333333"/>
+    <Exponential name="TriageTime" lambda="0.6666666666666666"/>
+    <Exponential name="DoctorTime" lambda="0.16666666666666666"/>
+    <ProcessFlow name="Clinic" stations="Reception:2, Triage:1, Doctor:3" entry="Reception"
+                 routing="Reception>Triage:1; Triage>Doctor:0.7, Triage>exit:0.3; Doctor>exit:0.9, Doctor>Triage:0.1"
+                 output="entities">
+      <input name="Gap" role="arrival"/>
+      <input name="ReceptionTime" role="service.Reception"/>
+      <input name="TriageTime" role="service.Triage"/>
+      <input name="DoctorTime" role="service.Doctor"/>
+    </ProcessFlow>
+  </nodes>
+</dataset>

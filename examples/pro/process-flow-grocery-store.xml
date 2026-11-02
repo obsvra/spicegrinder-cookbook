@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  The Ep 02 grocery store, grown up: cashier shifts and a bank of self-checkout kiosks watched by one attendant (PRO: ProcessFlow, declare).
+
+  Same customers as the Ep 02 store (publications/explainer-video/data/grocery.xml): a 14-hour day, 08:00 to 22:00, at the same hourly
+  arrival profile, each customer with a basket (1 + NegativeBinomial(2, 0.1) items, mean 19), shopping for a time that grows with the basket.
+  What is new:
+    * Staffed checkout is one shared line ("next cashier, please") served by the cashiers on shift: the station Till, whose number of
+      servers follows the clock through tillPlan (time:cashiers points; a drop drains, so nobody is cut off mid-checkout).
+    * A self-checkout bank of `kiosks` kiosks with one line. Customers with at most selfMax items use it with probability selfShare
+      (attribute self = 1); everyone else goes to the cashiers. A self-checkout customer holds a kiosk (pool Kiosk) while scanning at their
+      own, slower pace (station Scan); with probability helpP the kiosk then needs the attendant (an age check, an unexpected item in the
+      bagging area): the customer waits at the kiosk, still holding it, for the attendant (station Help, one server), and the kiosk is
+      freed only when they leave.
+  Every rate and time here is an assumption for illustration, not a measurement from a real store.
+
+  Time unit: minutes since opening (clock 0 = 08:00; closing = 840). The store stops admitting customers at closing; customers inside finish.
+  Stations (0-based, the event output's station column): 0 Shop, 1 Till, 2 Scan, 3 Help.
+  Event output columns: 0 time, 1 entity, 2 station, 3 type (0 arrive, 1 start, 2 finish, 3 exit, 7 capacity), 4 queue at that station
+  after the event, 5 busy servers there, 6 customers in the store, 7 items, 8 self, 9 free kiosks, 10 servers available at that station.
+  Entities output columns: 0 exitTime, 1 entity, 2 sojourn, 3 wait (for a cashier, or for a kiosk plus the attendant), 4 service,
+  5 visits, 6 items, 7 self.
+  Levers (declare): tillPlan, kiosks, selfShare, selfMax, helpP with noHelpP = 1 - helpP, helpScale (the help time is Gamma(2) with mean
+  2 * helpScale), rateScale, output.
+
+  To run it:  grind with a count of 2000000 on this file (the run ends by itself once the last customer has left), for example with
+              declares tillPlan="0:5" and selfShare=0 for five cashiers all day and no self-checkout.
+-->
+<dataset columns="time, customer, station, type, queue, busy, inSystem, items, self, freeKiosks, servers" seed="20261020">
+  <definitions>
+    <declare name="tillPlan" value="0:2, 120:3, 180:4, 360:5, 420:4, 480:3, 540:4, 720:3, 780:2"/>
+    <declare name="kiosks" value="6"/>
+    <declare name="selfShare" value="0.7"/>
+    <declare name="selfMax" value="20"/>
+    <declare name="helpP" value="0.25"/>
+    <declare name="noHelpP" value="0.75"/>
+    <declare name="helpScale" value="0.6"/>
+    <declare name="rateScale" value="1"/>
+    <declare name="output" value="events"/>
+  </definitions>
+  <root node="Store"/>
+  <nodes>
+    <Exponential name="Gap" lambda="1"/>
+    <NegativeBinomial name="ExtraItems" r="2" p="0.1"/>
+    <Uniform name="Choice" min="0" max="1"/>
+    <Append name="Draws">
+      <input name="ExtraItems"/>
+      <input name="Choice"/>
+    </Append>
+    <Calculate name="Shopper" expression="let items = x[0] + 1; y[0] = items; y[1] = if(items &lt;= ${selfMax}, x[1] &lt; ${selfShare}, 0)">
+      <input name="Draws"/>
+    </Calculate>
+    <Gamma name="ShopFactor" shape="4" rate="4"/>
+    <Gamma name="CheckoutFactor" shape="4" rate="4"/>
+    <Gamma name="ScanFactor" shape="4" rate="4"/>
+    <Gamma name="HelpTime" shape="2" scale="${helpScale}"/>
+    <ProcessFlow name="Store" stations="Shop:inf, Till:1, Scan:inf, Help:1" entry="Shop"
+                 routing="Shop[self=1]>Scan:1; Shop>Till:1; Scan>Help:${helpP}, Scan>exit:${noHelpP}"
+                 attributes="items, self"
+                 serviceScale="Shop: 4 + 0.7 * items; Till: 0.6 + 0.06 * items; Scan: 1.0 + 0.1 * items"
+                 schedule="Till: ${tillPlan}"
+                 resources="Kiosk:${kiosks}" needs="Scan: Kiosk" keeps="Scan: Kiosk"
+                 output="$output" closes="840" rateScale="$rateScale"
+                 rate="0:1, 60:1.5, 120:1.8333333, 180:2.1666667, 240:2.5, 300:2, 360:1.5, 420:1.6666667, 480:2.3333333, 540:3.3333333, 600:3.1666667, 660:2.3333333, 720:1.6666667, 780:1, 840:1">
+      <input name="Gap" role="arrival"/>
+      <input name="Shopper" role="entity"/>
+      <input name="ShopFactor" role="service.Shop"/>
+      <input name="CheckoutFactor" role="service.Till"/>
+      <input name="ScanFactor" role="service.Scan"/>
+      <input name="HelpTime" role="service.Help"/>
+    </ProcessFlow>
+  </nodes>
+</dataset>

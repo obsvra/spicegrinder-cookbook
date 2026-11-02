@@ -1,6 +1,7 @@
 {
   "dataset": {
     "root": "PatientOutcome",
+    "columns": "responded",
     "nodes": [
       {
         "type": "Mix",

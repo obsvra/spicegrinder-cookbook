@@ -14,7 +14,7 @@
   yyyy-MM-dd string (DateDataPoint's default) whose numeric value is Unix epoch seconds at
   UTC midnight on that date.
 -->
-<dataset>
+<dataset columns="dateOfBirth">
 	<root node="DOB"/>
 	<nodes>
 		<Date name="DOB" minAge="18" asOf="2026-08-17">

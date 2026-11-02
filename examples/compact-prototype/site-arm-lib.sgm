@@ -3,6 +3,7 @@
 # clinical-trial-multi-site.sgm, which imports this exact file four times.
 
 dataset.root = SiteOutcome
+dataset.columns = "responded"
 
 define.declare controlP = "0.30"
 define.declare treatmentP = "0.45"

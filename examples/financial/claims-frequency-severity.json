@@ -2,6 +2,7 @@
   "dataset": {
     "seed": 42,
     "root": "ClaimObservation",
+    "columns": "claimCount, severity",
     "nodes": [
       {
         "type": "Append",

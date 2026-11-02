@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  One day of the grocery store, ending when the last customer has left (PRO: ProcessFlow, closes).
+
+  The same store as process-flow-checkout.xml (shopping delay, a group of lanes joined by queue length, checkout time by basket, hourly arrival rates; clock in
+  minutes, the store open for 840), run for a single day: closes="840" stops external arrivals at minute 840, the customers already inside finish shopping and checkout,
+  and when the last one has left the model ENDS by itself (an end of data, not an error), whatever count the run asks for. Grind reports it:
+  "[the model ended: ... every customer has left after external arrivals stopped at clock time 840]".
+  Output is the event log (output="events"), so the state at closing can be read off it. Output columns, 8 per row: 0 clock time (minutes), 1 customer number, 2 station
+  (0 the shop, 1 to N the lanes), 3 event type (0 arrive, 1 start, 2 finish, 3 exit), 4 customers waiting at that station after the event, 5 servers busy there, 6 customers
+  in the whole store after the event, 7 the number of items.
+
+  To run it:        grind with a count of 200000 on samples/pro/process-flow-checkout-day.xml        (it stops by itself after about 5,000 events); set the lanes with the declare "lanes"
+  What to look for: the customers in the lanes at closing are the sum, over the lane stations, of the "queue" value on each lane's last row at or before minute 840;
+                    the customers in the store are "inSystem" on the last row at or before 840. Measured over 40 days (seeds 1 to 40): with 4 lanes 40.9 customers are waiting
+                    in the lanes at closing and 54.5 are in the store; with 5 or 6 lanes none are waiting in a lane and 11.3 are in the store (all still shopping). Overtime,
+                    the time from 840 to the last row, is about 72 minutes with 5 lanes or more, set by the last shoppers.
+-->
+<dataset columns="time, customer, station, type, queue, busy, inSystem, items" seed="20261014">
+  <definitions>
+    <declare name="lanes" value="6"/>
+  </definitions>
+  <root node="Store"/>
+  <nodes>
+    <Exponential name="Gap" lambda="1.0"/>
+    <Lognormal name="Basket" mu="2.2" sigma="0.9"/>
+    <Calculate name="Items" expression="y[0] = ceil(x[0])"><input name="Basket"/></Calculate>
+    <Gamma name="ShopFactor" shape="4" scale="0.25"/>
+    <Gamma name="PaceFactor" shape="8.16" scale="0.12254901960784313"/>
+    <ProcessFlow name="Store" stations="Shop:inf, Lane[${lanes}]:1" entry="Shop" routing="Shop>Lane:1" output="events" closes="840"
+                 attributes="items" serviceScale="Shop: 4 + 0.8 * items; Lane: 0.9 + 0.1 * items"
+                 rate="0:0.6667, 60:1.0, 120:1.3333, 180:1.6667, 240:2.0, 300:1.6667, 360:1.3333, 420:1.5, 480:2.1667, 540:2.6667, 600:2.3333, 660:1.6667, 720:1.1667, 780:0.6667, 840:0"
+                 ratePeriod="1440">
+      <input name="Gap" role="arrival"/>
+      <input name="Items" role="entity"/>
+      <input name="ShopFactor" role="service.Shop"/>
+      <input name="PaceFactor" role="service.Lane"/>
+    </ProcessFlow>
+  </nodes>
+</dataset>

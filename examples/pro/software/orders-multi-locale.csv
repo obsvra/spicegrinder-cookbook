@@ -1,12 +1,12 @@
 # seed=42 -- reproduce with: grind --count 10 orders-multi-locale.xml (run from this directory)
-dim0,dim1,dim2,dim3,dim4,dim5
-FR,Hortense Diallo,Bertrandboeuf,FR-95584,3,29.534151471601852
-ES,Nicodemo Cabello Barrera,Toledo,ES-23236,3,15.782629571402822
-ES,Ruperta Castillo Barreda,Sevilla,ES-09010,4,109.64989566069686
-FR,Pierre Teixeira,Saint Frédéric-les-Bains,FR-80263,2,88.14631181927025
-DE,Edelgard Wulf-Langern,Hersbruck,DE-66270,1,140.59989142221843
-FR,Catherine Lesage,Bousquet,FR-58824,4,31.8941217944124
-FR,Théodore Delorme du Gérard,Tanguydan,FR-44440,2,81.93731431633267
-FR,Louis Baron,Rivière,FR-58193,1,30.26242482560731
-DE,Arif Trommler,Geldern,DE-05183,0,53.70069996377097
-ES,Américo Tejero Querol,Soria,ES-08075,3,18.555175029813743
+market,fullName,city,postcode,itemCount,orderValue
+DE,Ing. Harold Täsche,Hagenow,DE-80715,3,27.663191647711383
+DE,Solveig Schottin,Duderstadt,DE-17744,1,52.781938267488464
+ES,Eva Pi Sarabia,Cantabria,ES-46711,4,37.736496493925706
+FR,Alexandrie Carlier de Perez,Dufourdan,FR-23151,3,33.32143093160482
+FR,Catherine Le Riou,Raynaud-sur-Mer,FR-20482,5,106.34536476684521
+DE,Janus Hettner B.A.,Berlin,DE-54278,0,22.452198723799142
+DE,Gino Dussen van B.A.,Fürstenfeldbruck,DE-49894,3,77.17960339043535
+DE,Angelica Bloch,Vechta,DE-71094,1,48.881746922101115
+DE,Türkan Kambs,Altötting,DE-29612,3,57.25957377926461
+DE,Frau Almut Davids,Genthin,DE-83863,2,28.77789470469764

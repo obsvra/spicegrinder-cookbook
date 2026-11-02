@@ -17,7 +17,7 @@ java -cp spicegrinder.jar com.obsvra.spicegrinder.tools.ModelAnalyzerApp [option
 On a jpackage install:
 
 ```
-analyzer [options] model.xml|model.json ...
+analyze [options] model.xml|model.json ...
 ```
 
 ## DESCRIPTION
@@ -42,6 +42,8 @@ Edition comes from the artifact (`LicenseBuildEdition`) by default, same as `Gri
 | `--samples N` | Observations to sample for throughput (default 5000). |
 | `--warmup-ms N` | Generate for N milliseconds, untimed, before the throughput sample, so the JVM has finished optimizing the model's code (default 0). A fresh JVM takes a few seconds to reach full speed on a heavy model; without a warm-up the throughput shown can be several times slower than steady state. |
 | `--no-write` | Print the report only; do not update the model file. |
+| `--local-root DIR` | Use `DIR` as the model's local root for this run, ahead of `project.root`, a `.spicegrinder-root` marker and the Git work-tree top. A relative data file (a `FlatFile` `file`, an `Email` `wordListFile`) not beside the model is looked for there before the working directory, and a relative `<Import>` after the model's folder; each must stay inside the folder it was found in. The desktop app passes its Local root setting this way. See [FlatFile](Component-Library-Reference.md#flatfile--pro) and the [Model File Format Reference](Model-File-Format-Reference.md). |
+| `--model-dir DIR` | With `-` (stdin): resolve the model's relative paths (`<Import>` files and data files) as if it were saved in `DIR`. The desktop app passes an edited model's own folder this way. |
 | `--pro` | Force Pro edition policy for this run (testing; no-op on a Free artifact). |
 | `--free` | Force Free edition policy for this run (testing), even on a Pro artifact. |
 | `--isolate` | Also run the per-component isolated benchmark (see ISOLATED BENCHMARK). Opt-in — many more generator calls than `--samples` alone. |
@@ -52,12 +54,14 @@ Edition comes from the artifact (`LicenseBuildEdition`) by default, same as `Gri
 | `--isolate-raw` | Log raw per-node benchmark components via the diagnostic instrumentation stream. Needs `--diagnostic` (or the stream already enabled via persisted config) to actually produce output. No effect without `--isolate`. |
 | `--diagnostic` | Enable the diagnostic instrumentation stream for this run. |
 | `-h`, `--help` | Print usage and exit. |
-| `--version` | Print the version (e.g. `1.0.0 Beta 2 (Build 1)`) and exit. |
+| `--version` | Print the version (e.g. `1.0.0 (Build 1)`) and exit. |
 | `--json` | Emit one JSON report to stdout instead of human-readable text. See OUTPUT (JSON) below. |
 
 ## HOW FAR TO TRUST THE COMPLEXITY SCORE
 
-The score weighs each component by a cost measured on 11 machines of different sizes and makers (Intel and AMD x64, AWS Graviton and Apple Silicon ARM), 2026-09-26. Across 66 sample models it tracks real generation speed closely: on each machine, the score explains 96% to 99% of the difference in speed between models (R² 0.96-0.99), slightly better on x64 than on ARM. It measures generation only: writing the rows out (formatting, streaming, files) adds a cost per row that the score leaves out on purpose, since it depends on where the rows go, not on the model.
+The score weighs each component by a cost measured on 11 machines of different sizes and makers (Intel and AMD x64, AWS Graviton and Apple Silicon ARM), 2026-09-26. Across 66 sample models it tracks real generation speed closely: on each machine, the score explains 96% to 99% of the difference in speed between models (R² 0.96-0.99), slightly better on x64 than on ARM. It measures generation only: writing the rows out adds a cost per row that the score leaves out on purpose, since it depends on where the rows go, not on the model.
+
+**Output score.** The one part of that cost that does follow the model is its width: every column a row writes has to be formatted and written, and that costs about as much as several generator calls. A model that writes 4 columns can take three times as long to run as one that writes 1, with almost the same score. So the report also gives `outputColumns` (the root's width) and `outputScore` (the cost of writing those columns, in the same units as `score`), as a separate figure; add the two to compare models by total run time. Across 12 machines (8 AWS instance types, an Apple M1, an Intel Mac, a Linux desktop and a Windows mini PC) and about 140 models, adding the output term raised the share of the variance in real run time (log scale) that the score explains from 0.78 to 0.91. The per-column cost is one weight (`output.perColumn` in `component-weights.properties`, which you can override). It is very machine dependent: refitted on 2026-10-30, the best value ranged from about 0.5 to 1.7 times the shipped 1.46 (0.67 to 2.42 across the 12 machines), and it depends on the disk or pipe the rows go to as well as the CPU. Treat the shipped value as a rough default, not a prediction for your hardware: the output cost should be measured on the target platform, by timing a wide and a narrow model through `Grind` there, and then set in `component-weights.properties` (or by an organization rule). It also ignores how wide each column is: text-heavy columns (addresses, FHIR) cost more per byte but less per column than numbers, and the model file doesn't say how wide its rows will be.
 
 **ARM and x64 differ for some components, and the weights don't adjust for it yet.** Components that lean on `pow`, `log` and `exp` cost relatively more on ARM, and a few cost relatively less. Relative to other work, on ARM:
 - `Pareto` costs about 2.5x as much as on x64, and `Weibull` about 1.9x, on both Graviton and Apple Silicon.
@@ -83,7 +87,7 @@ Written onto the model's dataset attributes unless `--no-write` is given: on `<d
 | `analysis.node_count` | Nodes in the generator tree |
 | `analysis.min_depth` / `max_depth` | Tree depth range |
 | `analysis.predicted_avg_depth` | Mix-weighted expected depth when fully computed |
-| `analysis.score` | Composite complexity score |
+| `analysis.score` | Composite complexity score (generation cost only) |
 | `analysis.custom_component_count` | Non-core components |
 | `analysis.obs_per_sec` | Measured throughput (if sampled) |
 | `analysis.sample_count` / `sample_duration_ms` | Sample details |
@@ -103,7 +107,7 @@ With `--json`, every file given is analyzed exactly the same way, but the result
       "timestamp": "2026-08-28T12:00:00Z",
       "complexity": {
         "mode": "FULLY_COMPUTED", "nodeCount": 12, "minDepth": 1, "maxDepth": 4,
-        "predictedAverageDepth": 2.5, "score": 340,
+        "predictedAverageDepth": 2.5, "score": 340, "outputColumns": 3, "outputScore": 180,
         "customComponentCount": 0, "customComponentNames": [], "summary": "..."
       },
       "throughput": {"sampleCount": 5000, "sampleDurationMs": 812, "observationsPerSecond": 6157.0},
@@ -138,19 +142,19 @@ java -cp spicegrinder.jar com.obsvra.spicegrinder.tools.ModelAnalyzerApp model.x
 Static-only, print but don't modify the file:
 
 ```
-analyzer --no-throughput --no-write model.json
+analyze --no-throughput --no-write model.json
 ```
 
 Full isolated per-component benchmark with raw diagnostic output:
 
 ```
-analyzer --isolate --isolate-raw --diagnostic model.xml
+analyze --isolate --isolate-raw --diagnostic model.xml
 ```
 
 Get a machine-readable report for a script or agent to parse:
 
 ```
-analyzer --json --no-write model.xml
+analyze --json --no-write model.xml
 ```
 
 ## SEE ALSO

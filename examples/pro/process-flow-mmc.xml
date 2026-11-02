@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ProcessFlow, the smallest case: a service desk with two agents and one line (M/M/2) (PRO: ProcessFlow).
+
+  Customers arrive at random, on average 1.6 a minute (Exponential, lambda 1.6) and wait in one first-come-first-served line for the next free one of two agents.
+  Each service takes on average 1 minute (Exponential, lambda 1.0). ProcessFlow runs the event calendar and emits the event log, one event per row; the Recur
+  after it turns the log into time-weighted averages, because the log's rows are unevenly spaced in time (a queue length that lasts three minutes and one that
+  lasts a second must not count the same).
+  Output columns, 14 per row:
+    0 area under the queue length so far          1 area under the number of busy agents so far
+    2, 3, 4 the Recur's memory for the next row: this event's time, queue length and busy agents (copies of columns 7, 11, 12)
+    5 mean queue length so far (area / time)       6 mean busy agents so far (area / time)
+    7 time of this event   8 customer number   9 station (0, the desk)   10 event type (0 arrive, 1 start, 2 finish, 3 exit)
+    11 queue length after this event   12 agents busy after this event   13 customers in the system after this event
+  An arrive event is the customer joining the line, so it counts in the queue for that instant; its start event, in the same instant, puts it on an agent.
+  Closed forms (Erlang C, offered load a = 1.6, utilization rho = 0.8):
+    probability a customer waits 0.7111      mean wait in the line Wq = 1.7778 minutes      mean time in the system W = 2.7778 minutes
+    mean queue length Lq = lambda x Wq = 2.8444      mean busy agents = a = 1.6      mean number in the system L = 4.4444
+
+  To run it:        grind with a count of 2000000 on samples/pro/process-flow-mmc.xml
+  What to look for: the last row's column 5 is near 2.844 and column 6 near 1.6. The run starts with an empty desk, so a short run reads low. Consecutive
+                    values are strongly correlated, so judge the average over several seeds, or over batches of rows, not over single rows.
+  For waits per customer instead of events, set output="entities" on the ProcessFlow node and drop the Recur: one row per customer who has left, with the
+  customer's wait, service and time in the system, where plain averages are right.
+-->
+<dataset columns="queueArea, busyArea, prevTime, prevQueue, prevBusy, meanQueue, meanBusy, time, customer, station, type, queue, busy, inSystem" seed="20261014">
+  <root node="Averages"/>
+  <nodes>
+    <Exponential name="Gap" lambda="1.6"/>
+    <Exponential name="Service" lambda="1.0"/>
+    <ProcessFlow name="Desk" stations="Agent:2" entry="Agent">
+      <input name="Gap" role="arrival"/>
+      <input name="Service" role="service.Agent"/>
+    </ProcessFlow>
+    <Recur name="Averages" initial="0, 0, 0, 0, 0, 0, 0" appendInput="true"
+           expression="y[0] = s[0] + s[3] * (x[0] - s[2]); y[1] = s[1] + s[4] * (x[0] - s[2]); y[2] = x[0]; y[3] = x[4]; y[4] = x[5]; y[5] = (s[0] + s[3] * (x[0] - s[2])) / x[0]; y[6] = (s[1] + s[4] * (x[0] - s[2])) / x[0]">
+      <input name="Desk"/>
+    </Recur>
+  </nodes>
+</dataset>

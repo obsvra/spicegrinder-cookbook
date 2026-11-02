@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  An office building's elevators: cars that carry people between floors (Pro).
+
+  Five floors above a lobby, 3 cars, a morning peak. People arrive at the lobby (a Poisson stream whose rate ramps up to a peak and back), ride to a random floor, stay
+  about 2 minutes, and ride back down. A car is a vehicle on a line: it has a capacity, a speed, a time lost at each stop and a time for each person who gets on or off.
+    positions="Lobby:0, F1:3.5, F2:7, ..."    where the stations are on the line (metres); Gate is the lobby again, where people leave (two stations at one coordinate are one stop for a car)
+    fleets="Car:3 capacity=8 speed=1.6 stop=4 load=1.2 dispatch=nearest"    3 cars of 8 people, 1.6 m/s, 4 s a stop and 1.2 s per person moved
+    carry="Lobby>F1:Car; ... F1>Gate:Car"  the routing edges that a car carries: the person calls a car at the first station and arrives at the second when they get off
+  A call goes to the car that can be there soonest and stays with it; a car stops at a floor for people who get off, for calls it is carrying out, and for waiting people
+  going its way (their call is then taken over). It keeps its direction while anyone ahead needs it and turns round only at a floor.
+  Time is in seconds. Output columns, 9 per row: 0 time, 1 person, 2 station (0 Lobby, 1 to 5 floors, 6 Gate), 3 event type (0 arrive, 1 start, 2 finish, 3 exit, 4 call, 5 board,
+  6 alight), 4 queue (people waiting for a car at that station, for a call, board or alight row), 5 busy, 6 people in the building, 7 car (0 to 2, or -1), 8 people in that car.
+  The wait for a car is the time from a person's call row to their board row; the ride is from board to alight.
+
+  To run it:        grind with a count of 20000 on samples/pro/process-flow-elevators.xml  (the run ends at 3,600 s)
+  What to look for: averaged over 10 seeds (the whole hour), the mean wait for a car is about 7 s at the lobby and 9.5 s on the floors with 3 cars; with the declare cars set
+                    to 2 it is 95 s at the lobby and 35 s on the floors, and with 4 cars 3.3 s and 5.3 s. The rule declare set to least-loaded is slightly worse here (8 s and 11 s).
+-->
+<dataset columns="time, person, station, type, queue, busy, inSystem, car, inCar" seed="20261015">
+  <definitions>
+    <declare name="cars" value="3"/>
+    <declare name="rule" value="nearest"/>
+  </definitions>
+  <root node="Building"/>
+  <nodes>
+    <Exponential name="Arrival" lambda="1"/>
+    <Constant name="Instant" value="0"/>
+    <Constant name="InstantGate" value="0"/>
+    <Exponential name="Stay" lambda="0.0083333"/>
+    <ProcessFlow name="Building" stations="Lobby, F[5]:inf, Gate" entry="Lobby" until="3600"
+                 routing="Lobby>F1:0.2; Lobby>F2:0.2; Lobby>F3:0.2; Lobby>F4:0.2; Lobby>F5:0.2; F1>Gate:1; F2>Gate:1; F3>Gate:1; F4>Gate:1; F5>Gate:1"
+                 rate="0:0.02, 900:0.2, 2700:0.2, 3600:0.02" rateMode="linear"
+                 positions="Lobby:0, F1:3.5, F2:7, F3:10.5, F4:14, F5:17.5, Gate:0"
+                 fleets="Car:${cars} capacity=8 speed=1.6 stop=4 load=1.2 dispatch=${rule}"
+                 carry="Lobby>F1:Car; Lobby>F2:Car; Lobby>F3:Car; Lobby>F4:Car; Lobby>F5:Car; F1>Gate:Car; F2>Gate:Car; F3>Gate:Car; F4>Gate:Car; F5>Gate:Car">
+      <input name="Arrival" role="arrival"/>
+      <input name="Instant" role="service.Lobby"/>
+      <input name="Stay" role="service.F"/>
+      <input name="InstantGate" role="service.Gate"/>
+    </ProcessFlow>
+  </nodes>
+</dataset>

@@ -5,7 +5,7 @@
 
   Relative path is from this file's directory.
 -->
-<dataset seed="42">
+<dataset columns="heartRate, systolicBp, spo2" seed="42">
 	<root node="ObservedVitals"/>
 	<nodes>
 		<Perturb name="ObservedVitals" repeat="true">

@@ -1,6 +1,7 @@
 {
   "dataset": {
     "root": "SixStats",
+    "columns": "str, dex, con, int, wis, cha",
     "nodes": [
       {
         "type": "Uniform",

@@ -11,7 +11,7 @@
   MEMBER_ID, BIRTHDATE, GENDER, STATE. (The exact command line is in the
   writeup, not here: XML comments cannot contain a double hyphen.)
 -->
-<dataset seed="42">
+<dataset columns="memberId, birthdate, gender, state, serviceUnits, billedAmount" seed="42">
 	<root node="ClaimLine"/>
 	<nodes>
 		<Append name="ClaimLine">

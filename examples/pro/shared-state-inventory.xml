@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- A warehouse with a reorder rule: a feedback loop through SharedState (PRO).  One row = one day.
+       Stock      a SharedState cell, starting at 100 units.
+       Demand     Poisson, mean 8 units a day.
+       Rule       if stock was below 40 at the end of the previous day, a delivery of 60 arrives today.
+     Columns:  dim0 = stock read at the start of the day (the value as of the end of the previous day),  dim1 = the day's net change (delivery minus demand).
+     A read is always one row behind, so the order decision uses yesterday's closing stock and the delivery and the demand both land in the stock for tomorrow.
+     That is the one-row delay of every SharedState loop: stock can dip a little under 40 before a delivery brings it back.
+     Over a long run stock stays bounded (deliveries average the demand), so the mean of dim1 is about 0 and the fraction of days with a delivery is about 8 / 60 = 13%.
+     Moving StateRead, Calculate or StateWrite around in the tree changes nothing: results do not depend on pull order.     9 nodes. -->
+<dataset columns="stock, netChange" seed="52">
+  <root node="Day"/>
+  <nodes>
+    <SharedState name="Warehouse" cells="stock=100"/>
+    <StateRead name="Level" collaborate.state="Warehouse" cells="stock"/>
+    <StateRead name="Closing" collaborate.state="Warehouse" cells="stock"/>
+    <Calculate name="Delivery" expression="y[0] = if(x[0] &lt; 40, 60, 0)">
+      <input name="Closing"/>
+    </Calculate>
+    <Poisson name="Demand" lambda="8"/>
+    <Append name="Both">
+      <input name="Delivery"/>
+      <input name="Demand"/>
+    </Append>
+    <Calculate name="Net" dimension="1" expression="y[0] = x[0] - x[1]">
+      <input name="Both"/>
+    </Calculate>
+    <StateWrite name="Apply" collaborate.state="Warehouse" cells="stock" mode="add">
+      <input name="Net"/>
+    </StateWrite>
+    <Append name="Day">
+      <input name="Level"/>
+      <input name="Apply"/>
+    </Append>
+  </nodes>
+</dataset>

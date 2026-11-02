@@ -10,7 +10,8 @@
         "Recommends the SSN business object for customer_ssn rather than a value-replay/Categorical distribution",
         "Does not reproduce any of the sampled SSN values verbatim in the final recommendation",
         "Fits amount using actual computed statistics (states mean/std or a named distribution), not eyeballing",
-        "Fits payment_method to a weighted categorical reflecting observed frequencies"
+        "Fits payment_method to a weighted categorical reflecting observed frequencies",
+        "Does not model amount values that repeat only 2 or 3 times as spikes (no Constant or Empirical branch copying them); chance repeats are fitted with the continuous distribution"
       ]
     },
     {

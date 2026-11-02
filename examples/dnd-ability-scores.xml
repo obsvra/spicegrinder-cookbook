@@ -19,7 +19,7 @@
   sub-model and pulling in via Import wherever a die roll belongs, instead of inlining it
   fresh every time. Free ships the inlined version below.
 -->
-<dataset>
+<dataset columns="str, dex, con, int, wis, cha">
 	<root node="SixStats"/>
 	<nodes>
 		<Uniform name="Die" min="1" max="7"/>

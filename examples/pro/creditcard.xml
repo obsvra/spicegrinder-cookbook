@@ -22,7 +22,7 @@
   Output: one Observation of [card] per pull, rendered as "4242 4242 4242 4242"
   (CreditCardDataPoint's default grouped format).
 -->
-<dataset>
+<dataset columns="cardNumber">
 	<root node="PaymentCard"/>
 	<nodes>
 		<CreditCard name="PaymentCard">
@@ -30,7 +30,7 @@
 		</CreditCard>
 
 		<FlatFile name="Network"
-			file="samples/pro/creditcard_networks_weighted.csv"
+			file="creditcard_networks_weighted.csv"
 			mode="weighted"/>
 	</nodes>
 </dataset>

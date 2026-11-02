@@ -11,7 +11,7 @@
   - Pro: custom TransactionEvent business object
   - Pro: Import "retail-profile.xml" / "corporate-profile.xml" as libraries
 -->
-<dataset>
+<dataset columns="count, amount">
 	<root node="Transaction"/>
 	<nodes>
 		<Mix name="Transaction" synchronous="false">

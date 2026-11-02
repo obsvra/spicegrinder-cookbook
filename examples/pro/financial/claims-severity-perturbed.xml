@@ -6,7 +6,7 @@
 
   Output dimensions still [frequency, severity] via Append.
 -->
-<dataset seed="42">
+<dataset columns="claimCount, severity" seed="42">
 	<root node="ClaimObservation"/>
 	<nodes>
 		<Append name="ClaimObservation">

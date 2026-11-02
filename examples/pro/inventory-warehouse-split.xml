@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Simulation 101, lesson 5.3: two stores, two half-sized warehouses (PRO: SharedState, declare + Import).
+
+  The comparison model for samples/pro/inventory-warehouse.xml. The same two stores (Imports of samples/pro/inventory-store-lib.xml, R = 32, Q = 12), the same
+  customers (a correlated pair of NegativeBinomial(r = 8, p = 0.5) demands, the declare "corr", default independent), the same supplier lead time of 4 days, but no
+  shared warehouse: each store has a warehouse of its own with half of the shared warehouse's numbers (reorder point 30 instead of 60, order quantity 36 instead of 72,
+  36 units to start instead of 72). Each warehouse serves its own store only, so a unit on A's shelf cannot go to B.
+  Each half is one store, one warehouse and one supplier; the two halves are independent of each other except through the customers' correlation, and each half
+  sees a demand with the marginal distribution of one store whatever the correlation is.
+  Output columns, 14 per row: 0 A stock at the end of the day   1 A units lost today   2 A demand today   3 A request sent today
+                  4 B stock at the end of the day   5 B units lost today   6 B demand today   7 B request sent today
+                  8 warehouse A stock at the end of the day   9 units shipped to A   10 warehouse B stock   11 units shipped to B
+                  12 supplier order of warehouse A today   13 supplier order of warehouse B today
+  What to look for: more days on which a warehouse cannot fill its store, and more supplier orders a year, than the shared warehouse, for about the same total stock.
+  Seed 601. 39 nodes here, and each of the two imports brings the 14 nodes of the store library.
+-->
+<dataset columns="aStock, aLost, aDemand, aRequest, bStock, bLost, bDemand, bRequest, warehouseAStock, shipA, warehouseBStock, shipB, supplierOrderA, supplierOrderB" seed="601">
+  <root node="Day"/>
+  <definitions>
+    <declare name="corr" value="1, 0; 0, 1"/>
+    <declare name="RS" value="32"/>
+    <declare name="QS" value="12"/>
+  </definitions>
+  <nodes>
+    <!-- customers: a correlated pair of daily demands, passed to the stores through the Desk -->
+    <SharedState name="Desk" cells="dA=0, dB=0"/>
+    <NegativeBinomial name="DrawA" r="8" p="0.5"/>
+    <NegativeBinomial name="DrawB" r="8" p="0.5"/>
+    <Copula name="Draws" correlation="$corr">
+      <input name="DrawA"/>
+      <input name="DrawB"/>
+    </Copula>
+    <StateWrite name="PostDraws" collaborate.state="Desk" cells="dA, dB" mode="set">
+      <input name="Draws"/>
+    </StateWrite>
+    <StateRead name="DeskA" collaborate.state="Desk" cells="dA"/>
+    <StateWrite name="ToDemandA" collaborate.state="A.Store" cells="dem" mode="set">
+      <input name="DeskA"/>
+    </StateWrite>
+    <StateRead name="DeskB" collaborate.state="Desk" cells="dB"/>
+    <StateWrite name="ToDemandB" collaborate.state="B.Store" cells="dem" mode="set">
+      <input name="DeskB"/>
+    </StateWrite>
+
+    <!-- the two stores -->
+    <Import name="A" file="inventory-store-lib.xml" R="$RS" Q="$QS"/>
+    <Import name="B" file="inventory-store-lib.xml" R="$RS" Q="$QS"/>
+
+    <!-- warehouse A, serving store A only -->
+    <SharedState name="HubA" cells="whs=36, w1=0, w2=0, w3=0, rw=30, qw=36, ship=0, stock=40, lost=0, seen=0, req=0"/>
+    <StateWrite name="LedgerA" collaborate.state="HubA" cells="stock, lost, seen, req" mode="set">
+      <input name="A"/>
+    </StateWrite>
+    <StateRead name="ReadForA" collaborate.state="HubA" cells="whs, w3, req"/>
+    <Calculate name="ShipA" dimension="1" expression="y[0] = min(x[2], x[0] + x[1])">
+      <input name="ReadForA"/>
+    </Calculate>
+    <StateWrite name="ToStoreA" collaborate.state="A.Store" cells="rcv" mode="add">
+      <input name="ShipA"/>
+    </StateWrite>
+    <StateRead name="ReadShelfA" collaborate.state="HubA" cells="whs, w3"/>
+    <Append name="ShelfA">
+      <input name="ReadShelfA"/>
+      <input name="ToStoreA"/>
+    </Append>
+    <Calculate name="NewShelfA" dimension="2" expression="y[0] = x[0] + x[1] - x[2]; y[1] = x[2]">
+      <input name="ShelfA"/>
+    </Calculate>
+    <StateWrite name="CloseShelfA" collaborate.state="HubA" cells="whs, ship" mode="set">
+      <input name="NewShelfA"/>
+    </StateWrite>
+    <StateRead name="ReadForSupplierA" collaborate.state="HubA" cells="whs, w1, w2, w3, rw, qw"/>
+    <Calculate name="SupplierA" dimension="3" expression="y[0] = if(x[0] + x[1] + x[2] + x[3] &lt;= x[4], x[5], 0); y[1] = x[1]; y[2] = x[2]">
+      <input name="ReadForSupplierA"/>
+    </Calculate>
+    <StateWrite name="PlaceSupplierOrderA" collaborate.state="HubA" cells="w1, w2, w3" mode="set">
+      <input name="SupplierA"/>
+    </StateWrite>
+    <Arrange name="SupplierOrderA" columns="0">
+      <input name="PlaceSupplierOrderA"/>
+    </Arrange>
+
+    <!-- warehouse B, serving store B only -->
+    <SharedState name="HubB" cells="whs=36, w1=0, w2=0, w3=0, rw=30, qw=36, ship=0, stock=40, lost=0, seen=0, req=0"/>
+    <StateWrite name="LedgerB" collaborate.state="HubB" cells="stock, lost, seen, req" mode="set">
+      <input name="B"/>
+    </StateWrite>
+    <StateRead name="ReadForB" collaborate.state="HubB" cells="whs, w3, req"/>
+    <Calculate name="ShipB" dimension="1" expression="y[0] = min(x[2], x[0] + x[1])">
+      <input name="ReadForB"/>
+    </Calculate>
+    <StateWrite name="ToStoreB" collaborate.state="B.Store" cells="rcv" mode="add">
+      <input name="ShipB"/>
+    </StateWrite>
+    <StateRead name="ReadShelfB" collaborate.state="HubB" cells="whs, w3"/>
+    <Append name="ShelfB">
+      <input name="ReadShelfB"/>
+      <input name="ToStoreB"/>
+    </Append>
+    <Calculate name="NewShelfB" dimension="2" expression="y[0] = x[0] + x[1] - x[2]; y[1] = x[2]">
+      <input name="ShelfB"/>
+    </Calculate>
+    <StateWrite name="CloseShelfB" collaborate.state="HubB" cells="whs, ship" mode="set">
+      <input name="NewShelfB"/>
+    </StateWrite>
+    <StateRead name="ReadForSupplierB" collaborate.state="HubB" cells="whs, w1, w2, w3, rw, qw"/>
+    <Calculate name="SupplierB" dimension="3" expression="y[0] = if(x[0] + x[1] + x[2] + x[3] &lt;= x[4], x[5], 0); y[1] = x[1]; y[2] = x[2]">
+      <input name="ReadForSupplierB"/>
+    </Calculate>
+    <StateWrite name="PlaceSupplierOrderB" collaborate.state="HubB" cells="w1, w2, w3" mode="set">
+      <input name="SupplierB"/>
+    </StateWrite>
+    <Arrange name="SupplierOrderB" columns="0">
+      <input name="PlaceSupplierOrderB"/>
+    </Arrange>
+
+    <Append name="Everything">
+      <input name="LedgerA"/>
+      <input name="LedgerB"/>
+      <input name="CloseShelfA"/>
+      <input name="CloseShelfB"/>
+      <input name="SupplierOrderA"/>
+      <input name="SupplierOrderB"/>
+      <input name="PostDraws"/>
+      <input name="ToDemandA"/>
+      <input name="ToDemandB"/>
+    </Append>
+    <Arrange name="Day" columns="0,1,2,3,4,5,6,7,8,9,10,11,12,13">
+      <input name="Everything"/>
+    </Arrange>
+  </nodes>
+</dataset>

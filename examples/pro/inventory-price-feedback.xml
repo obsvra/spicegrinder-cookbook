@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Simulation 101, lesson 5.4: a price that reacts (PRO: SharedState).
+
+  The single store of lesson 5.2 (one row is one day; reorder point R = 16, order quantity Q = 40, a 2-day lead time through the cells, lost sales, 40 units on the
+  shelf at the start and nothing on order) with a second feedback loop on top: the shelf price follows the stock, and the demand follows the shelf price.
+    cell stock    units on the shelf at the end of the day            cell due     the order that arrives at the start of the next day
+    cell lost     units of demand lost today                          cell demand  the day's demand
+    cell charged  the shelf price the day's customers paid           cell price   the price the rule has set (in cents), used from the next row on
+    cell avg      the stock, smoothed: avg := avg + 0.1 * (stock - avg), kept to 3 decimals   (starts at 21, the long-run mean stock of the 5.2 store at R = 16)
+  Price rule (Reprice):  price := min(12, max(8, price + 0.05 * (21 - avg))), rounded to the cent. 0.05 is the response strength G: dollars of price per unit of
+  stock below the target of 21, per day. Stock below 21 raises the price; stock above lowers it. The shelf shows the price to the nearest 25 cents (8.00 to 12.00).
+  Demand law:  the day's demand is NegativeBinomial with r = 8 and mean m(price) = 8 * (price / 10)^-1.5 (base price 10, elasticity 1.5), the shape r held fixed,
+  so p = 8 / (8 + m); the mean follows the shelf price exactly and the variance is m + m^2 / 8 (16 at the base price). The 17 NegativeBinomial nodes are one per
+  shelf price, and a Switch picks the one for today's shelf price. At the shelf price 10 the demand is exactly the demand of lessons 5.1 to 5.2.
+  A read is the value at the end of the previous row, so the price set in a row is charged from the next row, and the stock the rule sees is one row old and
+  smoothed over about 10 days: the price loop is a delayed feedback, and the response strength decides whether it settles, oscillates or swings.
+  Output columns: 0 stock at the end of the day, 1 units lost today, 2 the day's demand, 3 the shelf price charged today, 4 the order that arrives tomorrow
+  morning, 5 the price set today (charged from tomorrow), 6 the smoothed stock after today.
+
+  To run it:        grind with a count of 365 and seed 701 on samples/pro/inventory-price-feedback.xml   (one year)
+  What to look for: the price drifts around 10 and the stock around 21; with the response strength changed to 0.005 the price settles to a narrow band and with 0.2 it
+  swings between the limits 8 and 12 (change the number 0.05 in Reprice; lesson 5.4 does the sweep). With the strength set to 0 the price stays at 10 and the store is the
+  store of lesson 5.2.
+  33 nodes (the store, the price loop, the shelf price, 17 demand nodes and a Switch).
+-->
+<dataset columns="stock, lost, demand, priceCharged, orderDue, priceSet, smoothedStock" seed="701">
+  <root node="Day"/>
+  <nodes>
+    <SharedState name="Store" cells="stock=40, due=0, lost=0, demand=0, charged=10, price=10, avg=21"/>
+    <StateRead name="ShelfForPolicy" collaborate.state="Store" cells="stock, due"/>
+    <Calculate name="Policy" dimension="1" expression="y[0] = if(x[0] + x[1] &lt;= 16, 40, 0)">
+      <input name="ShelfForPolicy"/>
+    </Calculate>
+    <StateWrite name="PlaceOrder" collaborate.state="Store" cells="due" mode="set">
+      <input name="Policy"/>
+    </StateWrite>
+    <StateRead name="ShelfForAvg" collaborate.state="Store" cells="stock, avg"/>
+    <Calculate name="Smooth" dimension="1" expression="y[0] = round(1000 * (x[1] + 0.1 * (x[0] - x[1]))) / 1000">
+      <input name="ShelfForAvg"/>
+    </Calculate>
+    <StateWrite name="SetAvg" collaborate.state="Store" cells="avg" mode="set">
+      <input name="Smooth"/>
+    </StateWrite>
+    <StateRead name="ShelfForPrice" collaborate.state="Store" cells="avg, price"/>
+    <Calculate name="Reprice" dimension="1" expression="y[0] = round(100 * min(12, max(8, x[1] + 0.05 * (21 - x[0])))) / 100">
+      <input name="ShelfForPrice"/>
+    </Calculate>
+    <StateWrite name="SetPrice" collaborate.state="Store" cells="price" mode="set">
+      <input name="Reprice"/>
+    </StateWrite>
+    <StateRead name="ShelfForSales" collaborate.state="Store" cells="stock, due, price"/>
+    <Calculate name="Shelf" dimension="3" expression="y[2] = 8 + round((x[2] - 8) * 4) / 4">
+      <input name="ShelfForSales"/>
+    </Calculate>
+    <NegativeBinomial name="At800" r="8" p="0.417093755738"/>
+    <NegativeBinomial name="At825" r="8" p="0.428356968567"/>
+    <NegativeBinomial name="At850" r="8" p="0.439355436009"/>
+    <NegativeBinomial name="At875" r="8" p="0.450092469341"/>
+    <NegativeBinomial name="At900" r="8" p="0.460571838544"/>
+    <NegativeBinomial name="At925" r="8" p="0.470797694055"/>
+    <NegativeBinomial name="At950" r="8" p="0.480774497857"/>
+    <NegativeBinomial name="At975" r="8" p="0.490506962908"/>
+    <NegativeBinomial name="At1000" r="8" p="0.500000000000"/>
+    <NegativeBinomial name="At1025" r="8" p="0.509258671262"/>
+    <NegativeBinomial name="At1050" r="8" p="0.518288149559"/>
+    <NegativeBinomial name="At1075" r="8" p="0.527093683146"/>
+    <NegativeBinomial name="At1100" r="8" p="0.535680564993"/>
+    <NegativeBinomial name="At1125" r="8" p="0.544054106243"/>
+    <NegativeBinomial name="At1150" r="8" p="0.552219613347"/>
+    <NegativeBinomial name="At1175" r="8" p="0.560182368445"/>
+    <NegativeBinomial name="At1200" r="8" p="0.567947612620"/>
+    <Switch name="Morning" key="2">
+      <input name="Shelf" role="input"/>
+      <input name="At800" value="8"/>
+      <input name="At825" value="8.25"/>
+      <input name="At850" value="8.5"/>
+      <input name="At875" value="8.75"/>
+      <input name="At900" value="9"/>
+      <input name="At925" value="9.25"/>
+      <input name="At950" value="9.5"/>
+      <input name="At975" value="9.75"/>
+      <input name="At1000" value="10"/>
+      <input name="At1025" value="10.25"/>
+      <input name="At1050" value="10.5"/>
+      <input name="At1075" value="10.75"/>
+      <input name="At1100" value="11"/>
+      <input name="At1125" value="11.25"/>
+      <input name="At1150" value="11.5"/>
+      <input name="At1175" value="11.75"/>
+      <input name="At1200" value="12"/>
+    </Switch>
+    <Calculate name="Sales" dimension="4"
+               expression="y[0] = max(0, x[0] + x[1] - x[3]); y[1] = max(0, x[3] - x[0] - x[1]); y[2] = x[3]; y[3] = x[2]">
+      <input name="Morning"/>
+    </Calculate>
+    <StateWrite name="Close" collaborate.state="Store" cells="stock, lost, demand, charged" mode="set">
+      <input name="Sales"/>
+    </StateWrite>
+    <Append name="Day">
+      <input name="Close"/>
+      <input name="PlaceOrder"/>
+      <input name="SetPrice"/>
+      <input name="SetAvg"/>
+    </Append>
+  </nodes>
+</dataset>

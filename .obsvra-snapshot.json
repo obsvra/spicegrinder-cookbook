@@ -1,0 +1,1162 @@
+{
+  "exporter_version": "1.1.0",
+  "files": [
+    {
+      "path": "examples/compact-prototype/clinical-trial-multi-site.sgm",
+      "sha256": "b024429ada01afe6a72c687666429846b95ba582c534f78c55ee4a6ab8372ba0"
+    },
+    {
+      "path": "examples/compact-prototype/dnd-ability-scores.sgm",
+      "sha256": "9092cb5f6a73ea5024bf2db1c932a91974fd8bb641fb5869ec243975b6e8090e"
+    },
+    {
+      "path": "examples/compact-prototype/import-demo.sgm",
+      "sha256": "3aa7040ba0050786c49b0a7bcc796f40a35cb61ebe3320990c63aaab80b9a9f8"
+    },
+    {
+      "path": "examples/compact-prototype/patient-vitals.sgm",
+      "sha256": "37d5437e211f09366dba6d088a76a949c73da2f6b8d8d04ee11b27ba104c7970"
+    },
+    {
+      "path": "examples/compact-prototype/site-arm-lib.sgm",
+      "sha256": "442afd90098bb17cb71f4f6e27b38b9792ecdc82ce25bd5c4a5fffacf2beb6d3"
+    },
+    {
+      "path": "examples/dnd-ability-scores.csv",
+      "sha256": "b9d7e0e0c2ddb59e8fd447d9fb37ca32db1cadf597f6d9ea74aec0e2e5944749"
+    },
+    {
+      "path": "examples/dnd-ability-scores.json",
+      "sha256": "f21921f4b29bd9c429dbd706305134be6fdd546e965e97d13af7f549668905ab"
+    },
+    {
+      "path": "examples/dnd-ability-scores.xml",
+      "sha256": "71b524946038ea81820c2597d0ff7ebdf29d57293eb9834f543a22805f17625d"
+    },
+    {
+      "path": "examples/financial/claims-frequency-severity.csv",
+      "sha256": "4e47a36cd2d11228e2acd87e0c7ae8a95129d961b1c368a8ff1e07a67b62c46f"
+    },
+    {
+      "path": "examples/financial/claims-frequency-severity.json",
+      "sha256": "5618033be5c1044dfbbf012c37907d7bfdd05d83fbf075645b706c85b2c2fac7"
+    },
+    {
+      "path": "examples/financial/claims-frequency-severity.xml",
+      "sha256": "dad7144884543e3c156e0721f5cf316443357fda46c9f05d6fc549bf0a2bbaa5"
+    },
+    {
+      "path": "examples/financial/stock-return-step.csv",
+      "sha256": "557a5ebcbbe260c3c12bc2ca9da27dd384b8c1fb4e6cc2745ade8e81cd784828"
+    },
+    {
+      "path": "examples/financial/stock-return-step.json",
+      "sha256": "2828297d76d07204bb0cf7aa7b56581a90abe01ba7b5e340bcdb338dbe1a0374"
+    },
+    {
+      "path": "examples/financial/stock-return-step.xml",
+      "sha256": "3e6b840e7f86c228c96c5afbdd4c9eadc206a801f1a2a03fa9fea97633559975"
+    },
+    {
+      "path": "examples/health/claims-from-synthea-free.csv",
+      "sha256": "9b274d3b31e83a97c649aa1a84120c20775472db5684dac188dbd20c4c8c0a98"
+    },
+    {
+      "path": "examples/health/claims-from-synthea-free.xml",
+      "sha256": "3a4655cc33e61bc69eb722e4f1e9b4d7677e7b90b01376451b8c778cab09013c"
+    },
+    {
+      "path": "examples/health/clinical-trial-arms.csv",
+      "sha256": "309bf5e88c9d6876606a34e4683d9a8513329a2774dab81a20c3c69f7da47f63"
+    },
+    {
+      "path": "examples/health/clinical-trial-arms.json",
+      "sha256": "e916c5ea41ccd9a84abaa021078f3b1d492f45eb111428c6eaa21257d15cbd86"
+    },
+    {
+      "path": "examples/health/clinical-trial-arms.xml",
+      "sha256": "7fd4ed7bb7b0dee7b832452a811504d790e6560323cbb5dd7551f259aa80260b"
+    },
+    {
+      "path": "examples/health/patient-vitals.csv",
+      "sha256": "4fe2e055f4bd2c664a0b93c5fe9e3852f2f598bcea9117c46ee9c9511a8317d5"
+    },
+    {
+      "path": "examples/health/patient-vitals.json",
+      "sha256": "bf20240909fe4d90b72afcff1a45e745cc9f107d85f0bec263f98a726aefd5b1"
+    },
+    {
+      "path": "examples/health/patient-vitals.xml",
+      "sha256": "f74e845c02d4f42ad9ccfef3ea0cfea40da4e01118393421f3622379257015db"
+    },
+    {
+      "path": "examples/pro/README.md",
+      "sha256": "e3d33e157317b36967c4056fcb041f81b8501f085364441a7bcbc1bd866f01d2"
+    },
+    {
+      "path": "examples/pro/address-ca.csv",
+      "sha256": "54cc5ea09d98535f897c9e1a98e17e2c42fabb8eadc397bdd819ed1f24b9a194"
+    },
+    {
+      "path": "examples/pro/address-ca.xml",
+      "sha256": "c9ea1d7789cd832809f02b45e44395dcd6f2c46234cd837c805a120d57d4e090"
+    },
+    {
+      "path": "examples/pro/address-columns.csv",
+      "sha256": "3c997b3c3da9278f553c67c87cbb0dd96cceae2e9c88d4e848299ba497b347b8"
+    },
+    {
+      "path": "examples/pro/address-columns.xml",
+      "sha256": "902684b68f93251f38d5d747e9b7201621a5ad67cf30e3a08e0ef2fbb34e74f0"
+    },
+    {
+      "path": "examples/pro/address.csv",
+      "sha256": "d9c438ed225d722cc51fc47be1891bcd5667d19eab09e00880888f0d6f719ded"
+    },
+    {
+      "path": "examples/pro/address.xml",
+      "sha256": "b6b8f8172754f770744d51ac8621d823d1db26fa51b6971e099be01cc1e57c20"
+    },
+    {
+      "path": "examples/pro/appointment-time.csv",
+      "sha256": "3e8d9441d8b419c1377cf73114471809785977eb8179c184505c4060f912ca26"
+    },
+    {
+      "path": "examples/pro/appointment-time.xml",
+      "sha256": "79c7e077603dfdc064e31f484ad4cefdc66a17fa03abd2318f9fdc1fd228dd1d"
+    },
+    {
+      "path": "examples/pro/area_codes.csv",
+      "sha256": "36d497c027bb3699b7229e638bedfaa8eebdc7efe7dd03bfad90c7aca1521ec8"
+    },
+    {
+      "path": "examples/pro/business-day.csv",
+      "sha256": "4cbf0b6587eedd192d83e579e6e7b129d96f5d5d1f2ba49505278bd37418a931"
+    },
+    {
+      "path": "examples/pro/business-day.xml",
+      "sha256": "49b61990c912ebca9198420260faa159139b2af9bc5dcadf6c40eba4b3813416"
+    },
+    {
+      "path": "examples/pro/business_suffixes.csv",
+      "sha256": "98b785d962a8fc9a3e1d6b14a0e4d738c6620d71e895a291ca5a393274458065"
+    },
+    {
+      "path": "examples/pro/city_province_postal_ca.csv",
+      "sha256": "25b6ab69dc3541b2503f162e8e562eb963f9cc3442abfc728d2ce2bf35e64cdf"
+    },
+    {
+      "path": "examples/pro/city_state_zip.csv",
+      "sha256": "e48dff4973a5078db32027209a0b77b47604757f29a636d3854d0b377834fbaf"
+    },
+    {
+      "path": "examples/pro/collaborate-demo.csv",
+      "sha256": "fcbcbd8667988452e3e32f842fcf33fa74e2295529721f2083e68a6de4b747ba"
+    },
+    {
+      "path": "examples/pro/collaborate-demo.xml",
+      "sha256": "24185a3a547610236945bd0cebde4f772409e1f03baff5a72b160170ec036486"
+    },
+    {
+      "path": "examples/pro/company-name.csv",
+      "sha256": "221c54e0171d311dd879498b47f88330a60916343e4a91c44fc1d804065aa8f4"
+    },
+    {
+      "path": "examples/pro/company-name.xml",
+      "sha256": "e5d3c2ca972a921acf1bbd038ce56f595d09873fa0e586c9fc877f71376be153"
+    },
+    {
+      "path": "examples/pro/const-lib.csv",
+      "sha256": "802564d9eca2526d3a23fd80523f4e4ae1d3565c2764f582c9f036da3117a1ff"
+    },
+    {
+      "path": "examples/pro/const-lib.xml",
+      "sha256": "f94aae7adc160400e60f34a7e8ab3a411f488bd9b645eecf56cf6c83a4449db6"
+    },
+    {
+      "path": "examples/pro/creditcard.csv",
+      "sha256": "2b0b682ae62d33375109c5fede52dcb7c5fe19d555097033cbd40fbc687a23ca"
+    },
+    {
+      "path": "examples/pro/creditcard.xml",
+      "sha256": "269206782d9ca5574f81ceac8d9d8c66fd642d8b648c3fa423a4dda1263d6e5f"
+    },
+    {
+      "path": "examples/pro/creditcard_networks_weighted.csv",
+      "sha256": "647de1bdd42a50bb6d79bbfd45037260cfdf0ddf14a644aa4a96a3557322b9a7"
+    },
+    {
+      "path": "examples/pro/d6-lib.csv",
+      "sha256": "5289bcf9c456de7823b191af3707bc325ed5e7c1154f22743d14fd84849a8273"
+    },
+    {
+      "path": "examples/pro/d6-lib.xml",
+      "sha256": "1ef76bc6969cb509c9036e28fcdad6f2a493380045aebfba1a0f77b007f6f858"
+    },
+    {
+      "path": "examples/pro/date-of-birth.csv",
+      "sha256": "5387893d2c59997f97c001ca3a1462d08527175b26406d7a9b3648a82f9ccb32"
+    },
+    {
+      "path": "examples/pro/date-of-birth.xml",
+      "sha256": "a926e46a7fadc0ad23fbaf66defda785117edc1982ff743e15995208bb943db5"
+    },
+    {
+      "path": "examples/pro/declare-lib.csv",
+      "sha256": "3ddb7775fc985bc8c73ceae9a9bd50942da30610c96ad505efe421b02f36da3b"
+    },
+    {
+      "path": "examples/pro/declare-lib.xml",
+      "sha256": "49f27b163c53613def4b3ea13bce5c8e964a3430db2856bda07e0030c0eb06b9"
+    },
+    {
+      "path": "examples/pro/dnd-ability-scores-import.csv",
+      "sha256": "e0488a814d51bde7150d132cd8073193d110d3a21338eff859e39168b3f62893"
+    },
+    {
+      "path": "examples/pro/dnd-ability-scores-import.xml",
+      "sha256": "65065eea90a1ce281d4497890e39cde47d1de6971575e043d368a8e785b03375"
+    },
+    {
+      "path": "examples/pro/dnd-ability-scores-roll-die.csv",
+      "sha256": "168f7db63aface4e485085e9c9cda049babfa1da61c0b9be98ba3724b30ff857"
+    },
+    {
+      "path": "examples/pro/dnd-ability-scores-roll-die.xml",
+      "sha256": "83ecb5240339ad9da0de6f86bc95bf1d2507b9a79937c37fa5edfbe38bda510a"
+    },
+    {
+      "path": "examples/pro/domain-name.csv",
+      "sha256": "ad1237512deeecb8a92728ce42f204b6f9d6d9dc023f6cb3454064a0b7f758c7"
+    },
+    {
+      "path": "examples/pro/domain-name.xml",
+      "sha256": "927ba666f1d09178d38d0f700196968608a2a04aac4bbd3cf7ad3e505874b934"
+    },
+    {
+      "path": "examples/pro/domain_tlds.csv",
+      "sha256": "8c23f3278d715aa04130ab6e5ba6355ce754d5b5dba7965ad699ac5f2b3ce2b2"
+    },
+    {
+      "path": "examples/pro/draw-population.csv",
+      "sha256": "57e9aebc50bc7ea6f00bbe15fd4970383d299515a21bf7dfccc129ea885a57c8"
+    },
+    {
+      "path": "examples/pro/draw-population.xml",
+      "sha256": "e57c648c44bddb50a7a854567ecb7a394a9db17d1f3e5c34fd5f7434df3b3281"
+    },
+    {
+      "path": "examples/pro/ein.csv",
+      "sha256": "0b110d76b5b18f2e1f8f542bb01cd7218d9df3a093793ea3b2557fd35014e024"
+    },
+    {
+      "path": "examples/pro/ein.xml",
+      "sha256": "a8585a1a6ce634326cf694266b69bf5f16b876e0a30de59cb83e6fe600fe3876"
+    },
+    {
+      "path": "examples/pro/email-random.csv",
+      "sha256": "0ae7424fa138e01f33363e6b7b578779f909c1e7ee4c344f37bca34d8cc13b13"
+    },
+    {
+      "path": "examples/pro/email-random.xml",
+      "sha256": "f0b8cce50dbb98dd45d156d36194942e6af8a77702a066a1b1b964d4fe2512fe"
+    },
+    {
+      "path": "examples/pro/email.csv",
+      "sha256": "8fae854f1948bfff7efade7f42a1f4b47818d4e47c1a6b62fcac108e99c87aa4"
+    },
+    {
+      "path": "examples/pro/email.xml",
+      "sha256": "3d64d6b35012fde14b9a663a75b71ef888cffc0da389864fd67ae0fd2f72d721"
+    },
+    {
+      "path": "examples/pro/email_domains_weighted.csv",
+      "sha256": "1cc50f095315ced3fcea9d206da05f0a4f26d9529004ee1fb39bcec22880a47d"
+    },
+    {
+      "path": "examples/pro/email_words.txt",
+      "sha256": "b262f6665108b82b16d57b0ca6cec5d394f8bb321e677153e24aeab1152d5d09"
+    },
+    {
+      "path": "examples/pro/extinction-paths.csv",
+      "sha256": "2ccbfe3825c48f735f2a6ddb6762da885c149c69fb7f193713131a92659ed19a"
+    },
+    {
+      "path": "examples/pro/extinction-paths.xml",
+      "sha256": "9dfe8933c9f2350cbee3ece8593f08a77407bef74fc52707f987bf331ba3cac7"
+    },
+    {
+      "path": "examples/pro/female_names.csv",
+      "sha256": "2d2a0cb9b395ccb488002442df121a883ec902c28dff0b525a337ea3bbf50ec3"
+    },
+    {
+      "path": "examples/pro/female_names_weighted.csv",
+      "sha256": "31ed8598e3fcdfa3b2b116d1630fd0bc8995830c50096ce08f3029b3382465fe"
+    },
+    {
+      "path": "examples/pro/financial/ach-file.txt",
+      "sha256": "4cbedac5b80c5d4eb43775535aa50bb38d71f6d89858493238051f6d27347257"
+    },
+    {
+      "path": "examples/pro/financial/ach-file.xml",
+      "sha256": "724de9f6b5203130a8836f5a5ccf1f154cb62ce0830edfc05f211ca1728ca44a"
+    },
+    {
+      "path": "examples/pro/financial/claims-core-lib.csv",
+      "sha256": "cb8562630b8ccaf6c2563565e5d3f1123ef3704be8df84173cff214f9fcd25af"
+    },
+    {
+      "path": "examples/pro/financial/claims-core-lib.xml",
+      "sha256": "da18b6ca426c686f53b6e7b057fc9e49d657ac5b73a960e7c52ff1bb4025070d"
+    },
+    {
+      "path": "examples/pro/financial/claims-imported.csv",
+      "sha256": "e6a759ae8b7599e0cbbec1a0a0a4658704eab1162a7c0e1056d732d43399c603"
+    },
+    {
+      "path": "examples/pro/financial/claims-imported.xml",
+      "sha256": "ed71484841c2f304f4bcfb160dc187f01c31abb3eda9b6af0d14d26db2b2f73b"
+    },
+    {
+      "path": "examples/pro/financial/claims-severity-perturbed.csv",
+      "sha256": "23dbbbf03f295b8f1c05f551fcf1db867feca12b8a0c215ae6322488e643dd2b"
+    },
+    {
+      "path": "examples/pro/financial/claims-severity-perturbed.xml",
+      "sha256": "bff6297ba3ceeca26dbd890a977eb5355865aa8ae35f9a1851efb4c3ee561ca6"
+    },
+    {
+      "path": "examples/pro/health/claims-from-synthea.csv",
+      "sha256": "3a1c706754d2542b89e489e4c574d8b715ee21bc50082f36846387ff8f53bbd8"
+    },
+    {
+      "path": "examples/pro/health/claims-from-synthea.xml",
+      "sha256": "d604623be6dac305ff748bab1013a84198669070e41ae13631556aa623dda41a"
+    },
+    {
+      "path": "examples/pro/health/clinical-trial-multi-site.csv",
+      "sha256": "cdffa8ffc273980b09e517e618a475207457cc12ec584c1e0285e7c2ce0a00c6"
+    },
+    {
+      "path": "examples/pro/health/clinical-trial-multi-site.xml",
+      "sha256": "467951a0e66ade81813134f3f5df3ec9ad99132f6127404c0dfd5319100ffb1c"
+    },
+    {
+      "path": "examples/pro/health/female_names.csv",
+      "sha256": "2d2a0cb9b395ccb488002442df121a883ec902c28dff0b525a337ea3bbf50ec3"
+    },
+    {
+      "path": "examples/pro/health/fhir-vitals-bundle.json",
+      "sha256": "cd53cecb6b05a0ddd3d1c686ed14a7f8099734b3a44bb86c0783b0e72994a4d2"
+    },
+    {
+      "path": "examples/pro/health/fhir-vitals-bundle.xml",
+      "sha256": "8f5aea545c218bb43862f929a73a93c24b606affd3366439b3380933a42db75e"
+    },
+    {
+      "path": "examples/pro/health/male_names.csv",
+      "sha256": "e15379558a0708d1f05e941a62d20889e8c099fc7ad7c8cc0cea02990614c41c"
+    },
+    {
+      "path": "examples/pro/health/member-pool.csv",
+      "sha256": "a478cbd1161e99a6f9a81edfc0217ec07cd44df89ecab25ccb0a2a662a9b50f4"
+    },
+    {
+      "path": "examples/pro/health/patient-vitals-imported.csv",
+      "sha256": "3ec684a5d6ac5b36e30269bda4d0af049e9025c2c1703eca57285acab8b617cf"
+    },
+    {
+      "path": "examples/pro/health/patient-vitals-imported.xml",
+      "sha256": "7544e3177bd00c0ee74fb9c6eeae7a7c950b731ea87d78f57fdf9e8618a2a7d6"
+    },
+    {
+      "path": "examples/pro/health/patient-vitals-perturbed.csv",
+      "sha256": "3d0daf2e00b333e5b0e316b38a3a73a2ec924ded2d6efb18e9175311d424991c"
+    },
+    {
+      "path": "examples/pro/health/patient-vitals-perturbed.xml",
+      "sha256": "05f80492ffdb1f4783d237a3284ce5cae6aede23b492ddd310255a0c6504c421"
+    },
+    {
+      "path": "examples/pro/health/site-arm-lib.csv",
+      "sha256": "981282bddce74b0458bffe557ef4aff717c689a0ef497e90354857bd85181bc7"
+    },
+    {
+      "path": "examples/pro/health/site-arm-lib.xml",
+      "sha256": "8d59da1ac4e82afe7efd2bbad3fa8a9c1ab69cb00ddc4828ebcd9faf0afb8760"
+    },
+    {
+      "path": "examples/pro/health/surnames.csv",
+      "sha256": "86af0d9d1b34b8385af10179f15e603150fe5cddf17d4fdcb91020f0ee5cb5e9"
+    },
+    {
+      "path": "examples/pro/health/vitals-nominal-lib.csv",
+      "sha256": "d4186dff39facdbf3f264f96f2f5ab81cdbe5111f41b2cdb5218670bb4b36743"
+    },
+    {
+      "path": "examples/pro/health/vitals-nominal-lib.xml",
+      "sha256": "8a9c1f1a8102cb58af8811f865fa0efc746b2b98098ad54ecd8fbda14c7798ee"
+    },
+    {
+      "path": "examples/pro/iban.csv",
+      "sha256": "d1c90d26bff99df7dac6aafd20e8acaf8bf6d5d963f02a38e551685a19b4f1b4"
+    },
+    {
+      "path": "examples/pro/iban.xml",
+      "sha256": "50c61765dc5e3af87280154e712c0e141edf019db0ba89a0b1bc032c3ee2be28"
+    },
+    {
+      "path": "examples/pro/iban_countries.csv",
+      "sha256": "d4a8826a512c423cfe0af8da3ef69312b7240df7b7673a47c2abe8d815f180a3"
+    },
+    {
+      "path": "examples/pro/imei.csv",
+      "sha256": "8bbe51bdc02861ad6b13da2b836477b8302d54d616c70eb8179579b4692aa3e3"
+    },
+    {
+      "path": "examples/pro/imei.xml",
+      "sha256": "9ac7859f1830680f1d5d3ee06cacc93070a6fee9fc9442f52497708c162fb88a"
+    },
+    {
+      "path": "examples/pro/import-demo.csv",
+      "sha256": "7c10ab6471a87f12243bac5f8bc06ce6748c898d2c58cea85ba17533b6bdabcf"
+    },
+    {
+      "path": "examples/pro/import-demo.xml",
+      "sha256": "fab3b99a6aae30037a067631f3251f8df89cb6c9c11777f9c3b0d862d1b8fcaf"
+    },
+    {
+      "path": "examples/pro/inventory-policy.csv",
+      "sha256": "7760bb8e6d41a8eb1a69dee0d92eb3e6f8b66590e44cad2d6ca25bd79df0215c"
+    },
+    {
+      "path": "examples/pro/inventory-policy.xml",
+      "sha256": "40b35a9bfcab9ebf4f048f5199aeb21e50759591ef05928eed4842cf74b2b10e"
+    },
+    {
+      "path": "examples/pro/inventory-price-feedback.csv",
+      "sha256": "bbf0c6c956ce4d5b5464fa3bb353a9ba5c0c5ca2ef5bd5d0671fc876f1ffd761"
+    },
+    {
+      "path": "examples/pro/inventory-price-feedback.xml",
+      "sha256": "ae026afb0083deb17242bc444ce28f0456bffc46d9bd57ee7130c0fac820ca16"
+    },
+    {
+      "path": "examples/pro/inventory-price-service.py",
+      "sha256": "5f569c7534841da7c685db6fdb7d92c770a013a0b3af40dc39f917ab931a95f4"
+    },
+    {
+      "path": "examples/pro/inventory-price-service.xml",
+      "sha256": "72148e6e4f71399a03359ae75dd603f1c05605574292269032d0777271d4d79a"
+    },
+    {
+      "path": "examples/pro/inventory-shared-cellwise.csv",
+      "sha256": "492888c367cd98b74d3f4630656f4b4b411d3b6985b91c6a20e773fe87361d84"
+    },
+    {
+      "path": "examples/pro/inventory-shared-cellwise.xml",
+      "sha256": "d2a74a2b6b9feec3dafccea3ac32cce50813a4879522647d08e370cca78f65cd"
+    },
+    {
+      "path": "examples/pro/inventory-shared-rules.csv",
+      "sha256": "8a00268c5fccb0dab21ba425111be45166936f87751d44adfd9624972526af7e"
+    },
+    {
+      "path": "examples/pro/inventory-shared-rules.xml",
+      "sha256": "e676b44d025c9825514b6a4fa22f3259a4eae3332c85f65714c4d6094e3cf6a6"
+    },
+    {
+      "path": "examples/pro/inventory-shared-store.csv",
+      "sha256": "47b6c0da409f307d1dd270af6f284532233e57d3424717297ee0888cec8ad977"
+    },
+    {
+      "path": "examples/pro/inventory-shared-store.xml",
+      "sha256": "6762ff320ab94b91928c45b7b9fff871cd7f424d95a4fcbfb44f9dfe13ddf7e4"
+    },
+    {
+      "path": "examples/pro/inventory-store-lib.csv",
+      "sha256": "8b45070685b84d364765144645d0b36aebfd3a99e880800bc4395bba0bc516fc"
+    },
+    {
+      "path": "examples/pro/inventory-store-lib.xml",
+      "sha256": "66365ddb3fbf198c30ca98dba79904aebc6192b743798cbe3c276936f87a0427"
+    },
+    {
+      "path": "examples/pro/inventory-warehouse-split.csv",
+      "sha256": "68643fda4a18eb1f92a2904fc7655985f853a5b944d654defc9bf99c59a5e5d8"
+    },
+    {
+      "path": "examples/pro/inventory-warehouse-split.xml",
+      "sha256": "28a3d995491dcd1030b59432297fdbb3cd2568868c8e87c6ffec26f888d3e9c3"
+    },
+    {
+      "path": "examples/pro/inventory-warehouse.csv",
+      "sha256": "a847c5a7d5106632c2a83358f51d7aec59d5807ae526eff54485ebc61c6be5f3"
+    },
+    {
+      "path": "examples/pro/inventory-warehouse.xml",
+      "sha256": "f98ef2dcb7638c0cde7a5d68e570e4f78ef4dd0e489ec64968a5d39ff00ea599"
+    },
+    {
+      "path": "examples/pro/ipaddress.csv",
+      "sha256": "9f76b4a302410251e82d4f11c7274010450c7182613ab08e73b949d982ac88a0"
+    },
+    {
+      "path": "examples/pro/ipaddress.xml",
+      "sha256": "81a778ecc983bcec9b64b9ef18b95462575665ebdc990e09ae02a2f226821285"
+    },
+    {
+      "path": "examples/pro/ipv6address.csv",
+      "sha256": "5b50dbaa2acfd854661847a17618d37429ebe0ee42ca952345d59a7606142935"
+    },
+    {
+      "path": "examples/pro/ipv6address.xml",
+      "sha256": "39a1ab3cd016a65117ab4145486945141921220ab6fea47088f4a785d01b8be0"
+    },
+    {
+      "path": "examples/pro/isbn.csv",
+      "sha256": "a2f6dc3694d06d089917672ed54d2f43c6822878164b4e1d5018db5bd9a85091"
+    },
+    {
+      "path": "examples/pro/isbn.xml",
+      "sha256": "925cd50d8e70fd81f3e84242fb23cec93cf2a26d39d5d06903d82d859b474664"
+    },
+    {
+      "path": "examples/pro/isbn_registration_groups.csv",
+      "sha256": "20af28a68d41a33280e78cf584b0f7fdc876fcb2586ce4ddf3121737a4bdc624"
+    },
+    {
+      "path": "examples/pro/latency-baseline.csv",
+      "sha256": "59ca8b86bcf761d7fe4b6b6bda1b7843c832b9ed26ea485937d195e1b063ab67"
+    },
+    {
+      "path": "examples/pro/latency-baseline.xml",
+      "sha256": "457aadc42f326d27d6312b4a392d5cf7118c31725b072940da1a2972be3d774f"
+    },
+    {
+      "path": "examples/pro/latency-crn-baseline.csv",
+      "sha256": "4a4bdd3d0406dcc161ed0911af1f778998c1b455f7b4d5166f4872a8a3699854"
+    },
+    {
+      "path": "examples/pro/latency-crn-baseline.xml",
+      "sha256": "49c752acfddb6135e40077f0f1c487cb93e269ceedc2de65459128b95a248006"
+    },
+    {
+      "path": "examples/pro/latency-crn-newdeploy.csv",
+      "sha256": "d61fc918356a3b131923e4c35bab6c509bc4f61b33e1eeabd241dad32f36a79a"
+    },
+    {
+      "path": "examples/pro/latency-crn-newdeploy.xml",
+      "sha256": "dbd9e1a48b34b81b3bdea6114a607ea10715666741897677d04cfc2e7529c671"
+    },
+    {
+      "path": "examples/pro/latency-incidents-additive.csv",
+      "sha256": "1bc3954ee39ae5a5ccf1679b86cd2f342bd24a749aa472bc328e8533e0aff781"
+    },
+    {
+      "path": "examples/pro/latency-incidents-additive.xml",
+      "sha256": "2215aa92ea9377bdcba26dcf79f5912006f19100fe34776ed9e2025d80e568cb"
+    },
+    {
+      "path": "examples/pro/latency-incidents.csv",
+      "sha256": "175c8003aae45cd1c9b588be950c0a7777ee6991eab0f19dddc5802d89f5e88d"
+    },
+    {
+      "path": "examples/pro/latency-incidents.xml",
+      "sha256": "1005a36b5fe3705faf14edc56d0b760cf89b5723aef739365137b39abdfef510"
+    },
+    {
+      "path": "examples/pro/latency-lib.csv",
+      "sha256": "5c5a49a2642c6c91549b3c92d864740bd43fc7011c71411723b4b8b5be294a75"
+    },
+    {
+      "path": "examples/pro/latency-lib.xml",
+      "sha256": "469bfbe36942b0507efa9aa917e48dcf342df955c7de4120211c7236782cfe3b"
+    },
+    {
+      "path": "examples/pro/latency-override.csv",
+      "sha256": "eb0c946b950895744b91bbf44669f34e71ff7ceef2a28ba02b2f51760a93a973"
+    },
+    {
+      "path": "examples/pro/latency-override.xml",
+      "sha256": "91d67894273a509e64e8d07cd5d4cef124555f50817dc1de448adc10a0daa80a"
+    },
+    {
+      "path": "examples/pro/latency-replay.csv",
+      "sha256": "163f06935358b7981011b646c9ab501fd239a112d53a07cb83e36f8a645b4ad7"
+    },
+    {
+      "path": "examples/pro/latency-replay.xml",
+      "sha256": "bc856cf623a32f4a4dfbf72fae680b2ae4ffba8c11c8f32f6800f8973edfe150"
+    },
+    {
+      "path": "examples/pro/latency-scenarios.csv",
+      "sha256": "91fe52c04154522584e207810c821b6e5446e932e9d0da221eaf860e43af15b5"
+    },
+    {
+      "path": "examples/pro/latency-scenarios.xml",
+      "sha256": "ccf5893cbf334dd617dcdd431b97837af2809850cb712ba8c1063d6efe47ae36"
+    },
+    {
+      "path": "examples/pro/latency-slo-lib.csv",
+      "sha256": "2514972adaedadf93212ac7cd8c30e999708729de4c1988453275ed8c8761186"
+    },
+    {
+      "path": "examples/pro/latency-slo-lib.xml",
+      "sha256": "918413d25d5f5fd21d350fe3d8d304dcae0472ce871b8565733920324f1f500f"
+    },
+    {
+      "path": "examples/pro/latency-traffic-trace.csv",
+      "sha256": "d5050db98826f8d2eb42677e6e606c1922af5d0c024a4634f7765488ec46b0d4"
+    },
+    {
+      "path": "examples/pro/mac_vendors.csv",
+      "sha256": "b145f388fc53c2faed5c8de319c499c1b76e6b18b9a315e7301f72affbda2b23"
+    },
+    {
+      "path": "examples/pro/macaddress.csv",
+      "sha256": "4fcde867d8734777ae4519fd6c02f43d3fd9afb89ae5cc4e075c786f20011253"
+    },
+    {
+      "path": "examples/pro/macaddress.xml",
+      "sha256": "8323027fcf72583ce60963dd8c7e6341a1bb9fa7c27d2afdd86f9a2d133383bc"
+    },
+    {
+      "path": "examples/pro/male_names.csv",
+      "sha256": "e15379558a0708d1f05e941a62d20889e8c099fc7ad7c8cc0cea02990614c41c"
+    },
+    {
+      "path": "examples/pro/male_names_weighted.csv",
+      "sha256": "4063090a7da67720bd55223d8b37b30d1004d0470a0fb7cb2f601bc94c7d0fd0"
+    },
+    {
+      "path": "examples/pro/npi.csv",
+      "sha256": "df07fe0bfc98d0211262c9e301db0e3a0ddffdb0a5e1f3b6782484db39843bfb"
+    },
+    {
+      "path": "examples/pro/npi.xml",
+      "sha256": "b501451e7303da49a7df19b4f3caa582cf412bdd7cf343d83c769cdac14adf31"
+    },
+    {
+      "path": "examples/pro/person-model.csv",
+      "sha256": "0e0fc5d3fa13f9ed0d723fc6365774dfd13a54edf4ed76fc4504747bca5983cb"
+    },
+    {
+      "path": "examples/pro/person-model.xml",
+      "sha256": "72d6537485d11ffc5d922f1d3eefa2dea337860debaea6fe5724ca7f93e6ba47"
+    },
+    {
+      "path": "examples/pro/person-name-usa-female.csv",
+      "sha256": "2d1fe194b8e00ea58487d9212cd13bb9f596cb3708ea68f4b0ecf4b124f5ae6b"
+    },
+    {
+      "path": "examples/pro/person-name-usa-female.xml",
+      "sha256": "2f7c820687ce480b4e42abd7632f95ec506e44b17295d81a80a07f3053ada97b"
+    },
+    {
+      "path": "examples/pro/person-name-usa-male.csv",
+      "sha256": "a734ebac34f373a00392fbc834539613e7d334f408dc52ac8a9c045544c59e61"
+    },
+    {
+      "path": "examples/pro/person-name-usa-male.xml",
+      "sha256": "bf4fa0e98b422dd38fd1a8e52a3cb4e9ba5578d34a2b6193f998b0fd645e9a6f"
+    },
+    {
+      "path": "examples/pro/perturb-additive.csv",
+      "sha256": "eb4f8b161cf47f98e28c8d03c1c9a0ae2af1d380735533720b32998785f9b47b"
+    },
+    {
+      "path": "examples/pro/perturb-additive.xml",
+      "sha256": "ef3189b59f037bb673a079144b343c96e46f817bb85492c6966111d464a44719"
+    },
+    {
+      "path": "examples/pro/phone.csv",
+      "sha256": "9629e69d0333600504d78672c3c34cb1a6b38f82bbbaf969eb2027e5ef978281"
+    },
+    {
+      "path": "examples/pro/phone.xml",
+      "sha256": "9e3f4df323eefdf0ea535d61ad744db960911930a8749df000befb6a74ad4e5d"
+    },
+    {
+      "path": "examples/pro/process-flow-atm.csv",
+      "sha256": "49f84b0489bc1dfec0119c2f74d5e4ee82e0816d48c10f30442f7ef079728d55"
+    },
+    {
+      "path": "examples/pro/process-flow-atm.xml",
+      "sha256": "0100628a793a2defee11e83186e33fb7fb1a142dc4a533460661b78c36e04170"
+    },
+    {
+      "path": "examples/pro/process-flow-callcentre.csv",
+      "sha256": "1ba6fc0c3e95b216fbb450e71a2f7182d606e2595daf3cfe39c112277a31eab5"
+    },
+    {
+      "path": "examples/pro/process-flow-callcentre.xml",
+      "sha256": "2e8a0b070471241a3b8e723d95213bded7900a1ffbb1bc5d8009e349ecc82405"
+    },
+    {
+      "path": "examples/pro/process-flow-checkout-day.csv",
+      "sha256": "7d05af4a13d445e8117531345d8fb34507c7ab66ec4376cd30c25e974793deda"
+    },
+    {
+      "path": "examples/pro/process-flow-checkout-day.xml",
+      "sha256": "72fa497f887d8ed9823ea58909c8d8791222ce1134da4dbf5273be3de826baa6"
+    },
+    {
+      "path": "examples/pro/process-flow-checkout.csv",
+      "sha256": "feee74fe6618af0880205513cbac0be72f7596ceb1e0aadd4e34ac84a62b7fcb"
+    },
+    {
+      "path": "examples/pro/process-flow-checkout.xml",
+      "sha256": "a6efefe410c57b1df48d07c871596c6c3e7a21446484e06d8c9c49c8f47f89c5"
+    },
+    {
+      "path": "examples/pro/process-flow-clinic.csv",
+      "sha256": "5f64cce89ca907fb8c902dac107d41a3821adc5bc42a84f80c68ec6166976f0f"
+    },
+    {
+      "path": "examples/pro/process-flow-clinic.xml",
+      "sha256": "e0198daddb19f72e685683d931c289f14bb9306da0a97b4ea2fabdb240521bb5"
+    },
+    {
+      "path": "examples/pro/process-flow-day.csv",
+      "sha256": "85798a22d5cf0bca61b40cf2726eaa8e1b7881dcb76b83eedeff3d72e00246b8"
+    },
+    {
+      "path": "examples/pro/process-flow-day.xml",
+      "sha256": "8c212b9ec16ab51769034e7ba535bad2d6070fee2867c2b6bd27abc03b3a2ff9"
+    },
+    {
+      "path": "examples/pro/process-flow-ed-resources.csv",
+      "sha256": "be369a5f8f15229cbba6bdbf16f109add382a9940d0507a6672a780fd3333f08"
+    },
+    {
+      "path": "examples/pro/process-flow-ed-resources.xml",
+      "sha256": "008857fd21ff869c76a04d950cf943edd632139106eae06c2d2d4a38c0a390e3"
+    },
+    {
+      "path": "examples/pro/process-flow-elevators.csv",
+      "sha256": "9e4331ad8a4bec3b5a29b957ed044b5de2e858554347cd7bc8fa8d9031060bce"
+    },
+    {
+      "path": "examples/pro/process-flow-elevators.xml",
+      "sha256": "30f425948610638c2ae543506a827ac42282d4758f99bbf62cb883e31bf73982"
+    },
+    {
+      "path": "examples/pro/process-flow-grocery-store.csv",
+      "sha256": "e96ce2b2cb348e2d9a378a49e28d4c22c3541cdf06a1892e0208f81f8efeb39a"
+    },
+    {
+      "path": "examples/pro/process-flow-grocery-store.xml",
+      "sha256": "7235dd7d990a20fb543ebf277670f83e89e00d86076c0cd1c6f25f86d244d2a6"
+    },
+    {
+      "path": "examples/pro/process-flow-lifts-day.csv",
+      "sha256": "8217a1bac592a1f29e2ff02a7e3cd4c206804ad97e09518f7a7f141606512705"
+    },
+    {
+      "path": "examples/pro/process-flow-lifts-day.xml",
+      "sha256": "2184d5d2dbacb43d216f89e1fd18c21159e58677a0f285a4a55a75a3f8314914"
+    },
+    {
+      "path": "examples/pro/process-flow-mmc.csv",
+      "sha256": "b6c3cb2cad569e94587ad676807e09b75956261dd7ca509afbdfd2dab954d6f1"
+    },
+    {
+      "path": "examples/pro/process-flow-mmc.xml",
+      "sha256": "1ffb403c28adef86a869f8657e171367ccb75fd5f9555648da296a27ac545a87"
+    },
+    {
+      "path": "examples/pro/process-flow-runway.csv",
+      "sha256": "478323a0101af0d3516264a237153d2fa284377f4a9a6bba15fb066aef6cd954"
+    },
+    {
+      "path": "examples/pro/process-flow-runway.xml",
+      "sha256": "0580845b3504531374005af07849d1128d49f6fa3421fcb9709894b620bf781e"
+    },
+    {
+      "path": "examples/pro/process-flow-subway-trains.xml",
+      "sha256": "ec653108503ab706b4e89e18880a334d362fefc84ea2bf33907acba4c1d479bd"
+    },
+    {
+      "path": "examples/pro/process-flow-subway.csv",
+      "sha256": "93efbdfa82722c0df546784720367ccccb61e329eb1519bb8ce406cb58fff90d"
+    },
+    {
+      "path": "examples/pro/process-flow-subway.xml",
+      "sha256": "ced8e2548acbf5b73a16246a4735526d702d1201a9c9a4b84bb251de335d1303"
+    },
+    {
+      "path": "examples/pro/process-flow-triage.csv",
+      "sha256": "fa98b3ded2361b12387f7086b8311317472984440b19643e706d989f6777afc9"
+    },
+    {
+      "path": "examples/pro/process-flow-triage.xml",
+      "sha256": "8b56ea1c449427652cadf14fcfd53f83f2faa5aba31958df2a28d98f476353c0"
+    },
+    {
+      "path": "examples/pro/roll-die.csv",
+      "sha256": "707e7f62be995bbba3848dcc392502e95346f0f0af66bf65bd972554437870a7"
+    },
+    {
+      "path": "examples/pro/roll-die.json",
+      "sha256": "149b15dcc29569c49e33846f5f05ab24c20ac727ae99cb03c056ca9e1274ddd4"
+    },
+    {
+      "path": "examples/pro/roll-die.sgm",
+      "sha256": "053819bbabd49d4c2d5ab88b2903675e8f7d5b74a54c871444bf359510ce8bf8"
+    },
+    {
+      "path": "examples/pro/roll-die.xml",
+      "sha256": "53bd4da7b9e9115439b50f63b8d8a7d28d76fbd481062223957138da72436d37"
+    },
+    {
+      "path": "examples/pro/shared-state-inventory.csv",
+      "sha256": "21b7e4b02f1c7b08cb2878568f3f80156c04f642fcce5e70b8af53c1a258a4b8"
+    },
+    {
+      "path": "examples/pro/shared-state-inventory.xml",
+      "sha256": "fd77d956f1eb37df930d091b0807c6f7ee4958d11b3c428086cfbb2934e768e8"
+    },
+    {
+      "path": "examples/pro/software/build-pools.py",
+      "sha256": "72d521c6c8ccfead5dcc3a7bc33cdb87bd0fa06f9b1cf69442b81ed8bcf94e9d"
+    },
+    {
+      "path": "examples/pro/software/customers-de.csv",
+      "sha256": "7a4d0d4035b15295b391fb4b1f7937603d0ba544761bbdd10fcaf7fb7e5b2667"
+    },
+    {
+      "path": "examples/pro/software/customers-es.csv",
+      "sha256": "3e9690c33b155e9221cd5005d66e5510a97695de2953e1f723c60251f3694266"
+    },
+    {
+      "path": "examples/pro/software/customers-fr.csv",
+      "sha256": "ce76b26a7612039eed5e84d33237cb2db82091561105432e76f77f7b161d2c62"
+    },
+    {
+      "path": "examples/pro/software/latency-nominal-lib.csv",
+      "sha256": "2b9a9c2014ccd483023186ab48712fc037764144465fb4be681dcf18e70bb509"
+    },
+    {
+      "path": "examples/pro/software/latency-nominal-lib.xml",
+      "sha256": "583f3a6399bbe8cbff870af17ab87bfdfcb46f2773a85f5e2f18383d70f6d68f"
+    },
+    {
+      "path": "examples/pro/software/network-latency-imported.csv",
+      "sha256": "bdf5f8f5b1a511c89e6ebb095253fa7c5903ab299906877628fd43931850eb7d"
+    },
+    {
+      "path": "examples/pro/software/network-latency-imported.xml",
+      "sha256": "0b949f58a9f368372973dd344a4f00e1f1c9df1a44e4dc76a2905b2d718bacaf"
+    },
+    {
+      "path": "examples/pro/software/network-latency-perturbed.csv",
+      "sha256": "3988902e7b41d172aa492e6a09c17d7bfd915dbdf89a276f8d4ff1b1937a3ae4"
+    },
+    {
+      "path": "examples/pro/software/network-latency-perturbed.xml",
+      "sha256": "29a582e2dc35435a2e05b13c7d6f8949e701c72d6bb057b084bbbc98ea897be3"
+    },
+    {
+      "path": "examples/pro/software/orders-multi-locale.csv",
+      "sha256": "e619ce339afdfc8a754ead68a09bf566991854b6ad69ed6cb8a22ee0398ce322"
+    },
+    {
+      "path": "examples/pro/software/orders-multi-locale.xml",
+      "sha256": "818ac7d1a88ef20701203eaf3bfb1a82a3c99cc7be65210b72fc2e7dfa470f40"
+    },
+    {
+      "path": "examples/pro/ssn.csv",
+      "sha256": "7a3d693dccd49343075aa283fedeac2b7ba65ade575f51adc6826815a40932c3"
+    },
+    {
+      "path": "examples/pro/ssn.xml",
+      "sha256": "e6e8fffde2e1fad398774f3d038c04f017db7c412fd292fec446e6c6cf0416ae"
+    },
+    {
+      "path": "examples/pro/state-array-queues.csv",
+      "sha256": "fbc53e993aca4643240431b4ebb3a689ec3e38f4f41e409b50c92c26998e93f1"
+    },
+    {
+      "path": "examples/pro/state-array-queues.xml",
+      "sha256": "352811174efa246e6fd3dfa0ea76ca382e28025e2ed29ed0afd02a649bb5cb17"
+    },
+    {
+      "path": "examples/pro/street_names_ca_weighted.csv",
+      "sha256": "aaec6a6e884a253aeda747672e3827eef78f8395880cb4c8734eac76904973b8"
+    },
+    {
+      "path": "examples/pro/street_names_qc_weighted.csv",
+      "sha256": "5e6d9265fc042f21219fa649c5bcffe999f6ea1edea6238a7b920ad0db6ddb7c"
+    },
+    {
+      "path": "examples/pro/street_names_weighted.csv",
+      "sha256": "4169222ffbe8920c8e411128fefc29dac4071ce969b11244e11ebc52d0480a8d"
+    },
+    {
+      "path": "examples/pro/surnames.csv",
+      "sha256": "86af0d9d1b34b8385af10179f15e603150fe5cddf17d4fdcb91020f0ee5cb5e9"
+    },
+    {
+      "path": "examples/pro/surnames_weighted.csv",
+      "sha256": "2d1ccbed5dcb9ca8909f39ddb56138cc3a90db770ac422152731045960a92213"
+    },
+    {
+      "path": "examples/pro/two-dice.csv",
+      "sha256": "efc83cb2e3b41ca79391d65775d5ac8a1fb050075c6d1f8f1420e774af4e9fcc"
+    },
+    {
+      "path": "examples/pro/two-dice.json",
+      "sha256": "b95b78fdd28161d18ddc2071785ee479cc77044c1acd83ba04563636ad14d566"
+    },
+    {
+      "path": "examples/pro/two-dice.sgm",
+      "sha256": "20aeb159c58826ca50748c6b06465715867ebfecf4e7d63974c24a374e4765f7"
+    },
+    {
+      "path": "examples/pro/two-dice.xml",
+      "sha256": "d2110024356160b6dcf8f19fce39fce2aa0ff648d0e415ad80283d651349676c"
+    },
+    {
+      "path": "examples/pro/useragent.csv",
+      "sha256": "7aec9a9954a8fdb71530074e7d831b6a31e9462c7065141fa10bc68b1c4d4365"
+    },
+    {
+      "path": "examples/pro/useragent.xml",
+      "sha256": "84f97415ede68f6415b2364cbbb5cfead1317eb8ca1f0e25b3176ee3ae821df6"
+    },
+    {
+      "path": "examples/pro/useragent_browser_os_weighted.csv",
+      "sha256": "1d59638beb4bec0354eb40df6a53fade7801e89fd3648051b5a9a0b67607f0f9"
+    },
+    {
+      "path": "examples/pro/vin.csv",
+      "sha256": "608540d567c68bf51a14e93a8ceaebe87065583e84aeaa95f921706b041ecd58"
+    },
+    {
+      "path": "examples/pro/vin.xml",
+      "sha256": "5a011533179e0f863b0fddcda3e2c0fb73bce1d828fb1a7a05b8c19a0950c40d"
+    },
+    {
+      "path": "examples/pro/vin_manufacturers.csv",
+      "sha256": "a3f56003b14516e41f4615d877f441ad1def2846ba6fd55d5a3f3d865596ee25"
+    },
+    {
+      "path": "examples/software/daily-traffic-cycle.csv",
+      "sha256": "d1d05950848ea2105a278a98baf551e5de3d166903298e5b0d358d45fa71e56f"
+    },
+    {
+      "path": "examples/software/daily-traffic-cycle.xml",
+      "sha256": "1f2c56234357e1490b0ebcb0f0debe1bd66c3b3d49d1b232c5b1656c8ed14b0a"
+    },
+    {
+      "path": "examples/software/network-latency.csv",
+      "sha256": "dd4d14d565fa0dc3a8debbc962d814035f742e8a73b6feae93ed7ff4c2cb5ec0"
+    },
+    {
+      "path": "examples/software/network-latency.json",
+      "sha256": "538f8dc8e74dd48ef3a5daa520d5e4f758682ca4b4e91b06e1acf89c19a515dc"
+    },
+    {
+      "path": "examples/software/network-latency.xml",
+      "sha256": "b6bf69db4a00c0d1f449318c5547b97999b80247005bfe53bc920474fb38e38d"
+    },
+    {
+      "path": "examples/software/orders-multi-locale-free.csv",
+      "sha256": "d98980fbdc1ad20ef5bd9b4662768f28d6143ffd1dd76658ece1a1f4921f3651"
+    },
+    {
+      "path": "examples/software/orders-multi-locale-free.xml",
+      "sha256": "8fc9c906b6660ec3c0a70de91f8e1f2b187842780fd551a41ca0ff891828c0fa"
+    },
+    {
+      "path": "examples/software/transaction-volume-profiles.csv",
+      "sha256": "5ac6d282f7ff30d08909cf3bc9c562a8c2e8cb8c0bb5cc1df95cf88c99991472"
+    },
+    {
+      "path": "examples/software/transaction-volume-profiles.json",
+      "sha256": "8f9e716e3941f278f63fbaa10d4e85ffc4a9a13cb17062aed88bb5fa38b531e6"
+    },
+    {
+      "path": "examples/software/transaction-volume-profiles.xml",
+      "sha256": "2f396b6884896dbf0420dc76f2966fc9e172155dc5a9c9e6eb67209ab45311d8"
+    },
+    {
+      "path": "plugins/spicegrinder/skills/build-spicegrinder-model/references/Model-File-Format-Reference.md",
+      "sha256": "b878cffaea0666e070896cfe865e1ba815015301d8b16c8be929aeb72e8f7e0c"
+    },
+    {
+      "path": "plugins/spicegrinder/skills/build-spicegrinder-model/references/component-catalog.md",
+      "sha256": "ba4e3d954909773045e8786b936e8f4f9247d722176c62458cc13092ab0ad80c"
+    },
+    {
+      "path": "plugins/spicegrinder/skills/create-spicegrinder-simulation/references/Model-File-Format-Reference.md",
+      "sha256": "b878cffaea0666e070896cfe865e1ba815015301d8b16c8be929aeb72e8f7e0c"
+    },
+    {
+      "path": "plugins/spicegrinder/skills/create-spicegrinder-simulation/references/Recur-Patterns.md",
+      "sha256": "89874942a7734f11898189b7817a02b7c90670dfc89ded2724a8829b265c8629"
+    },
+    {
+      "path": "plugins/spicegrinder/skills/create-spicegrinder-simulation/references/component-catalog.md",
+      "sha256": "ba4e3d954909773045e8786b936e8f4f9247d722176c62458cc13092ab0ad80c"
+    },
+    {
+      "path": "plugins/spicegrinder/skills/create-spicegrinder-simulation/references/interview-guide.md",
+      "sha256": "e2c7ce1445966db19f30c933d5dde6241540af040b30cdb7c7f757fbee7cda8d"
+    },
+    {
+      "path": "plugins/spicegrinder/skills/create-spicegrinder-simulation/references/pattern-map.md",
+      "sha256": "1ae67585d60ba3bbb0965bdd16a1077451f226f5f37ef92876a8908a77157c60"
+    },
+    {
+      "path": "plugins/spicegrinder/skills/create-spicegrinder-simulation/references/verification-checks.md",
+      "sha256": "18c7f8f64b8b0d71052fb93d19910ca8602dc6b6801ab980533c63a4c0a03be0"
+    },
+    {
+      "path": "plugins/spicegrinder/skills/explain-model/references/component-catalog.md",
+      "sha256": "ba4e3d954909773045e8786b936e8f4f9247d722176c62458cc13092ab0ad80c"
+    },
+    {
+      "path": "plugins/spicegrinder/skills/extend-spicegrinder/references/Customization.md",
+      "sha256": "cac18e7617e85828d5e29c732b2ee764b3f280f7d6df40ca83906899bc556133"
+    },
+    {
+      "path": "plugins/spicegrinder/skills/extend-spicegrinder/references/ModelAnalyzerApp.md",
+      "sha256": "bb701eba0673cc40e2355068e1caa4636f0ad6664bdcf75793e2f610ace2198c"
+    },
+    {
+      "path": "plugins/spicegrinder/skills/extend-spicegrinder/references/component-catalog.md",
+      "sha256": "ba4e3d954909773045e8786b936e8f4f9247d722176c62458cc13092ab0ad80c"
+    },
+    {
+      "path": "plugins/spicegrinder/skills/fit-model-to-sample/evals/evals.json",
+      "sha256": "80201980893a09073a65149f6bce49aabb5fc88d7b6e168282eb3e36458f6134"
+    },
+    {
+      "path": "plugins/spicegrinder/skills/fit-model-to-sample/evals/files/customer_transactions.csv",
+      "sha256": "76ed925a4afcb479b15e60a739bc6b675c545265d4c17cd3a4699866a8dd3822"
+    },
+    {
+      "path": "plugins/spicegrinder/skills/fit-model-to-sample/evals/files/patient_measurements.csv",
+      "sha256": "949c0c891d47174238029f158070c2679ed8f1338f4f367b22e1a97c9c0f5686"
+    },
+    {
+      "path": "plugins/spicegrinder/skills/fit-model-to-sample/evals/files/patient_vitals.csv",
+      "sha256": "eb588695f0799e3264feccaa4900c6d46caadd18fb7f287dd9dd11037de8b410"
+    },
+    {
+      "path": "plugins/spicegrinder/skills/fit-model-to-sample/evals/files/patient_vitals_episodic.csv",
+      "sha256": "461e2e22b6e889b4d2879c4654cb423a18a96a35eb793b577b56f2629d271a1e"
+    },
+    {
+      "path": "plugins/spicegrinder/skills/fit-model-to-sample/evals/files/sensor_readings.csv",
+      "sha256": "3cc57c179b496780b5ede65baabda4178daaaa817a409f027035f1b409ed9cb9"
+    },
+    {
+      "path": "plugins/spicegrinder/skills/fit-model-to-sample/references/component-catalog.md",
+      "sha256": "ba4e3d954909773045e8786b936e8f4f9247d722176c62458cc13092ab0ad80c"
+    },
+    {
+      "path": "plugins/spicegrinder/skills/fit-model-to-sample/references/review-guide.md",
+      "sha256": "d14c6f5b4d3a4c4cef6ea6345eccb71acf8805422768c5f405726b64d06114b5"
+    },
+    {
+      "path": "plugins/spicegrinder/skills/pii-audit/references/component-catalog.md",
+      "sha256": "ba4e3d954909773045e8786b936e8f4f9247d722176c62458cc13092ab0ad80c"
+    },
+    {
+      "path": "plugins/spicegrinder/skills/tune-model-performance/references/ModelAnalyzerApp.md",
+      "sha256": "bb701eba0673cc40e2355068e1caa4636f0ad6664bdcf75793e2f610ace2198c"
+    }
+  ],
+  "owned": [
+    {
+      "path": ".claude-plugin/marketplace.json",
+      "sha256": "c6679bae1c8ba4cd8bb8d01d05f1c5144d5847c6f9f441aeed93f77e33721754"
+    },
+    {
+      "path": ".github/workflows/validate-community-models.yml",
+      "sha256": "843ad2d6e738c9673aacd465145464f64bf2cf3a1f2f9f593358193a66555e79"
+    },
+    {
+      "path": ".gitignore",
+      "sha256": "f17ad2a6188dfae445b743e9bb9c447b08d4f960892f036168f7b99f96326fcf"
+    },
+    {
+      "path": "CONTRIBUTING.md",
+      "sha256": "425dfde6d40201ed8940373029d38f414b2772dfea82fc11d205b2f9e8f0b975"
+    },
+    {
+      "path": "LICENSE",
+      "sha256": "0b7a2778b0baec4357048fdf4ea21c8fbf4d27328c4ef4dd3238967474275e0d"
+    },
+    {
+      "path": "NOTICE.md",
+      "sha256": "fc534499a7efc239a9417555fa6b32d1f22e38530eedaa392713aa9bca05a82d"
+    },
+    {
+      "path": "README.md",
+      "sha256": "d6257fec79129fa5d8a1ea17716bbae50df4b0d71823450de3cf70d5bd1b06ca"
+    },
+    {
+      "path": "examples/README.md",
+      "sha256": "2d0d72f209a6d426c89250ca9c178468cd58fd9dac03e6611c28704164aea135"
+    },
+    {
+      "path": "examples/THIRD-PARTY-DATA-NOTICES.md",
+      "sha256": "e72fdfcc8872e0510c20c0a6cd4c8b817758918244a0d942a9fe1f6d98cc40a4"
+    },
+    {
+      "path": "plugins/spicegrinder/.claude-plugin/icon.png",
+      "sha256": "dbd142f95ab38f7b9e05a8122eefd14d8ec5c024d15f233e618947833624b02c"
+    },
+    {
+      "path": "plugins/spicegrinder/.claude-plugin/plugin.json",
+      "sha256": "e3ff20c7cec55869480cff4811e45aefee21cb0dba08b02d12134472d5b1c624"
+    },
+    {
+      "path": "plugins/spicegrinder/LICENSE",
+      "sha256": "0774e54f139021caf3740c826df16fdc611b7bba44a4fa0b9136e1b863f8a8e0"
+    },
+    {
+      "path": "plugins/spicegrinder/NOTICE.md",
+      "sha256": "f60912e20b867760c27c5e889f208a1f5b64040771663d5b33069fda6d4d9ccc"
+    },
+    {
+      "path": "plugins/spicegrinder/README.md",
+      "sha256": "3226c06506c7171ff1b55b375eb052bf22242c5c227226f6df3b6ca505ef9a84"
+    },
+    {
+      "path": "plugins/spicegrinder/skills/build-spicegrinder-model/SKILL.md",
+      "sha256": "9a4b096d54ac7f2b0469d6432ceae2e3dc12485746fd1e655a14b5f32eb310ad"
+    },
+    {
+      "path": "plugins/spicegrinder/skills/explain-model/SKILL.md",
+      "sha256": "b3b486c0628c969761620d73c0789ebacf3446b19ffda085ddcc48d476ede8fe"
+    },
+    {
+      "path": "plugins/spicegrinder/skills/extend-spicegrinder/SKILL.md",
+      "sha256": "32e073e54fd4dd8e917d211fb0207494810413b555932afa952a1332dd006c33"
+    },
+    {
+      "path": "plugins/spicegrinder/skills/fit-model-to-sample/SKILL.md",
+      "sha256": "c8c67ee03d0cd87c9c6b1e04b141ef57e448dcca3d543daf627ec959e4741010"
+    },
+    {
+      "path": "plugins/spicegrinder/skills/pii-audit/SKILL.md",
+      "sha256": "2ceb8109699880264fb1480431e7ba419237141ca775339e1a953386acc92b15"
+    },
+    {
+      "path": "plugins/spicegrinder/skills/tune-model-performance/SKILL.md",
+      "sha256": "c8d57412a727ce2dec3ca5c9cf9819084d42e9f699c5a78878fc15950f8748ea"
+    },
+    {
+      "path": "tools/sync-skill-references.sh",
+      "sha256": "f6726e4b7dce57e923f17cb7c2a0b302f912f1f023823eceba615dbc0d988e42"
+    }
+  ],
+  "schema": 1,
+  "snapshot_id": "fd3add6c681ddff8",
+  "target": "cookbook"
+}

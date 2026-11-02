@@ -16,7 +16,7 @@
 
   Output: one Observation of [npi] per pull, rendered as the bare 10-digit string.
 -->
-<dataset>
+<dataset columns="npi">
 	<root node="Provider"/>
 	<nodes>
 		<NPI name="Provider"/>

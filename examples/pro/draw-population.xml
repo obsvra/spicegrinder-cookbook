@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Survivors and births among a population that is state: a Binomial whose size and probability come from the model (Pro).
+
+  A population of N animals. Each year every animal survives with probability s, and every animal also has a chance b x (1 - N/K) of leaving one offspring, which
+  shrinks as the population nears the carrying capacity K. The number of survivors and the number of births are therefore Binomial(N, s) and
+  Binomial(N, b x (1 - N/K)) where N changes every year. A distribution node takes constants; the Draw node takes its parameters from the model:
+    Draw distribution="Binomial" params="n = x[0]; p = ..."     n = the population (column 0 of its input, read from the store), p from the lever
+  Two StateRead nodes feed the two Draws (a node may have only one consumer) and a third supplies the population and the extinction flag to the update.
+    Next (Calculate)       the new population min(K, survivors + births), the latched extinct flag, and the two counts
+    StateWrite             stores the population and the flag (the "-" columns, the two counts, are not stored and pass through to the output)
+  Output columns, 4 per row: 0 the population after the year, 1 the extinct flag (1 once the population reaches 0, and stays 1), 2 survivors, 3 births.
+  Reads are one row behind (a year's draws use the population at the end of the last year), as everywhere in SharedState.
+
+  To run it:        grind with a count of 200 on samples/pro/draw-population.xml; the levers are the declares K, s and b (grind declare option).
+  What to look for: the population climbs from 10 to a level below K (about K x (1 - (1 - s)/b) for these rates) and fluctuates around it; a small K, or a smaller s,
+                    makes extinction possible. A probability of extinction over many 50-year paths is the job of the experiment tool.
+-->
+<dataset seed="20261015" columns="population, extinct, survivors, births">
+  <definitions>
+    <declare name="K" value="100" type="int" min="2" max="100000"/>
+    <declare name="s" value="0.8" type="number" min="0" max="1"/>
+    <declare name="b" value="0.4" type="number" min="0" max="1"/>
+  </definitions>
+  <root node="Write"/>
+  <nodes>
+    <SharedState name="Pop" cells="n=10, gone=0"/>
+    <StateRead name="ForSurvivors" collaborate.state="Pop" cells="n"/>
+    <StateRead name="ForBirths" collaborate.state="Pop" cells="n"/>
+    <StateRead name="ForUpdate" collaborate.state="Pop" cells="n, gone"/>
+    <Draw name="Survivors" distribution="Binomial" params="n = x[0]; p = ${s}">
+      <input name="ForSurvivors"/>
+    </Draw>
+    <Draw name="Births" distribution="Binomial" params="n = x[0]; p = max(0, min(1, ${b} * (1 - x[0] / ${K})))">
+      <input name="ForBirths"/>
+    </Draw>
+    <Append name="Parts">
+      <input name="Survivors"/>
+      <input name="Births"/>
+      <input name="ForUpdate"/>
+    </Append>
+    <Calculate name="Next" dimension="4"
+               expression="let next = min(${K}, x[0] + x[1]); y[0] = next; y[1] = max(x[3], if(next &lt; 1, 1, 0)); y[2] = x[0]; y[3] = x[1]">
+      <input name="Parts"/>
+    </Calculate>
+    <StateWrite name="Write" collaborate.state="Pop" cells="n, gone, -, -">
+      <input name="Next"/>
+    </StateWrite>
+  </nodes>
+</dataset>

@@ -8,7 +8,7 @@
     samples/pro/health/patient-vitals-imported.xml   — Import decomposition of nominal lib
     samples/pro/health/vitals-nominal-lib.xml        — reusable nominal library
 -->
-<dataset>
+<dataset columns="heartRate, systolicBp, spo2">
 	<root node="Vitals"/>
 	<nodes>
 		<MultivariateNormal name="Vitals" means="72,118,98" sigmas="8,12,1.5" dimension="3"/>

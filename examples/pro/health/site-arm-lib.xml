@@ -13,7 +13,7 @@
   of controlP/treatmentP/controlWeight/treatmentWeight for one specific site; anything not
   overridden falls back to the defaults below.
 -->
-<dataset>
+<dataset columns="responded">
 	<root node="SiteOutcome"/>
 	<definitions>
 		<declare name="controlP" value="0.30"/>

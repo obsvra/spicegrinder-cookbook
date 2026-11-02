@@ -1,6 +1,7 @@
 {
   "dataset": {
     "root": "LogReturn",
+    "columns": "logReturn",
     "nodes": [
       {
         "type": "Normal",

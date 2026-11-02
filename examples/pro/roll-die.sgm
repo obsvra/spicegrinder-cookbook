@@ -1,0 +1,20 @@
+# Pro/Import library: roll a die with ANY number of sides.
+#
+# The next layer up from d6-lib.xml, a die fixed at six faces: this one takes the number of sides as a
+# declared parameter (d, default 6), so one library file serves a d4, d6, d8, d10, d12, d20, d100...
+# An importing model picks the die by overriding d:   Import("roll-die.sgm", d="20")
+# See two-dice.sgm for a model that imports it twice, once as it stands (a d6) and once as a d20.
+#
+# How it works: Uniform draws from [0, d), Calculate adds 1 to give [1, d+1), and ToInteger (floor)
+# turns that into the whole numbers 1 through d, each equally likely. The +1 is its own step because
+# a declared parameter only substitutes where it is the WHOLE value ($d), never inside an
+# expression like "$d + 1". The declared value is written as a quoted string.
+#
+# Left at its default (d = 6), this gives exactly the same rows as d6-lib.xml for the same seed.
+# The same library exists as roll-die.xml and roll-die.json; all three give the same rows for the same seed.
+dataset.root = Roll
+dataset.columns = "roll"
+define.declare d = "6"
+Base = Uniform(0, $d)
+Die = Calculate(Base, "y[0] = x[0] + 1")
+Roll = ToInteger(Die)

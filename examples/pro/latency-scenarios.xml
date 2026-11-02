@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Simulation 101, lesson 4.2, scenarios (PRO: Import). Two scenarios of one service, both from the library latency-lib.xml, side by side;
+     one row = one request:
+       column 0  Baseline    median 30 ms (the library default), sigma 0.8 (overridden)
+       column 1  NewDeploy   median 33 ms, sigma 0.87 (both overridden)
+     SLO: the 99th percentile must stay under 250 ms.  Analytic p99 = median * exp(2.3263 * sigma):  Baseline 192.9 ms, NewDeploy 249.7 ms.
+     NewDeploy sits 0.26 ms under the line, so 'does it meet the SLO?' is close to a coin flip for a run of 100,000 rows.
+     The two imports have different names, so their nodes get different random streams: the two columns are independent draws even
+     with the same seed.   3 nodes in this file; each import brings the library's 5 nodes (its root takes the import's name): 11 in all. -->
+<dataset columns="baselineLatency, newLatency" seed="402">
+  <root node="Both"/>
+  <nodes>
+    <Import name="Baseline" file="latency-lib.xml" sigma="0.8"/>
+    <Import name="NewDeploy" file="latency-lib.xml" median="33" sigma="0.87"/>
+    <Append name="Both">
+      <input name="Baseline"/>
+      <input name="NewDeploy"/>
+    </Append>
+  </nodes>
+</dataset>

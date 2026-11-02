@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Perturb with mode="add": noise bursts that ride on a live baseline (PRO).  One row = one reading of a temperature sensor.
+       Baseline  Normal, mean 20, standard deviation 0.5: the sensor at rest, about 20 degrees.
+       Burst     Normal, mean 0, standard deviation 4: interference, ADDED to the baseline while a burst lasts.
+       Gap       readings between bursts: Exponential with mean 100 (lambda 0.01), rounded UP to a whole number with ToInteger
+       Length    readings per burst: Geometric(p = 0.1), mean 10
+     Perturb(mode="add") outputs baseline + burst during a burst and the baseline alone the rest of the time.  With the default
+     mode="replace" the burst would instead REPLACE the reading (a sensor stuck on a wrong value); here the baseline keeps advancing
+     underneath, which is how interference behaves.  A burst has standard deviation about sqrt(0.5^2 + 4^2) = 4.03 around 20, against
+     0.5 at rest.  Expected share of readings inside a burst about 10 / (101 + 10) = 9.0%.     5 nodes. -->
+<dataset columns="reading" seed="707">
+  <root node="Reading"/>
+  <nodes>
+    <Normal name="Baseline" mean="20" stddev="0.5"/>
+    <Normal name="Burst" mean="0" stddev="4"/>
+    <Exponential name="GapRaw" lambda="0.01"/>
+    <ToInteger name="Gap" mode="ceiling">
+      <input name="GapRaw"/>
+    </ToInteger>
+    <Geometric name="BurstLength" p="0.1"/>
+    <Perturb name="Reading" repeat="true" mode="add">
+      <input name="Baseline" role="normal"/>
+      <input name="Burst" role="disturbance"/>
+      <input name="Gap" role="wait"/>
+      <input name="BurstLength" role="duration"/>
+    </Perturb>
+  </nodes>
+</dataset>

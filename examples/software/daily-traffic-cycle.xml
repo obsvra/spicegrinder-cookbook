@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- A daily traffic cycle from one hour counter, using the Calculate sine, comparison and if functions and its output dimension.
+     One row = one hour.  Four columns, all computed from the hour counter h = 0, 1, 2, ...
+       dim0  hour of day      mod(h, 24)
+       dim1  requests/second  200 + 120 * sin(2 * pi * (hour of day - 9) / 24): a smooth daily wave, peaking at 15:00 (320) and bottoming at 03:00 (80)
+       dim2  business hours   1 from 09:00 up to 17:00, else 0: two comparisons multiplied together (a comparison gives 1 or 0)
+       dim3  load alert       if(requests/second > 280, 1, 0): 1 for the busy afternoon hours (the wave is written out again, since an output cannot read another output)
+     "dimension" widens the one-column counter to four columns; nothing is random, so every day repeats exactly.     2 nodes. -->
+<dataset columns="hourOfDay, requestsPerSec, businessHours, loadAlert" seed="1">
+  <root node="Traffic"/>
+  <nodes>
+    <Sequence name="Hour" start="0" step="1"/>
+    <Calculate name="Traffic" dimension="4"
+        expression="y[0] = mod(x[0], 24); y[1] = 200 + 120 * sin(2 * pi * (mod(x[0], 24) - 9) / 24); y[2] = (mod(x[0], 24) >= 9) * (mod(x[0], 24) &lt; 17); y[3] = if(200 + 120 * sin(2 * pi * (mod(x[0], 24) - 9) / 24) > 280, 1, 0)">
+      <input name="Hour"/>
+    </Calculate>
+  </nodes>
+</dataset>

@@ -13,7 +13,7 @@
 
   Output: one Observation of [ssn] per pull, rendered as "078-05-1120".
 -->
-<dataset>
+<dataset columns="ssn">
 	<root node="Applicant"/>
 	<nodes>
 		<SSN name="Applicant"/>

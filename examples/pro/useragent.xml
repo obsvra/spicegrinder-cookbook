@@ -19,7 +19,7 @@
   "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)
   Chrome/152.0.0.0 Safari/537.36"
 -->
-<dataset>
+<dataset columns="userAgent">
 	<root node="Client"/>
 	<nodes>
 		<UserAgent name="Client">
@@ -27,7 +27,7 @@
 		</UserAgent>
 
 		<FlatFile name="BrowserOs"
-			file="samples/pro/useragent_browser_os_weighted.csv"
+			file="useragent_browser_os_weighted.csv"
 			mode="weighted"/>
 	</nodes>
 </dataset>

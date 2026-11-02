@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Pro: the D&D ability scores (3d6, six times, no rerolls) one layer further up.
+
+  dnd-ability-scores-import.xml pulls its d6 in from d6-lib.xml, a die fixed at six faces. This
+  model is the same generator with that one Import pointed at roll-die.xml instead, the die with
+  a declared number of sides (d, default 6). Nothing else changed, and left at its default the
+  generic die is the same die as d6-lib.xml. With streams="shared" on the dataset this model
+  gives the same rows as dnd-ability-scores-import.xml for the same seed; with the default
+  per-node streams the import prefix is part of each node's identity, so the recorded CSVs differ.
+
+  What the generic die adds is the knob: override d on the Import to roll something else, for
+  example d="8" for a table that uses eight-sided dice, with no change to the library.
+
+      <Import name="D6" file="roll-die.xml" d="8"/>
+-->
+<dataset columns="str, dex, con, int, wis, cha">
+	<root node="SixStats"/>
+	<nodes>
+		<Import name="D6" file="roll-die.xml"/>
+
+		<Redimension name="ThreeDice" dimension="3">
+			<input name="D6"/>
+		</Redimension>
+
+		<Calculate name="Sum" expression="y[0] = x[0] + x[1] + x[2]">
+			<input name="ThreeDice"/>
+		</Calculate>
+
+		<Arrange name="KeepSum" columns="0">
+			<input name="Sum"/>
+		</Arrange>
+
+		<Redimension name="SixStats" dimension="6">
+			<input name="KeepSum"/>
+		</Redimension>
+	</nodes>
+</dataset>

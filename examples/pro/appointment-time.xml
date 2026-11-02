@@ -17,7 +17,7 @@
   Output: one Observation of [appointmentTime] per pull, rendered as an HH:mm:ss string
   (TimeDataPoint's default) whose numeric value is seconds since midnight.
 -->
-<dataset>
+<dataset columns="appointmentTime">
 	<root node="Appointment"/>
 	<nodes>
 		<Time name="Appointment">

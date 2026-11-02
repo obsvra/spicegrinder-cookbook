@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Simulation 101, lesson 4.5, a traffic-replay library (PRO: FlatFile, declare + Import).  ONE ROW = ONE MINUTE.
+     The request count of each row comes from a recorded trace, latency-traffic-trace.csv (1,440 per-minute counts, one day), replayed in order.
+     The trace is INVENTED data, a stand-in for an export from a monitoring system; learn/figures/sim101-20-make.py shows how it was made.
+     Latency model (an assumption layered on the trace, so that traffic volume matters): latency is Lognormal with a median that rises with load,
+         median(load) = median * (1 + 0.5 * (requests per minute / 3000)^2)       (capacity about 3,000 requests a minute)
+     and the declared sigma.  The share of that minute's requests slower than the SLO is the Lognormal survival function,
+         share = 1 - Phi( (ln(slo) - ln(median(load))) / sigma ),
+     computed with Calculate.  There are no random draws at all: the share is exact for the minute, so a run is fully determined by the trace.
+     Calculate has no normal CDF, so Phi is the Abramowitz and Stegun 26.2.17 polynomial (absolute error under 7.5e-8):
+         for z >= 0,  1 - Phi(z) = phi(z) * (b1 t + b2 t^2 + b3 t^3 + b4 t^4 + b5 t^5),  t = 1 / (1 + 0.2316419 z);  for z < 0 it is 1 minus the value at |z|.
+     Declared (overridable): median 30 ms, sigma 0.8, slo 250 ms.
+     Output: column 0 requests this minute, 1 share of them slower than the SLO, 2 requests slower than the SLO (requests * share).   10 nodes. -->
+<dataset columns="requests, slowShare, slow">
+  <root node="Out"/>
+  <definitions>
+    <declare name="median" value="30"/>
+    <declare name="sigma" value="0.8"/>
+    <declare name="slo" value="250"/>
+  </definitions>
+  <nodes>
+    <FlatFile name="Trace" file="latency-traffic-trace.csv" skipHeader="true" mode="sequential" onExhaustion="repeat"/>
+    <Constant name="Median" value="$median" type="double"/>
+    <Constant name="Sigma" value="$sigma" type="double"/>
+    <Constant name="Slo" value="$slo" type="double"/>
+    <Append name="Params">
+      <input name="Trace"/>
+      <input name="Median"/>
+      <input name="Sigma"/>
+      <input name="Slo"/>
+    </Append>
+    <Calculate name="Z" dimension="8" expression="y[4] = (log(x[3]) - log(x[1] * (1 + 0.5 * pow(x[0] / 3000, 2)))) / x[2]">
+      <input name="Params"/>
+    </Calculate>
+    <Calculate name="T" expression="y[5] = 1 / (1 + 0.2316419 * abs(x[4]))">
+      <input name="Z"/>
+    </Calculate>
+    <Calculate name="Share" expression="y[6] = 0.5 - x[4] / (abs(x[4]) + 0.000000000001) * (0.5 - 0.3989422804014327 * exp(-0.5 * x[4] * x[4]) * (((((1.330274429 * x[5] - 1.821255978) * x[5] + 1.781477937) * x[5] - 0.356563782) * x[5] + 0.31938153) * x[5]))">
+      <input name="T"/>
+    </Calculate>
+    <Calculate name="Slow" expression="y[7] = x[0] * x[6]">
+      <input name="Share"/>
+    </Calculate>
+    <Arrange name="Out" columns="0,6,7">
+      <input name="Slow"/>
+    </Arrange>
+  </nodes>
+</dataset>

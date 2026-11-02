@@ -1,6 +1,7 @@
 {
   "dataset": {
     "root": "LatencyMs",
+    "columns": "latencyMs",
     "nodes": [
       {
         "type": "Lognormal",

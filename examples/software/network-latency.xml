@@ -7,7 +7,7 @@
     samples/pro/software/network-latency-imported.xml  — Import + Perturb
     samples/pro/software/latency-nominal-lib.xml       — reusable nominal library
 -->
-<dataset>
+<dataset columns="latencyMs">
 	<root node="LatencyMs"/>
 	<nodes>
 		<Lognormal name="LatencyMs" mu="2.5" sigma="0.45"/>

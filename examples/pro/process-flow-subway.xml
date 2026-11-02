@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  A subway of ten stations and three lines: how long do riders take? (Pro; every number is a placeholder)
+
+  The places A to J are joined by three lines. Red runs A B C D E and back, Green C G I J and back, Blue round the loop B F G H D C. A train takes 2 minutes between
+  neighbouring places and stops 0.5 minute at each; Red turns round in 2 minutes at each end and Green in 1.5; changing trains takes a 3 minute walk.
+    network="Metro: walk=3 ...; Red = A B C D E back hop=2 stop=0.5 turn=2 headway=24/${red}; ..."   the lines, their times and the expected time between trains
+    transit="Gate>exit: Metro from=o to=d"   a rider who passes the gate rides the network from place o to place d and then leaves
+  Each rider takes the route with the least expected time, worked out once when the model is loaded: waiting counts as half a headway at every boarding, riding as the
+  hops and the stops passed, and every change as the walk. Trains are not simulated (rider level): each boarding waits a draw uniform from 0 to the line's headway.
+  Headways follow from whole numbers of trains: a cycle round Red takes 24 minutes, Green 18 and Blue 15, so with the declares red=4, green=3 and blue=3 trains
+  the headways are 6, 6 and 5 minutes. A smaller declare is a line with a train fewer; the routes are worked out again from the new headways.
+  Demand: about 40,000 riders over an 18 hour day (rates 50, 30 and 45 a minute in the early, middle and end parts: 0 to 4 h, 4 to 14 h, 14 to 18 h); od is the
+  pair (0 to 89, origins A to J, each with the nine other places in order), and o and d its places (0 A to 9 J). Early: origins at A, E, I, J three times as likely and
+  destinations at the central places four times as likely; middle: all pairs alike; end: the reverse of early. Arrivals stop at 18 h and the run ends when the last
+  rider leaves.
+  Output columns, 12 per row (named): exit (clock minute), rider, journey (minutes from entering to leaving), wait and service (0: the gate takes no time), visits, od,
+  o, d, rideWait (minutes waiting on platforms), ride (minutes on trains), boardings (so changes = boardings - 1). Walking is journey - rideWait - ride.
+
+  To run it:        grind with a count of 100000 on samples/pro/process-flow-subway.xml (the run ends itself, after about 40,700 rows)
+  What to look for: the mean journey is about 11.9 minutes and the 95th percentile about 21, with 4 minutes of waiting and 43 percent of riders changing once;
+                    with red=3 the mean rises by about 0.4 minute, with green=2 by about 0.7, with blue=2 by about 0.6, and with all three one train fewer by about 1.8.
+                    This is the evaluation run that once needed a script to write the route tables into choose expressions.
+-->
+<dataset seed="20261016" columns="exit, rider, journey, wait, service, visits, od, o, d, rideWait, ride, boardings">
+  <definitions>
+    <declare name="red" value="4" type="int" min="1" max="12"/>
+    <declare name="green" value="3" type="int" min="1" max="12"/>
+    <declare name="blue" value="3" type="int" min="1" max="12"/>
+  </definitions>
+  <root node="Subway"/>
+  <nodes>
+    <Exponential name="Gap" lambda="1"/>
+    <Constant name="Instant" value="0"/>
+    <Categorical name="EarlyPair" weights="12 12 12 3 12 12 12 3 3 1 4 4 1 4 4 4 1 1 1 4 4 1 4 4 4 1 1 1 4 4 1 4 4 4 1 1 3 12 12 12 12 12 12 3 3 1 4 4 4 1 4 4 1 1 1 4 4 4 1 4 4 1 1 1 4 4 4 1 4 4 1 1 3 12 12 12 3 12 12 12 3 3 12 12 12 3 12 12 12 3"/>
+    <Categorical name="MidPair" weights="1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1"/>
+    <Categorical name="EndPair" weights="1 1 1 4 1 1 1 4 4 12 3 3 12 3 3 3 12 12 12 3 3 12 3 3 3 12 12 12 3 3 12 3 3 3 12 12 4 1 1 1 1 1 1 4 4 12 3 3 3 12 3 3 12 12 12 3 3 3 12 3 3 12 12 12 3 3 3 12 3 3 12 12 4 1 1 1 4 1 1 1 4 4 1 1 1 4 1 1 1 4"/>
+    <Calculate name="EarlyRider" dimension="3" expression="let o = floor(x[0] / 9); let j = x[0] - 9 * o; y[0] = x[0]; y[1] = o; y[2] = j + (j >= o)"><input name="EarlyPair"/></Calculate>
+    <Calculate name="MidRider" dimension="3" expression="let o = floor(x[0] / 9); let j = x[0] - 9 * o; y[0] = x[0]; y[1] = o; y[2] = j + (j >= o)"><input name="MidPair"/></Calculate>
+    <Calculate name="EndRider" dimension="3" expression="let o = floor(x[0] / 9); let j = x[0] - 9 * o; y[0] = x[0]; y[1] = o; y[2] = j + (j >= o)"><input name="EndPair"/></Calculate>
+    <ProcessFlow name="Subway" stations="Gate:inf" routing="Gate>exit:1" output="entities" attributes="od, o, d" closes="1080"
+                 rate="0:50, 240:30, 840:45" rateMode="step"
+                 network="Metro: walk=3 places=A,B,C,D,E,F,G,H,I,J;
+                          Red   = A B C D E   back hop=2 stop=0.5 turn=2   headway=24/${red};
+                          Green = C G I J     back hop=2 stop=0.5 turn=1.5 headway=18/${green};
+                          Blue  = B F G H D C loop hop=2 stop=0.5          headway=15/${blue}"
+                 transit="Gate>exit: Metro from=o to=d">
+      <input name="Gap" role="arrival"/>
+      <input name="EarlyRider" role="entity"/>
+      <input name="MidRider" role="entity@240"/>
+      <input name="EndRider" role="entity@840"/>
+      <input name="Instant" role="service.Gate"/>
+    </ProcessFlow>
+  </nodes>
+</dataset>

@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Simulation 101, lesson 5.3: two stores, one warehouse (PRO: SharedState, declare + Import).
+
+  Two stores, each an Import of samples/pro/inventory-store-lib.xml (the lesson 5.2 store with a request to a warehouse instead of an order to a supplier), draw
+  their stock from ONE warehouse, and the warehouse buys from an outside supplier. One row is one day.
+    Customers   Each store's daily demand is NegativeBinomial(r = 8, p = 0.5) (mean 8, variance 16), the two tied together by a Gaussian Copula whose
+                correlation matrix is the declare "corr" (default "1, 0; 0, 1": independent; "1, 0.6; 0.6, 1" is 0.6 in the underlying normals). A pair drawn in
+                row n reaches the stores' dem cells in row n + 2 (it passes through the Desk), so the first two days have no demand.
+    Stores      R = 32, Q = 12 (declares RS and QS). A store asks the warehouse for Q when stock + arriving + requested <= R. Lead time 3 days.
+    Warehouse   Cells of Hub: whs (units on the shelf at the end of the day, 72 to start); w1, w2, w3 (the supplier's order on its way: three cells, so the supplier
+                takes 4 days from the end of the day the warehouse looked at); alloc (0 = fixed order, store A first; 1 = pro rata); rw and qw (the warehouse's reorder
+                point 60 and order quantity 72, constants: nothing writes them); shipA, shipB (what was shipped today); and the doors stockA, lostA, seenA, reqA and
+                stockB, lostB, seenB, reqB where the two stores' numbers are copied in so the warehouse can read the requests.
+                Each day the warehouse reads the two requests (written the day before), ships ShipA and ShipB out of whs + w3, and orders qw from the supplier
+                when whs + w1 + w2 + w3 <= rw. A shipment is added into the store's rcv cell, next to the library's own set writer (commit order: set, then add).
+                What is not shipped is lost for good: the store simply sees the shortfall, and the request is not remembered.
+    Allocation  alloc = 0: A gets min(request A, available), B gets min(request B, what is left). alloc = 1: if the requests fit, both are filled; if not, each
+                store gets floor(available x its request / total requests), and a leftover unit stays on the shelf.
+  Output columns, 12 per row:
+    0 A stock at the end of the day   1 A units lost today   2 A demand today   3 A request sent today
+    4 B stock at the end of the day   5 B units lost today   6 B demand today   7 B request sent today
+    8 warehouse stock at the end of the day   9 units shipped to A   10 units shipped to B   11 supplier order placed today
+  To run it:        grind with a count of 365 on samples/pro/inventory-warehouse.xml   (one year)
+  What to look for: the first two rows have no demand (the demand pipeline is filling); a request of 12 in a row is shipped in the next row and sold from the row after;
+  the stores' service is about what a store alone with a never-short warehouse gets (fill rate about 98.6 percent each), a little lower where the warehouse runs short.
+  Seed 601. 30 nodes here, and each of the two imports brings the 14 nodes of the store library.
+-->
+<dataset columns="aStock, aLost, aDemand, aRequest, bStock, bLost, bDemand, bRequest, warehouseStock, shipA, shipB, supplierOrder" seed="601">
+  <root node="Day"/>
+  <definitions>
+    <declare name="corr" value="1, 0; 0, 1"/>
+    <declare name="RS" value="32"/>
+    <declare name="QS" value="12"/>
+  </definitions>
+  <nodes>
+    <!-- customers: a correlated pair of daily demands, passed to the stores through the Desk -->
+    <SharedState name="Desk" cells="dA=0, dB=0"/>
+    <NegativeBinomial name="DrawA" r="8" p="0.5"/>
+    <NegativeBinomial name="DrawB" r="8" p="0.5"/>
+    <Copula name="Draws" correlation="$corr">
+      <input name="DrawA"/>
+      <input name="DrawB"/>
+    </Copula>
+    <StateWrite name="PostDraws" collaborate.state="Desk" cells="dA, dB" mode="set">
+      <input name="Draws"/>
+    </StateWrite>
+    <StateRead name="DeskA" collaborate.state="Desk" cells="dA"/>
+    <StateWrite name="ToDemandA" collaborate.state="A.Store" cells="dem" mode="set">
+      <input name="DeskA"/>
+    </StateWrite>
+    <StateRead name="DeskB" collaborate.state="Desk" cells="dB"/>
+    <StateWrite name="ToDemandB" collaborate.state="B.Store" cells="dem" mode="set">
+      <input name="DeskB"/>
+    </StateWrite>
+
+    <!-- the two stores -->
+    <Import name="A" file="inventory-store-lib.xml" R="$RS" Q="$QS"/>
+    <Import name="B" file="inventory-store-lib.xml" R="$RS" Q="$QS"/>
+
+    <!-- the warehouse: cells, the stores' numbers copied in, the allocation, the shelf, and the supplier -->
+    <SharedState name="Hub"
+                 cells="whs=72, w1=0, w2=0, w3=0, alloc=0, rw=60, qw=72, shipA=0, shipB=0, stockA=40, lostA=0, seenA=0, reqA=0, stockB=40, lostB=0, seenB=0, reqB=0"/>
+    <StateWrite name="LedgerA" collaborate.state="Hub" cells="stockA, lostA, seenA, reqA" mode="set">
+      <input name="A"/>
+    </StateWrite>
+    <StateWrite name="LedgerB" collaborate.state="Hub" cells="stockB, lostB, seenB, reqB" mode="set">
+      <input name="B"/>
+    </StateWrite>
+
+    <StateRead name="ReadForA" collaborate.state="Hub" cells="whs, w3, alloc, reqA, reqB"/>
+    <Calculate name="ShipA" dimension="1"
+               expression="y[0] = if(x[2] == 1, if(x[3] + x[4] &lt;= x[0] + x[1], x[3], floor((x[0] + x[1]) * x[3] / (x[3] + x[4]))), min(x[3], x[0] + x[1]))">
+      <input name="ReadForA"/>
+    </Calculate>
+    <StateWrite name="ToStoreA" collaborate.state="A.Store" cells="rcv" mode="add">
+      <input name="ShipA"/>
+    </StateWrite>
+    <StateRead name="ReadForB" collaborate.state="Hub" cells="whs, w3, alloc, reqA, reqB"/>
+    <Calculate name="ShipB" dimension="1"
+               expression="y[0] = if(x[2] == 1, if(x[3] + x[4] &lt;= x[0] + x[1], x[4], floor((x[0] + x[1]) * x[4] / (x[3] + x[4]))), min(x[4], x[0] + x[1] - min(x[3], x[0] + x[1])))">
+      <input name="ReadForB"/>
+    </Calculate>
+    <StateWrite name="ToStoreB" collaborate.state="B.Store" cells="rcv" mode="add">
+      <input name="ShipB"/>
+    </StateWrite>
+
+    <StateRead name="ReadShelf" collaborate.state="Hub" cells="whs, w3"/>
+    <Append name="Shelf">
+      <input name="ReadShelf"/>
+      <input name="ToStoreA"/>
+      <input name="ToStoreB"/>
+    </Append>
+    <Calculate name="NewShelf" dimension="3" expression="y[0] = x[0] + x[1] - x[2] - x[3]; y[1] = x[2]; y[2] = x[3]">
+      <input name="Shelf"/>
+    </Calculate>
+    <StateWrite name="CloseShelf" collaborate.state="Hub" cells="whs, shipA, shipB" mode="set">
+      <input name="NewShelf"/>
+    </StateWrite>
+
+    <StateRead name="ReadForSupplier" collaborate.state="Hub" cells="whs, w1, w2, w3, rw, qw"/>
+    <Calculate name="Supplier" dimension="3" expression="y[0] = if(x[0] + x[1] + x[2] + x[3] &lt;= x[4], x[5], 0); y[1] = x[1]; y[2] = x[2]">
+      <input name="ReadForSupplier"/>
+    </Calculate>
+    <StateWrite name="PlaceSupplierOrder" collaborate.state="Hub" cells="w1, w2, w3" mode="set">
+      <input name="Supplier"/>
+    </StateWrite>
+    <Arrange name="SupplierOrder" columns="0">
+      <input name="PlaceSupplierOrder"/>
+    </Arrange>
+
+    <Append name="Everything">
+      <input name="LedgerA"/>
+      <input name="LedgerB"/>
+      <input name="CloseShelf"/>
+      <input name="SupplierOrder"/>
+      <input name="PostDraws"/>
+      <input name="ToDemandA"/>
+      <input name="ToDemandB"/>
+    </Append>
+    <Arrange name="Day" columns="0,1,2,3,4,5,6,7,8,9,10,11">
+      <input name="Everything"/>
+    </Arrange>
+  </nodes>
+</dataset>

@@ -1,0 +1,26 @@
+{
+  "dataset": {
+    "root": "Pair",
+    "columns": "d6, d20",
+    "nodes": [
+      {
+        "type": "Import",
+        "name": "D6",
+        "attributes": {"file": "roll-die.json"}
+      },
+      {
+        "type": "Import",
+        "name": "D20",
+        "attributes": {"file": "roll-die.json", "d": "20"}
+      },
+      {
+        "type": "Append",
+        "name": "Pair",
+        "inputs": [
+          {"name": "D6"},
+          {"name": "D20"}
+        ]
+      }
+    ]
+  }
+}

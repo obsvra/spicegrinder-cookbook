@@ -16,7 +16,7 @@
   Pool sizes must match the Uniform max below. All three Faker pools are 200
   rows; change max if yours differ.
 -->
-<dataset seed="42">
+<dataset columns="market, customerRow, itemCount, orderValue" seed="42">
 	<root node="Order"/>
 	<nodes>
 		<Append name="Order">

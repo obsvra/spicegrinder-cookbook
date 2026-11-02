@@ -31,17 +31,23 @@
   Running the real validator is what caught this; well-formed JSON alone
   would not have.
 
-  Run it with raw output, which writes the Bundle verbatim, from the
-  repository root (its name/surname pools are the repo-root-relative
-  samples/pro/*.csv files, the same convention samples/pro/person-model.xml
-  already uses). The exact command is in fhir-vitals-bundle.json beside this
-  file, not here: XML comments cannot contain a double hyphen, so the flags
-  can't be written in this comment.
+  Run it with raw output, which writes the Bundle verbatim. Its name and
+  surname pools are the CSV files beside it (copies of the ones in
+  samples/pro), so it runs from any folder. The recorded
+  fhir-vitals-bundle.json beside this file is the output of
+
+    grind [count 1] [format raw] [quiet] samples/pro/health/fhir-vitals-bundle.xml
+
+  where each bracketed item is a grind option, written with its two leading
+  hyphens on the command line (an XML comment cannot contain a double
+  hyphen): the count option with 1, the format option with raw, and the
+  quiet option. ProAutomatedSuite runs the same command and compares the
+  output with that file byte for byte.
 
   Effective dates are fixed parameters, never the system clock, so the same
   model and seed produce the same bytes today and next year.
 -->
-<dataset seed="42">
+<dataset columns="bundle" seed="42">
 	<root node="VitalsBundle"/>
 	<nodes>
 		<FhirBundleAssembler name="VitalsBundle" id="vitals-1" type="collection">
@@ -72,16 +78,16 @@
 			<input name="MaleGivenFile"/>
 		</Append>
 		<Constant name="MaleLabel" value="male" type="string"/>
-		<FlatFile name="MaleGivenFile" file="samples/pro/male_names.csv" mode="unweighted"/>
+		<FlatFile name="MaleGivenFile" file="male_names.csv" mode="unweighted"/>
 
 		<Append name="FemaleBranch">
 			<input name="FemaleLabel"/>
 			<input name="FemaleGivenFile"/>
 		</Append>
 		<Constant name="FemaleLabel" value="female" type="string"/>
-		<FlatFile name="FemaleGivenFile" file="samples/pro/female_names.csv" mode="unweighted"/>
+		<FlatFile name="FemaleGivenFile" file="female_names.csv" mode="unweighted"/>
 
-		<FlatFile name="Surname" file="samples/pro/surnames.csv" mode="unweighted"/>
+		<FlatFile name="Surname" file="surnames.csv" mode="unweighted"/>
 
 		<Date name="DOB" minAge="18" asOf="2026-08-17">
 			<input name="BirthYear"/>
@@ -112,6 +118,6 @@
 			<input name="Dia" role="diastolic"/>
 		</FhirBloodPressureRender>
 		<Normal name="Sys" mean="118" stddev="12"/>
-		<Normal name="Dia" mean="98" stddev="1.5"/>
+		<Normal name="Dia" mean="78" stddev="8"/>
 	</nodes>
 </dataset>

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Simulation 101, lesson 4.1, a reusable baseline (PRO: declare + Import). The latency of one web request, in milliseconds, as a library.
+     Request latency is Lognormal: its MEDIAN is a typical request and its sigma says how heavy the slow tail is.
+     Two declared parameters, overridable by whoever imports the file:   median (default 30 ms)   sigma (default 0.3)
+     `declare` replaces a whole attribute value ($name), it cannot compute, and a Lognormal wants mu = ln(median). So the library
+     draws the standard shape exp(sigma * Z) (a Lognormal with mu = 0) and multiplies by the median:   latency = median * exp(sigma * Z).
+     Analytic quantiles: p = median * exp(sigma * z_p), with z_p the standard normal quantile.   5 nodes. -->
+<dataset columns="latency">
+  <root node="Latency"/>
+  <definitions>
+    <declare name="median" value="30"/>
+    <declare name="sigma" value="0.3"/>
+  </definitions>
+  <nodes>
+    <Constant name="Median" value="$median" type="double"/>
+    <Lognormal name="Spread" mu="0" sigma="$sigma"/>
+    <Append name="Pair">
+      <input name="Median"/>
+      <input name="Spread"/>
+    </Append>
+    <Calculate name="Scaled" expression="y[0] = x[0] * x[1]">
+      <input name="Pair"/>
+    </Calculate>
+    <Arrange name="Latency" columns="0">
+      <input name="Scaled"/>
+    </Arrange>
+  </nodes>
+</dataset>

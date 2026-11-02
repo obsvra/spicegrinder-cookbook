@@ -16,7 +16,7 @@
   format.person.en_US). Its gender, givenName and surname fields can be split into separate
   columns with Extract (see samples/pro/address-columns.xml for the pattern).
 -->
-<dataset>
+<dataset columns="person">
 	<root node="Person"/>
 	<nodes>
 		<PersonAssembler name="Person">
@@ -34,15 +34,15 @@
 			<input name="MaleGivenFile"/>
 		</Append>
 		<Constant name="MaleLabel" value="male" type="string"/>
-		<FlatFile name="MaleGivenFile" file="samples/pro/male_names.csv" mode="unweighted"/>
+		<FlatFile name="MaleGivenFile" file="male_names.csv" mode="unweighted"/>
 
 		<Append name="FemaleBranch">
 			<input name="FemaleLabel"/>
 			<input name="FemaleGivenFile"/>
 		</Append>
 		<Constant name="FemaleLabel" value="female" type="string"/>
-		<FlatFile name="FemaleGivenFile" file="samples/pro/female_names.csv" mode="unweighted"/>
+		<FlatFile name="FemaleGivenFile" file="female_names.csv" mode="unweighted"/>
 
-		<FlatFile name="Surname" file="samples/pro/surnames.csv" mode="unweighted"/>
+		<FlatFile name="Surname" file="surnames.csv" mode="unweighted"/>
 	</nodes>
 </dataset>

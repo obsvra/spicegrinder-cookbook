@@ -2,9 +2,9 @@
 
 > © 2026 Obsvra. This document describes SpiceGrinder and is provided to help you evaluate and use it. It is not a license to reproduce, adapt, or use this material to build a competing product or service. Full terms: the SpiceGrinder EULA.
 
-Generated from the components' `@ComponentInfo`/`@Parameter` annotations by `library --markdown docs/Component-Library-Reference.md --write`, which keeps the explanatory text written under each component; a test fails if this file and the annotations disagree. For a live, always-current view straight from the registry, use `ComponentLibraryApp`(1) instead — see [ComponentLibraryApp.md](ComponentLibraryApp.md).
+Generated from the components' `@ComponentInfo`/`@Parameter` annotations by `list --markdown docs/Component-Library-Reference.md --write`, which keeps the explanatory text written under each component; a test fails if this file and the annotations disagree. For a live, always-current view straight from the registry, use `ComponentLibraryApp`(1) instead — see [ComponentLibraryApp.md](ComponentLibraryApp.md).
 
-Including all Pro components, there are 84 components: 48 generators, 36 filters.
+Including all Pro components, there are 94 components: 53 generators, 41 filters.
 
 
 ## Generators
@@ -93,6 +93,7 @@ Exponential distribution (waiting times / inter-arrival)
 | Parameter | Type | Required | Default | Aliases | Notes |
 |---|---|---|---|---|---|
 | lambda | double | false | 1.0 | rate | Rate parameter (mean = 1/lambda) |
+| mean | Double | false | — | mu | Mean (= 1/lambda), the alternative to lambda; used only when lambda (rate) is not given. 'mu' is a synonym |
 
 ### FDistribution  (Free)
 `com.obsvra.spicegrinder.core.defaults.generators.FDistribution`
@@ -112,7 +113,8 @@ Gamma distribution (shape, scale)
 | Parameter | Type | Required | Default | Aliases | Notes |
 |---|---|---|---|---|---|
 | shape | double | false | 1.0 | alpha,k | Shape parameter (> 0) |
-| scale | double | false | 1.0 | theta | Scale parameter (> 0); a 'rate' attribute (or its synonym 'beta') is also accepted as 1/scale |
+| scale | double | false | 1.0 | theta | Scale parameter (> 0); the 'rate' parameter (or its synonym 'beta') is the alternative, as 1/scale |
+| rate | Double | false | — | beta | Rate parameter (> 0), the alternative to scale: scale = 1/rate. Used only when scale (theta) is not given; 'beta' is a synonym |
 
 ### Geometric  (Free)
 `com.obsvra.spicegrinder.core.defaults.generators.Geometric`
@@ -195,6 +197,19 @@ Lognormal distribution (mu, sigma of the underlying normal)
 | mu | double | false | 0.0 | meanlog,mean | Mean of the underlying normal (log scale) |
 | sigma | double | false | 1.0 | sdlog,sd,stddev | Standard deviation of the underlying normal (log scale), >= 0 |
 
+### Markov  (Free)
+`com.obsvra.spicegrinder.core.defaults.generators.Markov`
+
+Discrete-state Markov chain from a transition matrix, emitting the state index each row
+
+| Parameter | Type | Required | Default | Aliases | Notes |
+|---|---|---|---|---|---|
+| matrix | double[][] | true | — | transitions,transitionmatrix | Square transition matrix: rows separated by ';' or a newline, values comma/space-separated; matrix[i][j] = P(next = j \| now = i), each row summing to 1 |
+| initial | int | false | 0 | initialstate,start | State index emitted on the first row (0-based) |
+| normalize | boolean | false | false | — | Scale each row to sum to 1 (for counts or weights) instead of requiring it to |
+
+`matrix` is the transition matrix: one row per state, rows separated by `;` or a new line, values separated by commas or spaces, and `matrix[i][j]` is the probability of moving from state `i` to state `j` on the next row. It must be square, with no negative values, and every row must sum to 1 (within 1e-6); set `normalize` to true to scale rows of counts or weights instead. The first row emits `initial` (a state index, default 0) with no random draw; every later row draws once from the current state's row. The output is the state's 0-based index as a whole number. A state whose row has a 1 on its own diagonal is absorbing: the chain stays there. For time spent in a state that is not geometric (semi-Markov), pair `Markov` with `Pool` durations. Example, two-state weather: `matrix="0.8,0.2; 0.4,0.6"`.
+
 ### Multinomial  (Free)
 `com.obsvra.spicegrinder.core.defaults.generators.Multinomial`
 
@@ -273,6 +288,48 @@ Evaluate a polynomial at x (constant, sequence, or uniform)
 | xStep | double | false | 1 | step | — | Sequence step when xMode=sequence |
 | xMin | double | false | 0 | — | — | Uniform lower bound |
 | xMax | double | false | 1 | — | — | Uniform upper bound |
+
+### Profile  (Free)
+`com.obsvra.spicegrinder.core.defaults.generators.Profile`
+
+The value of a profile that follows the clock at each step (solar output by hour, a load shape, a price by month, a temperature), step or linear, repeating, optionally times a second profile
+
+| Parameter | Type | Required | Default | Aliases | Allowed Values | Notes |
+|---|---|---|---|---|---|---|
+| values | String | true | — | — | — | The profile as time:value points, comma-separated, times increasing: "0:2, 6:10, 12:30" |
+| mode | String | false | step | — | step, linear | step: constant from each point to the next. linear: interpolated between points |
+| period | double | false | 0 | — | — | 0 for none; otherwise the profile repeats every period (point times in [0, period)) |
+| values2 | String | false | — | — | — | An optional second profile (time:value points) that multiplies the first, for example a yearly shape |
+| mode2 | String | false | step | — | step, linear | step or linear, for the second profile |
+| period2 | double | false | 0 | — | — | The period of the second profile (0 for none) |
+| scale | double | false | 1 | — | — | A multiplier on the result |
+| offset | double | false | 0 | — | — | Added to the result (after the scale) |
+| start | double | false | 0 | — | — | The clock value at the start of the run (row 0) |
+| step | double | false | 1 | — | — | The length of one row, in the time unit of the points |
+
+One row is one step of `step` time units, the n-th at the clock time `start + n * step`, and the value is the profile there, times `scale`, plus `offset`. The profile is given as `time:value` points, `values="0:2, 6:10, 12:30, 18:10"`. With `mode="step"` (the default) the value is constant from each point to the next; with `mode="linear"` it is interpolated between points. Before the first point the value is the first point's value, and after the last point it stays at the last point's value. `period` makes the profile repeat (a 24-hour day: `period="24"`, every point time in `[0, 24)`); with `step` the last value holds until the period ends, and with `linear` the last point is joined to the first point of the next period. Values may be negative (a temperature). The value is the profile's value at the start of the step (it is not averaged over the step; use a small step, or the `RateSchedule` generator for a count of events).
+
+A second profile multiplies the first: `values2`, `mode2` and `period2` work as above. A day shape and a year shape together (`period="24"`, `period2="8760"`) give a load that peaks by day and by season. For a random level on top (a day of cloud, a random demand multiplier), feed this generator and a distribution to a `Calculate` that multiplies them; for a value read at an arbitrary clock column of the model, the expression functions `interp` and `lookup` do the same job without a generator.
+
+Example, solar output through a day in half-hour steps: `values="0:0, 6:0, 12:1, 18:0" mode="linear" period="24" step="0.5"`.
+
+### RateSchedule  (Free)
+`com.obsvra.spicegrinder.core.defaults.generators.RateSchedule`
+
+The number of events in each step of a rate that follows the clock (a day with a morning and an evening peak): a Poisson count whose mean is the integral of the rate over the step
+
+| Parameter | Type | Required | Default | Aliases | Allowed Values | Notes |
+|---|---|---|---|---|---|---|
+| schedule | String | true | — | — | — | The rate as time:rate points, comma-separated, times increasing: "7:0.4, 8.5:6, 10:2" |
+| mode | String | false | step | — | step, linear | step: constant from each point to the next. linear: interpolated between points |
+| period | double | false | 0 | — | — | 0 for none; otherwise the profile repeats every period (point times in [0, period)) |
+| scale | double | false | 1 | — | — | A multiplier on every rate |
+| start | double | false | 0 | — | — | The clock value at the start of the run (row 0) |
+| step | double | false | 1 | — | — | The length of one row, in the time unit of the points |
+
+One row is one step of `step` time units, the n-th starting at `start + n * step`, and the value is how many events fall in it: a Poisson draw with mean `scale` times the integral of the rate over the step. The rate is given as `time:rate` points, `schedule="7:0.4, 8.5:6, 10:2"`. With `mode="step"` (the default) the rate is constant from each point to the next; with `mode="linear"` it is interpolated between points, so a ramp up to a peak and down again is three points. Before the first point the rate is the first point's rate, and after the last point it stays at the last point's rate. `period` makes the profile repeat (a 24-hour day: `period="24"`, every point time in `[0, 24)`); with `step` the last rate holds until the period ends, and with `linear` the last point is joined to the first point of the next period. Times and rates are in whatever units the model uses; the step is in the time unit of the points. The integral is worked out exactly, not by sampling, so a step that straddles a change of rate gets the right mean. Counts in different steps are independent. `scale` multiplies every rate and is the lever for "20% more arrivals". The counts are whole numbers already.
+
+Example, a day in one-minute steps with a morning and an evening peak (times in hours): `schedule="0:0.2, 7:0.2, 8.5:6, 10:1, 16:1, 17.25:6, 19:0.2" mode="linear" period="24" step="0.016666666666666666"`. The model needs one row per step, so a day is 1440 rows. In a `ProcessFlow`, give the node the same points as its `rate` attribute instead; the arrivals then follow the profile without counting steps.
 
 ### Sequence  (Free)
 `com.obsvra.spicegrinder.core.defaults.generators.Sequence`
@@ -368,11 +425,15 @@ Finite Zipf distribution over ranks 1..n, probability proportional to rank^-s
 ### CollaborationBeacon  (Pro)
 `com.obsvra.spicegrinder.examples.generators.CollaborationBeacon`
 
-Mutable counter usable as a normal generator or a Collaborate target -- collaborate() reads current state without advancing it
+Example component (not covered by the 1.0 compatibility promise): mutable counter usable as a normal generator or a Collaborate target -- collaborate() reads current state without advancing it
 
 | Parameter | Type | Required | Default | Aliases | Notes |
 |---|---|---|---|---|---|
 | initial | double | false | 0 | — | Starting counter value |
+
+**Example component** — a worked example of a Collaborate target, not covered by the 1.0 compatibility promise. See the Collaborating Components section of the [Customization guide](Customization.md) to write your own.
+
+Each pull adds 1 and returns the new value, so with `initial=0` the first pull returns 1 (and with `initial=10` it returns 11). `collaborate` returns the current value without adding to it and ignores its input, so a collaborator never changes what the beacon's own consumers see. Before the first pull, `collaborate` returns `initial`. The output is one column.
 
 ### Database  (Pro)
 `com.obsvra.spicegrinder.pro.generators.Database`
@@ -381,7 +442,7 @@ Sample rows from a database table/query
 
 | Parameter | Type | Required | Default | Aliases | Allowed Values | Notes |
 |---|---|---|---|---|---|---|
-| url | String | true | — | jdbcurl,connection | — | JDBC connection URL (e.g. jdbc:h2:~/test). Must match a prefix on database.url.allowlist -- disabled by default (empty allowlist), see UserPreferences. |
+| url | String | true | — | jdbcurl,connection | — | JDBC connection URL (e.g. jdbc:h2:~/test). Must match an entry on database.url.allowlist (at a path boundary, with no '..' segment; options such as ;INIT= are refused unless the URL is listed exactly) -- disabled by default (empty allowlist), see UserPreferences. |
 | user | String | false | — | username | — | Optional database username. If set, connects with explicit user/password credentials; if omitted, connects using the URL alone (e.g. for URLs that embed credentials or a database that needs none). |
 | password | String | false | — | pass | — | Optional database password, paired with 'user' (treated as an empty string if 'user' is set but this isn't). Ignored if 'user' isn't set. |
 | driver | String | false | — | driverclass | — | Optional JDBC driver class to explicitly load via Class.forName() before connecting. Usually unnecessary -- modern drivers self-register from the URL alone -- but useful for older jars that don't, or to be explicit when multiple DB drivers share the classpath. |
@@ -414,7 +475,7 @@ Sample rows from a CSV file (sequential, unweighted, or weighted)
 
 | Parameter | Type | Required | Default | Aliases | Allowed Values | Notes |
 |---|---|---|---|---|---|---|
-| file | String | true | — | filename,path | — | Path to the CSV file. A relative path is looked for beside the model first, then in the working directory, and always works; an absolute path must start with a prefix on flatFile.path.allowlist in preferences.properties, which is empty (so absolute paths are refused) by default |
+| file | String | true | — | filename,path | — | Path to the CSV file. A relative path is looked for beside the model first, then in its local root (--local-root, project.root, a .spicegrinder-root marker or the Git top), then in the working directory, and must stay inside that folder (a ../ or symlink escape needs flatFile.path.allowlist like an absolute path); an absolute path must be inside a folder on flatFile.path.allowlist in preferences.properties (whole path segments, real paths), which is empty (so absolute paths are refused) by default |
 | skipHeader | boolean | false | false | header | — |  |
 | delimiter | String | false | , | sep,separator | — |  |
 | textColumns | String | false | — | text,textcolumn | — | Columns to keep as text even when their cells look like numbers (ZIPs, codes, account numbers): 0-based file column indexes or header names (names need skipHeader), comma-separated |
@@ -424,9 +485,9 @@ Sample rows from a CSV file (sequential, unweighted, or weighted)
 
 **Cell types.** A cell that reads as a plain decimal number (`42`, `-3.5`, `1e6`) becomes a number; anything else stays text (`NaN`, `Infinity` and codes like `3074F` stay text). A column whose values only look like numbers, such as ZIP codes, account numbers or procedure codes, belongs in `textColumns`: every cell in it stays text, so `02134` keeps its leading zero instead of printing as `2134.0`. Quoting a cell doesn't change its type. Column indexes count the file's own columns, the weight column included, the same numbering as `weightColumn`; the weight column itself can't be a text column.
 
-A relative `file` is looked for beside the model file first (the folder of the model being loaded, as an `Import`'s path is), then in the working directory of the process reading it, so a table shipped next to its model (such as one `tables --extract` wrote) is found wherever the model is run from, and paths written relative to a project root (every bundled `samples/pro/*.xml`) keep working. A model submitted as text has no folder of its own: under `ModelServiceApp`, that process is the server, not the caller — see [Service API Reference](Service-API-Reference.md#file-paths-in-submitted-models) for what path to use when the model is submitted to a service rather than run locally.
+A relative `file` is looked for beside the model file first (the folder of the model being loaded, as an `Import`'s path is), then in the model's local root, then in the working directory of the process reading it. The local root is the first of `--local-root DIR` given to the command (the desktop app passes its Local root setting this way), `project.root` in preferences, the nearest folder at or above the model that holds a `.spicegrinder-root` file (a release's top folder has one), and the top of the Git work tree the model is in, the same local root `Import` uses. So a table shipped next to its model (such as one `tabulate --extract` wrote) is found wherever the model is run from, and a path written relative to a project's top folder is found from anywhere inside that project. Every bundled sample names its data by a bare file name beside the model. A model submitted as text has no folder of its own: under `ModelServiceApp`, that process is the server, not the caller — see [Service API Reference](Service-API-Reference.md#file-paths-in-submitted-models) for what path to use when the model is submitted to a service rather than run locally.
 
-**Relative vs. absolute, and the `flatFile.path.allowlist` gate.** A relative `file` (every bundled `samples/pro/*.xml` uses one) always resolves — it can only ever reach somewhere the deploying process's own working directory already makes reachable, which the deployer controls regardless of who's submitting models. An absolute path names anywhere on the filesystem directly, so it's gated the same safe-by-default way `Database`'s `database.url.allowlist`/`ServiceCall`'s `service.url.allowlist` already are: empty allowlist (the default) means every absolute `file` value is rejected outright, not silently allowed. Add real, symlink-resolved directory prefixes to unlock specific locations — on macOS in particular, `/tmp` is itself a symlink to `/private/tmp`, so an allowlist entry has to name `/private/tmp/...`, not `/tmp/...`, or it will never match. This applies regardless of whether the model came from a local file or `ModelServiceApp` — a malicious/untrusted model read locally carries the same arbitrary-file-read risk as one submitted over HTTP.
+**Relative vs. absolute, and the `flatFile.path.allowlist` gate.** A relative `file` (every bundled sample uses one) is resolved against the folder it is found in (beside the model, the local root, or the working directory) and then to its real path, symlinks resolved; it is accepted without the allowlist only if that real path stays inside that folder, so a `../` chain or a symlink that leaves the folder is refused unless it is on the allowlist. An absolute path names anywhere on the filesystem directly, so it is always gated the same safe-by-default way `Database`'s `database.url.allowlist`/`ServiceCall`'s `service.url.allowlist` already are: empty allowlist (the default) means every absolute `file` value, and every relative one that escapes its folder, is rejected outright, not silently allowed. Add absolute directory entries to unlock specific locations. An entry matches whole path segments (`/data/shared` covers `/data/shared/f.csv` but not `/data/shared-private`), and entries are resolved to their real paths just like the file, so on macOS an entry of `/tmp/data` matches a file under `/private/tmp/data`. Relative entries are ignored. A model with no folder of its own (submitted to `ModelServiceApp` or an MCP tool) resolves a relative `file` from the working directory, and when `project.root` is set in preferences it must stay inside that folder instead. When the model came through `ModelServiceApp` or an MCP tool, a missing file and a refused one get the same error, which names only the path as written; the detail goes to the server log. This applies regardless of whether the model came from a local file or `ModelServiceApp` — a malicious/untrusted model read locally carries the same arbitrary-file-read risk as one submitted over HTTP.
 
 ### IMEI  (Pro)
 `com.obsvra.spicegrinder.business.generators.IMEI`
@@ -445,6 +506,8 @@ Load a sub-model from another XML file as a reusable library
 | file | String | true | — | — | Path to the library model XML |
 
 `<Import>` also accepts any number of extra key/value attributes beyond `file`/`name`/`prefix`, not `@Parameter`-discoverable (same reason `collaborate.<role>` isn't, above): each overrides a matching `<declare>` in the imported file for that one import — see [Model File Format Reference](Model-File-Format-Reference.md#parameterized-sub-models-pro--declare--import-overrides).
+
+When you construct this class from Java code, the library's nodes' random streams are named under this node's name (the same names `<Import name="..."/>` gives in a model file), so two `Import`s of the same library under one seed draw different values. The library's own `<dataset seed>` is applied only when the process has no seed yet. See [Determinism](Determinism.md#seeds-custom-generators-and-code).
 
 ### IPAddress  (Pro)
 `com.obsvra.spicegrinder.business.generators.IPAddress`
@@ -471,11 +534,13 @@ No composed input, same self-contained shape as `IPAddress`. Rendered in the ful
 ### Mixture  (Pro)
 `com.obsvra.spicegrinder.examples.generators.Mixture`
 
-Single-node weighted mixture: component specs inline instead of separate nodes + Mix
+Example component (not covered by the 1.0 compatibility promise): single-node weighted mixture, component specs inline instead of separate nodes + Mix
 
 | Parameter | Type | Required | Default | Aliases | Notes |
 |---|---|---|---|---|---|
 | components | String | true | — | — | Semicolon-separated 'Type(param=val,param=val):weight' specs, at least 2 |
+
+**Example component** — a worked example of a custom generator, not covered by the 1.0 compatibility promise. `Mix` covers the same need with ordinary nodes and is the supported choice.
 
 ### NPI  (Pro)
 `com.obsvra.spicegrinder.business.generators.NPI`
@@ -497,6 +562,23 @@ Generates a US ABA routing transit number with a valid weighted mod-10 check dig
 |---|---|---|---|---|---|---|
 | prefix | String | false | assigned | — | assigned, government, district, thrift, electronic, traveler, unassigned, any | assigned (default) \| government \| district \| thrift \| electronic \| traveler \| unassigned \| any -- which Federal Reserve routing-symbol band the leading two digits are drawn from. 'unassigned' draws from bands the Federal Reserve does not issue, guaranteeing no collision with a real institution at the cost of failing a strict prefix check. |
 
+### SharedState  (Pro)
+`com.obsvra.spicegrinder.pro.generators.SharedState`
+
+Named numeric cells that separate parts of a model read and write; a read sees the value as of the end of the previous row
+
+| Parameter | Type | Required | Default | Aliases | Notes |
+|---|---|---|---|---|---|
+| cells | String | true | — | — | Cells as name=initial pairs, comma-separated, e.g. "stock=100, backlog=0" (=initial is optional and means 0) |
+
+A store of named numbers, read with `StateRead` and written with `StateWrite`, so one part of a model can respond to another: reorder when stock is low, throttle when a queue is long. `cells` lists the cells as `name=initial` pairs separated by commas, for example `cells="stock=100, backlog=0"`; `=initial` is optional and means 0. Names are letters, digits and `_`, and must not repeat. A name with a range makes one cell per index: `cells="queue[1..20]=0"` is the cells `queue1` to `queue20`, each starting at 0 (the bounds are whole numbers, and a declare works: `queue[1..${floors}]`).
+
+**Reads are one row behind.** A read in a row returns the value as of the end of the previous row (the initial value in the first row). Writes made during a row take effect for reads in the next row. Because of that, results do not depend on where readers and writers sit in the model, and moving a node cannot change the output. Every loop through a `SharedState` therefore has a one-row delay; a response that must land in the same row belongs in `Recur` or a single `Calculate`.
+
+**Writes.** A cell may have at most one `set` writer and any number of `add` writers. At the end of a row the cell becomes its `set` value (if the `set` writer wrote this row, otherwise its old value) plus the sum of this row's `add` amounts. The `add` amounts are summed in writer-name order, so the result is the same whichever writer is pulled first. A cell nobody wrote in a row keeps its value. NaN and infinity are stored as they come.
+
+The store is not part of the model's input tree: `StateRead` and `StateWrite` name it with `collaborate.state="StoreName"`. Several stores are allowed. Pulling a `SharedState` directly returns its committed values, one column per cell. Cell names are checked when the model is validated or on the first row, before any output row.
+
 ### SSN  (Pro)
 `com.obsvra.spicegrinder.business.generators.SSN`
 
@@ -507,6 +589,17 @@ Generates a US Social Security Number, real allocatable range by default
 | fictionalOnly | boolean | false | false | — | When true, restrict the area number to [900, 999] -- the SSA's own published rule states this range has never been, and never will be, allocated to a real person -- guaranteed safe at the cost of an obviously-synthetic-looking area number. When false (default), area is drawn from the real historically-allocatable [001, 899] range (excluding 666), so a generated number could in principle match a real person's actual SSN. |
 
 No composed input, same shape as `IPAddress`. Same collision-without-PII shape as `Phone`, and the same restricted-range-toggle design carried forward from it. See `samples/pro/ssn.xml` and its header comment for the full disclosure.
+
+### StateRead  (Pro)
+`com.obsvra.spicegrinder.pro.generators.StateRead`
+
+Emits the current value of chosen SharedState cells (as of the end of the previous row)
+
+| Parameter | Type | Required | Default | Aliases | Notes |
+|---|---|---|---|---|---|
+| cells | String | true | — | — | Cells to read, comma-separated, e.g. "stock, backlog" |
+
+Emits the value of each cell in `cells`, one column per cell, in the order listed. A range stands for a block of cells: `cells="queue[1..20]"` is `queue1` to `queue20` (20 columns), and `queue[3]` is the single cell `queue3`. `collaborate.state="StoreName"` names the `SharedState` to read; it is not an `<input>`, and `StateRead` takes no input. The value is the one committed at the end of the previous row (the cell's initial value in the first row), whatever the node's position in the model, and a read never changes the store. To read the same cell in two places, use two `StateRead` nodes. A cell that is not in the store is reported when the model is validated or on the first row, before any output row.
 
 ## Filters
 
@@ -538,8 +631,13 @@ Arithmetic expressions over input observation
 | Parameter | Type | Required | Default | Aliases | Notes |
 |---|---|---|---|---|---|
 | expression | String | true | — | expr,formula | Semicolon-separated assignments y[i] = ... |
+| dimension | int | false | — | outputdimension,dim | Output dimension; 0 (the default) keeps the input's dimension. Outputs past the input pass 0 unless assigned |
 
-Each assignment sets one output value from the input values `x[0]`, `x[1]`, ...; an output not assigned passes its input through. Operators `+ - * /` and parentheses, numeric literals, and functions: `floor`, `ceiling` (or `ceil`), `round`, `abs`, `sqrt`, `exp` (e to the power x) and `log` (or `ln`, the natural logarithm) take one argument; `min`, `max`, `mod` and `pow` take two. Results are always decimal numbers; end with `ToInteger` when a whole number should print as one. `exp` and `log` follow standard math: `log(0)` is negative infinity and `log` of a negative number is NaN. Example, a multivariate lognormal from a `MultivariateNormal` fitted to the logs of two skewed columns: `y[0] = exp(x[0]); y[1] = exp(x[1])`.
+Each assignment sets one output value from the input values `x[0]`, `x[1]`, ...; an output not assigned passes its input through. Operators `+ - * /` and parentheses, numeric literals, and functions: `floor`, `ceiling` (or `ceil`), `round`, `abs`, `sqrt`, `exp` (e to the power x) and `log` (or `ln`, the natural logarithm) take one argument; `sin` and `cos` (angles in radians; they use `StrictMath`) take one, `min`, `max`, `mod` and `pow` take two, and `if(c, a, b)` takes three: it gives `a` when `c` is nonzero (and not NaN) and `b` otherwise, evaluating only the branch it picks. The constant `pi` is available. The comparisons `<`, `<=`, `>`, `>=`, `==` and `!=` give 1 when true and 0 when false; they rank below `+ - * /`, so `x[0] + 1 > x[1] * 2` compares two sums, and they do not chain. Conditions combine with `&&` (and), `||` (or) and the prefix `!` (not): each gives 1 or 0, `!` binds tighter than a comparison (`!a == 0` is `(!a) == 0`; write `!(a == 0)`), `&&` binds tighter than `||`, and a value counts as true when it is nonzero and not NaN, as in `if()`. The right side of `&&` and `||` is evaluated only when needed, so a guard such as `i >= 0 && choose(i, 5, 6, 7)` never reaches `choose` with a negative index. In an XML attribute write `<` as `&lt;`, and `&&` as `&amp;&amp;`. Seasonality: `y[0] = 10 + 3 * sin(2 * pi * x[0] / 24)` with `x[0]` an hour counter; a flag: `y[0] = if(x[0] > 100, 1, 0)` or just `y[0] = x[0] > 100`. The optional `dimension` makes the output wider (or narrower) than the input: every output not assigned passes its input through, or is 0 past the input's end; every `y[i]` must be inside it. Results are always decimal numbers; end with `ToInteger` when a whole number should print as one. `exp`, `log` and `pow` use Java's `StrictMath` (fdlibm), so their results are identical on every platform and Java version: `log(0)` is negative infinity and `log` of a negative number is NaN. Example, a multivariate lognormal from a `MultivariateNormal` fitted to the logs of two skewed columns: `y[0] = exp(x[0]); y[1] = exp(x[1])`.
+
+**Local variables.** `let name = expression;` computes a value once for the whole row, for the statements written after it: `let busy = x[0] + x[1]; y[0] = busy / 2; y[1] = busy * busy`. A name is letters, digits and `_`; it cannot be `x`, `s`, `y`, `pi`, `let` or a function name, cannot be defined twice, and cannot be used before its `let`. An assignment still reads only the inputs and the locals, never another assignment's result, so a dependent value goes through a `let` and not a second `Calculate`. All `let`s are evaluated every row, in the order written.
+
+**Several values and column ranges.** `x[a..b]` is the columns from `a` to `b`, both included; it can only stand as an argument of `sum`, `mean`, `min`, `max`, `argmin`, `argmax` or `choose`, which take any number of values and ranges (left to right): `sum(x[2..21])`, `max(x[0], x[3..5], 7)`. `min` and `max` need two or more values or a range. `argmin` and `argmax` give the 0-based position in the list of the smallest or largest value (the lowest position on a tie; NaN values are skipped). `choose(i, a, b, ...)` gives the i-th of the values (0-based, `i` rounded down; outside the list is an error): `choose(x[0], 120, 90, 60, 35, 20)`. `interp(x, x0,y0, x1,y1, ...)` reads a table: the line through the points (x increasing; the first y below the first x and the last y above the last): `interp(mod(x[0], 24), 0,0, 6,0, 12,1, 18,0)`; `lookup(x, x0,y0, ...)` gives the y of the last point whose x is not above x (a step table). The index of `x[...]` can be an expression, rounded down: `x[x[2] - 2]`; a computed index is checked when the row is evaluated.
 
 ### Copula  (Free)
 `com.obsvra.spicegrinder.core.defaults.filters.Copula`
@@ -555,6 +653,21 @@ Correlated columns with arbitrary marginal distributions (Gaussian or Student-t 
 Each input is a one-dimensional distribution generator -- `Normal`, `Gamma`, `Poisson`, `Empirical`, `Categorical`, `Constant` and the other built-in distributions, a `Mix` or `Truncate` of them, a `Calculate` that shifts, scales or negates one (`y[0] = 2 * x[0] + 5`, `y[0] = -x[0]`), or (Pro) a `FlatFile` or `Database` table of one numeric column read at random, weighted or not -- and gives one output column with exactly that distribution. The inputs are used only for their distributions (quantile functions); they aren't drawn from, so wire each one only here. `correlation` sets how the columns move together: a symmetric matrix with 1 on the diagonal, one row and column per input in input order, in the same format as `MultivariateNormal`'s `covariance` (for example `"1, 0.6; 0.6, 1"`). It is the correlation of the underlying normal (or t) variables, which is close to, but not the same as, the correlation of the output columns. To target a rank (Spearman) correlation `rs` measured from data, use `r = 2 sin(pi rs / 6)` (Gaussian copula). Discrete inputs give integer columns.
 
 Without `df`, extremes in different columns are nearly independent however high the correlation (a Gaussian copula has no tail dependence). Give `df` (small values such as 3-10) for a Student-t copula, whose columns tend to be extreme together: joint losses, simultaneous claims, correlated outages.
+
+### Draw  (Free)
+`com.obsvra.spicegrinder.core.defaults.filters.Draw`
+
+One draw per row from a library distribution whose parameters are computed from the input row
+
+| Parameter | Type | Required | Default | Aliases | Notes |
+|---|---|---|---|---|---|
+| distribution | String | true | — | dist | The library distribution to draw from, for example Binomial or Poisson |
+| params | String | true | — | parameters | name = expression statements separated by ;, over the input's columns x[i], for example "n = x[0]; p = x[1]" |
+| options | String | false | — | — | Fixed parameters that are not numbers computed per row, as name=value pairs separated by ;, for example "mode=fast" |
+
+A distribution whose parameters come from the model instead of from constants. `distribution` names a scalar distribution of the library (`Bernoulli`, `Beta`, `Binomial`, `ChiSquared`, `Exponential`, `FDistribution`, `Gamma`, `Geometric`, `Gumbel`, `Hypergeometric`, `InverseGaussian`, `Laplace`, `Logistic`, `Lognormal`, `NegativeBinomial`, `Normal`, `Pareto`, `Poisson`, `Skellam`, `StudentT`, `Triangular`, `Uniform`, `VonMises`, `Weibull`, `Zipf`). `params` assigns its parameters, by name or alias, as `name = expression` statements separated by `;`, in the expression language of `Calculate` over the columns `x[0]`, `x[1]`, ... of the input (`let` locals, ranges and `if` work): `params="n = x[0]; p = x[1]"` for the number of survivors among `x[0]` individuals that each survive with probability `x[1]`, or `params="lambda = x[0] * (1 + 0.2 * sin(x[1]))"` for a seasonal Poisson. A parameter that is not assigned keeps the distribution's default; `options` sets fixed non-numeric parameters as `name=value` pairs separated by `;` (for example `mode=fast`).
+
+Each row pulls the input once, evaluates the parameters, and draws one value with them; the output is what the distribution gives (a `Binomial` still gives whole numbers). The distribution's own checks apply to every row's parameters (`p` in [0, 1], `n` a whole number of at least 0, ...), and a failure stops the run with this node's name and the row; a parameter that must be a whole number and gets 3.4 is an error (use `floor` or `round`). The random stream is this node's own, so a `Draw` named `N` with constant parameters gives exactly what a plain distribution node named `N` with those parameters gives. The distribution is reconfigured only when a parameter changed since the last row; a standard `Binomial` costs one uniform per trial, and `mode=fast` builds its table once per distinct set of parameters, so it pays only when the parameters repeat. Not for the multivariate or table distributions (`Categorical`, `Empirical`, `Dirichlet`, `Multinomial`, `Markov`): their parameters are not scalars; for several draws in a row use `Replicate` over a `Draw`.
 
 ### Mix  (Free)
 `com.obsvra.spicegrinder.core.defaults.filters.Mix`
@@ -583,6 +696,29 @@ Real transactional data repeats its entities: a provider bills several services,
 
 When the number of rows depends on the entity (a radiology practice bills many more services than a chiropractor), make it one of the entity's own columns and name it with `countColumn` instead of giving a `count` input: for example an entity of `Append(Identity, Switch(Specialty, one rows-per-provider distribution per specialty))`. That column sets the entity's number of rows and isn't passed on. Entity-level columns fitted over one row per entity then come out with the right shares per row too, because the entities that have more rows get them.
 
+### Recur  (Free)
+`com.obsvra.spicegrinder.core.defaults.filters.Recur`
+
+Carries numeric state from row to row: new state from the previous state s[i] and input x[i]
+
+| Parameter | Type | Required | Default | Aliases | Notes |
+|---|---|---|---|---|---|
+| input | IGenerator | true | — | — | Single input; every column an expression reads as x[i] must be numeric |
+| initial | String | true | — | init | Starting state, one value per state column; its length sets the state dimension. Comma or space separated numbers, or comma separated constant expressions of numbers and declared values ("0.5 * 100, 0") |
+| expression | String | true | — | expr,formula | Semicolon-separated assignments y[i] = ... over the previous state s[0].. and the current input x[0].. |
+| resetEvery | int | false | 0 | period | When above 0, the state returns to initial before every resetEvery-th pull after the first, so each block of resetEvery pulls is an independent path. 0 never resets |
+| appendInput | boolean | false | false | — | When true, each row is the new state followed by the input's columns |
+
+Each pull reads one row from the input and computes a new state from the previous state `s[0]`, `s[1]`, ... and the input `x[0]`, `x[1]`, ..., then outputs the new state and keeps it for the next pull. `initial` gives the starting state, and its number of values sets how many state columns there are. Assignments use `Calculate`'s operators and functions, plus `s[i]`. Every assignment reads the previous state, so their order doesn't matter (`y[0] = s[1]; y[1] = s[0]` swaps two columns); a state column with no assignment keeps its value. The first row is already one step on from `initial`: with `initial="120"` and `y[0] = s[0] + x[0]`, row 1 is `120 + x[0]`.
+
+The state is never reset during a run, so one run is one trajectory and `--count` is its length; use another seed for another replication. To get one independent path per row instead, set `resetEvery` to the path length and reshape with `Redimension`: `Redimension(Recur(NetFlow, 120, "y[0] = s[0] + x[0]", resetEvery=12), 12)` gives twelve months of balance per row, each row starting again from 120.
+
+`Recur` advances only when it is pulled, so under a `Mix` or `Switch` branch it steps only on rows where that branch is chosen; set `synchronous="true"` to keep it stepping under a `Mix`. NaN and infinity follow standard arithmetic and never stop generation; once a state value is NaN it stays NaN. `initial` may be `Infinity` (a running minimum: `y[0] = min(s[0], x[0])`). Set `appendInput="true"` to output the input's columns after the state.
+
+Example, a single-server queue (Lindley's recursion): input columns service time and time to the next arrival, `initial="0"`, `y[0] = max(0, s[0] + x[0] - x[1])`; each row is the next customer's wait.
+
+Local variables and ranges work as in `Calculate` (see there): `let big = argmax(s[0..2]); y[0] = s[0] + x[0]; y[1] = s[1] - big; y[2] = max(s[0..2])`. A `let` can read the previous state `s[i]` and the input `x[i]`, and `s[a..b]` is a range of state columns, so a rule over several state columns (the free-up time of the earliest car, the longest queue) is one assignment and not a chain of nodes. Assignments still read only the previous state, never another assignment's new value.
+
 ### Redimension  (Free)
 `com.obsvra.spicegrinder.core.defaults.filters.Redimension`
 
@@ -591,6 +727,19 @@ Reshapes a single input stream to a new output dimension
 | Parameter | Type | Required | Default | Aliases | Notes |
 |---|---|---|---|---|---|
 | dimension | int | true | — | outputdimension,dim | Output dimension (DataPoints per Observation) |
+
+### Replicate  (Free)
+`com.obsvra.spicegrinder.core.defaults.filters.Replicate`
+
+Pulls its input count times per row and joins the results: count independent draws of one generator
+
+| Parameter | Type | Required | Default | Aliases | Notes |
+|---|---|---|---|---|---|
+| count | int | true | — | k | Number of pulls of the input per row |
+
+Each row pulls the input `count` times and puts the results side by side, so the output has `count` times the input's number of columns. Twelve independent uniform draws in a row are one `Uniform` and `<Replicate count="12">` over it. Every pull is a fresh draw, so the columns are independent (for a random input) and come from the input's own random stream in order: the first row holds draws 1 to `count`, the second row draws `count`+1 to 2 x `count`.
+
+`Replicate` keeps nothing between rows. `Redimension` is the other way to get several columns from one source: it reshapes a stream, so it carries leftover values from one row to the next and can take one pull of a wide input in pieces. For a single-column input both give `count` independent draws; use `Replicate` when you mean "this many copies" and `Redimension` when you mean "reshape".
 
 ### Switch  (Free)
 `com.obsvra.spicegrinder.core.defaults.filters.Switch`
@@ -665,9 +814,13 @@ Generates a US federal business day (weekday, non-holiday) from a year input
 ### CollaborationWatcher  (Pro)
 `com.obsvra.spicegrinder.examples.filters.CollaborationWatcher`
 
-Combines its own input with one or more Collaborate targets' current values
+Example component (not covered by the 1.0 compatibility promise): combines its own input with one or more Collaborate targets' current values
+
+**Example component** — a worked example of a Collaborate consumer, not covered by the 1.0 compatibility promise. See the Collaborating Components section of the [Customization guide](Customization.md) to write your own.
 
 No `@Parameter`-declared fields (a plain `<input>` child wires this filter's own data source, same as any ordinary filter; `collaborate.<role>="TargetName"` node-tag attributes, not `@Parameter`-discoverable, name any number of Collaborate peers separately — see [Model File Format Reference](Model-File-Format-Reference.md#collaborate-references-pro)).
+
+Output is the `<input>`'s columns followed by one column per `collaborate.<role>` target, in alphabetical order of the role names (ignoring case), not the order they are written. The dimension is the input's dimension plus the number of targets; each target is expected to answer with one column. The input is read first, then each target's `collaborate()`. The target columns are read, never advanced. A configuration error is raised if there is no `<input>`, no `collaborate.*` attribute, or a target is unknown or is not a Collaborate target.
 
 ### CompanyName  (Pro)
 `com.obsvra.spicegrinder.business.filters.CompanyName`
@@ -743,7 +896,7 @@ Builds an email address from a real domain source, plus a name source (default) 
 |---|---|---|---|---|---|
 | input (multiple) | List | true | — | — | attrs: name,role. Inputs: name (dimension-1 PersonDataPoint source, required only when nameBased=true), domain (dimension-1, always required) |
 | nameBased | boolean | false | true | — | When true (default), the local part is derived from the 'name' input's PersonDataPoint via a common real-world username pattern. When false, the local part is a random common word plus a random number, and no 'name' input is needed. |
-| wordListFile | String | false | samples/pro/email_words.txt | — | Path to the word list used when nameBased=false |
+| wordListFile | String | false | samples/pro/email_words.txt | — | Path to the word list used when nameBased=false. Found and checked like a FlatFile file: a relative path is looked for beside the model, then in its local root (--local-root, project.root, a .spicegrinder-root marker or the Git top), then in the working directory, and must stay inside that folder; an absolute path must be on flatFile.path.allowlist |
 | format | String | false | — | — | Template for this node's canonical string, overriding formats.properties -- {field} placeholders, [ ... ] dropped when its fields are empty. Fields: localPart, domain. Example: "{localPart} at {domain}" |
 | locale | String | false | — | — | Locale of the format.email.&lt;locale> template to use when 'format' is not set (default: format.locale in formats.properties, else en_US) |
 
@@ -902,6 +1055,7 @@ Inject disturbance on a timed schedule
 | repeat | boolean | false | true | — | Repeat disturbances after each cycle |
 | synchronous | boolean | false | false | sync | When true, advance the inactive branch (normal/disturbance) on each observation too, if that branch is itself synchronous -- discarding its result but keeping its internal state in lock-step so a disturbance episode picks up wherever the baseline actually is by then, rather than a frozen snapshot. Same idea Mix uses for its own inputs. |
 | input (multiple) | List | true | — | — | attrs: name,role. Input generator reference with a role: normal/disturbance/wait/duration (aliases: data/primary, perturb/error, delay, length). Falls back to positional order (normal, disturbance, wait, duration) if roles are omitted. |
+| mode | String | false | replace | — | What a disturbance episode does to the normal value: "replace" (the default) outputs the disturbance instead of the normal value; "add" outputs normal + disturbance, so the disturbance rides on a baseline that keeps advancing. In add mode both inputs must be numeric, and the disturbance has either the same number of columns as the normal input or one column, which is added to every column. |
 
 ### Phone  (Pro)
 `com.obsvra.spicegrinder.business.filters.Phone`
@@ -919,6 +1073,90 @@ Printed whole as `(747) 301-6980` (template `({areaCode}) {exchange}-{subscriber
 
 By default (`fictionalOnly=false`), exchange/subscriber are fully random NANP-valid, not restricted to the reserved fictional block — a deliberate choice, confirmed directly with the user: a generated number can in principle be a real, currently-assigned number that would reach a live line, but it carries zero connection to any real person or PII (see `PhoneDataPoint`'s javadoc for the full disclosure). Exchange excludes the 8 reserved N11 codes (211/311/411/511/611/711/811/911). Setting `fictionalOnly="true"` is an explicit opt-in to the guaranteed-safe block instead. See `samples/pro/phone.xml` and its header comment for the same disclosure and data provenance (area codes from NANPA's own official public database).
 
+### ProcessFlow  (Pro)
+`com.obsvra.spicegrinder.pro.filters.ProcessFlow`
+
+A queueing network: entities arrive, queue for the servers of a station, are served and move on or leave; the output is the event log, one event per row
+
+| Parameter | Type | Required | Default | Aliases | Allowed Values | Notes |
+|---|---|---|---|---|---|---|
+| input (multiple) | List | true | — | — | — | attrs: name,role. role="arrival": the gap to the next external arrival. role="service.&lt;Station>": one service time for an entity starting at that station. One one-column numeric input per role, each at least 0. |
+| stations | String | true | — | — | — | Stations as Name:servers pairs, comma-separated, e.g. "Reception:2, Doctor:3" (1 server if :n is omitted; Name:inf is a delay station with unlimited servers; Name[3]:1 is a group of three stations, Name1 to Name3) |
+| entry | String | false | — | — | — | Where external arrivals enter: one station, or Name:prob pairs that sum to 1 (default: the first station) |
+| routing | String | false | — | — | — | Edges From>To:prob separated by ; or , where To may be exit (or back: the station the entity last left by a timeout); probabilities from one station sum to 1; a station with no edges sends everyone out |
+| events | String | false | arrive,start,finish,exit | — | — | Which event types become rows: any of arrive, start, finish, exit, and with fleets or transit edges call, board, alight, and with trains on a network depart and denied (comma-separated); the simulation runs all of them. With fleets or transit edges the default also includes call, board and alight, and with trains depart and denied |
+| output | String | false | events | — | — | events: one row per event. entities: one row per departed entity (and, with censored, per entity still inside at until) |
+| maxInSystem | int | false | 1000000 | — | — | Safety cap on entities in the system at once; reaching it is an error that names the station and the row |
+| rate | String | false | — | — | — | Makes the arrivals follow the clock: time:rate points, e.g. "7:0.4, 8.5:6, 10:2" (see details). The arrival input is then read in operational time: gaps of mean 1 give a Poisson stream at this rate |
+| rateMode | String | false | step | — | step, linear | step: constant from each point to the next. linear: interpolated |
+| ratePeriod | double | false | 0 | — | — | 0 for none; otherwise the rate profile repeats every ratePeriod |
+| rateScale | double | false | 1 | — | — | A multiplier on every rate |
+| rateStart | double | false | 0 | — | — | The profile's time at clock 0 (a day starting at 07:00 in clock hours: 7) |
+| attributes | String | false | — | — | — | Names of the columns of the entity input (role="entity"), e.g. "class, size": numbers fixed for each entity at its arrival |
+| priority | String | false | — | — | — | Station:attribute pairs, e.g. "ED:class": that station serves the lowest attribute value first, first come first served within a value, and never interrupts a service |
+| serviceBy | String | false | — | — | — | Station:attribute pairs, e.g. "ED:class": that station has a service input per attribute value (role service.ED@1, service.ED@2, and service.ED or service.ED@* for the rest) |
+| join | String | false | shortest | — | shortest, random | How an entity sent to a station group picks a member: shortest (fewest entities present, waiting plus in service) or random |
+| ties | String | false | first | — | first, random | Among members with equally few entities: first (the lowest-numbered) or random |
+| serviceScale | String | false | — | — | — | Station:expression pairs separated by ; e.g. "Lane: 0.9 + 0.1 * items": the station's service time is its service input's draw times the expression, evaluated over the entity's attributes (a group name covers every member) |
+| until | Double | false | — | — | — | End the run at this clock time: events after it are not produced and the run ends there (an end of data, not an error). In events output the last row shows the state at the end, including inSystem |
+| closes | Double | false | — | — | — | Stop external arrivals at this clock time; customers already in the system finish, and the run ends when the last has left |
+| resources | String | false | — | — | — | Resource pools as Name:units pairs, e.g. "Room:4, Physician:3"; stations take units through needs |
+| needs | String | false | — | — | — | Station:Pool + Pool pairs separated by ; e.g. "Treatment: Room + Physician": a service there starts only when a server and a unit of every listed pool are free, and holds those units for its length |
+| keeps | String | false | — | — | — | Station:Pool pairs (the pool must be in that station's needs): the unit is not given back at the finish but stays with the entity until a station that releases it, or exit |
+| releases | String | false | — | — | — | Station:Pool pairs: at the finish of a service there, a unit of that pool the entity holds (from keeps) is given back |
+| batch | String | false | — | — | — | Station:min..max pairs (or Station:n), e.g. "Oven: 2..4": a free server takes between min and max waiting entities together, with one service draw for all |
+| positions | String | false | — | — | — | Station:coordinate pairs, e.g. "Lobby:0, F2:4.5, F3:9": where the stations that vehicles reach lie on a line |
+| fleets | String | false | — | — | — | Fleets as "Name:count option=value ..." separated by ;, e.g. "Car:4 capacity=8 speed=2 stop=5 load=0.5 home=Lobby dispatch=nearest" (options: capacity, speed, stop, load, home, dispatch = nearest, least-loaded or random) |
+| carry | String | false | — | — | — | Routing edges carried by a fleet, From>To:Fleet separated by ;, e.g. "Lobby>F2:Car; F2>Lobby:Car": the entity calls a vehicle at From and arrives at To when it gets off |
+| schedule | String | false | — | — | — | Station:time:servers points, e.g. "Runway: 0:2, 6:1, 9:2; Desk: 0:3, 8:5, 17:3": the number of servers follows the clock (a drop drains: no service is interrupted) |
+| schedulePeriod | double | false | 0 | — | — | 0 for none; otherwise the schedules repeat every schedulePeriod |
+| breakdowns | String | false | — | — | — | Stations (or groups) whose servers fail and are repaired for ever, e.g. "ATM"; needs inputs with roles up.&lt;Station> (time up) and down.&lt;Station> (repair time) |
+| timeouts | String | false | — | — | — | Station:wait > target pairs separated by ;, e.g. "Lane: 10 > exit; Claims: 5 > Senior; Desk: patience > exit": an entity that has waited that long in the queue leaves it for the target (exit, a station or a group); patience is a draw of the input with role patience.&lt;Station>; age 30 puts the threshold on the time since the entity's arrival ("Claims: age 30 > Senior") |
+| queueLimit | String | false | — | — | — | Station:limit > target pairs separated by ;, e.g. "Lane: 8 > exit; Desk: 20 > Overflow": an entity that finds that many or more waiting goes to the target instead of joining (0: no waiting room) |
+| poolSchedule | String | false | — | — | — | Pool:time:units points, e.g. "Runway: 0:2, 6:1": the size of a resource pool follows the clock (repeats every schedulePeriod; a drop drains: units in use come back before the pool is free again) |
+| contend | String | false | — | — | — | Stations in order of priority for the units of a shared pool, e.g. "Landing > Takeoff": when units come free, earlier stations start first; stations not named go last, the longest-waiting first |
+| breakdownMode | String | false | — | — | — | Station:mode pairs separated by ;, e.g. "ATM: lose; Runway: resume": what a failure does to a service in progress. finish (the default) lets it end, resume continues it after the repair, repeat starts it again, lose sends the entity out (a lose row, then an exit) |
+| stocks | String | false | — | — | — | Station: level=L reorder=R refill=Q [max=M] [delay=D] separated by ;, e.g. "ATM: level=50000 reorder=10000 refill=40000 delay=24": a stock used up by services (see uses) and refilled after a delay when it falls below R; no service starts without enough. Without delay, an input with role restock.&lt;Station> gives the delay |
+| uses | String | false | — | — | — | Station:expression pairs separated by ;, e.g. "ATM: amount": how much of the station's stock a service takes, an expression of the attributes (1 if not given) |
+| entityPeriod | double | false | 0 | — | — | 0 for none; otherwise the clock for entity@time inputs repeats every entityPeriod |
+| censored | boolean | false | false | — | — | With output=entities and until: when the run reaches until, also write a row for each entity still inside (exitTime the horizon, its totals so far), and end every row with censored (1 for these rows, 0 for departed entities) |
+| network | String | false | — | — | — | A network of transit lines, "Name: options; Line = A B C back\|loop hop=2 stop=0.5 turn=2 headway=6; ..." (network options walk, walk.&lt;Place>, places; line options hop, stop, turn, headway or trains with capacity, load and hold): least-expected-time routes between its places, for the route functions and the transit edges |
+| transit | String | false | — | — | — | Routing edges ridden over the network, From>To: Network from=place to=place separated by ;, e.g. "Gate>exit: Metro from=o to=d": the entity rides its route from place from to place to (expressions of the attributes) and then arrives at To |
+
+Stations, server counts, routing and the entry rule are attributes; arrival gaps and service times are ordinary input nodes (any distribution, an `Empirical` table, a fitted model) tagged with roles: `role="arrival"` gives the gap to the next external arrival, `role="service.<Station>"` gives one service time for an entity starting at that station. Each is a one-column numeric node producing values of at least 0, and a missing, repeated or unknown role is an error. Queues are first come first served. Time is dimensionless: whatever unit the gaps and service times use.
+
+				`stations` is a comma-separated list of `Name:servers` (1 server if `:n` is left out). `Name:inf` (or `Name:*`) is a **delay station** with unlimited servers: nobody ever waits there for a server (every wait is 0 unless the station `needs` a resource, which makes entities wait for a unit of the pool; an arrive row still shows the entity joining for the instant before its start), `busy` counts the entities inside, and the station's service input is simply the time spent (a shopping stage before checkout, a transit, a cooking time); entities leave in the order their delays end. `entry` is the station external arrivals join, or `Name:prob, Name:prob` (default: the first station). `routing` lists edges `From>To:prob` separated by `;` or `,`, where `To` may be `exit`; the probabilities leaving one station must sum to 1, and a station with no edges sends everyone out. Every station an entity can reach must be able to reach `exit`.
+
+				`output="events"` (the default) is one row per event: `time` (the clock; never decreases), `entity` (1, 2, 3, ... in order of arrival), `station` (0-based, in `stations` order; for `exit` the station the entity left), `type` (0 arrive, 1 start, 2 finish, 3 exit), `queue` (entities waiting at that station after the event), `busy` (its servers busy after the event) and `inSystem` (entities in the whole system after the event). An arrive event is the entity joining the queue, so it counts in `queue`; its start, in the same instant, takes it onto a server. `events` chooses which types become rows (default `arrive,start,finish,exit`); the simulation always runs all of them. Event rows are unevenly spaced, so average `queue` and `busy` weighted by the time each value lasted, not by row.
+
+				`output="entities"` is one row per departed entity, with the columns in this order: `exitTime`, `entity`, `sojourn` (time in the system), `wait` (total time spent queueing over all visits), `service` (total service time), `visits`, then the attributes (in the order of `attributes`), then, with `fleets` or `transit`, `rideWait` and `ride`, then, with `transit`, `boardings`, then, with `timeouts` or `queueLimit`, `timeouts` and `balks`, then, when a `breakdownMode` entry is `lose`, `lost`, then, with `censored="true"`, `censored`; a column group that does not apply is absent, not zero. Plain averages over these rows are correct. With `until`, `censored="true"` also writes a row for each entity still inside when the run reaches the horizon (see the end of a run), with `censored` 1 for those rows and 0 for the departed; without it the entities still inside have no row, so the averages are over the ones that finished. At a delay station nobody queues, so for an entity that visits only delay stations `wait` is always 0 and `service` is the whole time it spent (its `sojourn`); `wait` is not 0 there only when the station `needs` a pool, whose wait counts as queueing.
+
+				**Service time by an expression of the attributes.** `serviceScale="Lane: 0.9 + 0.1 * items; Shop: 4 + 0.8 * items"` (Station:expression pairs separated by `;`) makes a station's service time its service input's draw times the expression, evaluated over the entity's attributes by name, in the `Calculate` expression language (`+ - * /`, `sqrt`, `log`, `min`, `max`, `if`, ...). The input then holds the randomness (a Gamma or Exponential factor of mean 1, or a constant 1) and the expression the mean for this entity; the result must be finite and at least 0. A group name covers every member; it combines with `serviceBy`.
+
+				**The end of a run.** `until` ends the run at a clock time: events after it are not produced, and the run ends there; in events output the last row is the last event before that time (there is no row at the horizon), so it shows the state at the end (`inSystem`, and each station's `queue` on its last row), and a time-weighted average must be extended to the horizon by hand. `output="entities"` has no row for an entity still inside unless `censored="true"`: then, when the run reaches `until`, one more row is written for each entity inside, in arrival order, before the end: `exitTime` is the horizon, `sojourn` its age (the horizon minus its arrival), `wait`, `service`, `rideWait` and `ride` the totals so far including the wait, service or ride in progress up to the horizon (a service suspended by a failure counts what was served before the failure; one to be repeated, none of it), `visits` the services begun (one in progress counts), the attributes, `timeouts` and `balks` so far, `lost` 0, and `censored` 1 (the last column, after `lost`). These are right-censored ages: the claims still open at the end and how long they have been open. `censored` needs `until` and `output="entities"` (with events output it is an error), and adds its column only when on, so a model without it is unchanged; with `closes` before `until` the system empties and no row is censored. `closes` stops external arrivals at a clock time: customers already inside finish, and the run ends when the last one has left. Both end the run with an end of data, not an error: `Grind`, the Service and the MCP server keep the rows produced and report that the model ended (a count larger than the model produces is fine). With both, whichever comes first.
+
+				**Station groups: choosing among lanes.** `Lane[3]:1` makes a group of three one-server stations, `Lane1`, `Lane2` and `Lane3` (the count can be a declare: `Lane[${lanes}]:1`), and the name `Lane` stands for the group. Used as the `entry` or as the `To` of a routing edge, `Lane` sends the entity to the member with the fewest entities present (waiting plus in service) at the moment it joins, with `ties="first"` (the lowest-numbered, the default) or `ties="random"`; `join="random"` picks a member uniformly instead. Used as the `From` of an edge, `priority`, `serviceBy` or a service role (`service.Lane`), the name means every member, each with its own queue. An entity stays in the lane it joined. The `station` column names the member (0-based, in `stations` order). One shared line for the whole group is a single station with that many servers, which is a different system (a shorter wait). The cost estimate spreads a group target equally over its members.
+
+				**Arrivals that follow the clock.** `rate` gives the arrival rate as `time:rate` points, `rate="7:0.4, 8.5:6, 10:2"`: constant from each point to the next (`rateMode="step"`, the default), or interpolated between points (`rateMode="linear"`, a ramp up to a peak and down). Before the first point the rate is the first point's, after the last it stays at the last point's; `ratePeriod` repeats the profile (a day: `ratePeriod="24"`); `rateScale` multiplies every rate; `rateStart` is the profile's time at clock 0. With `rate` the `arrival` input is read in operational time: each draw is the expected number of arrivals until the next, so an `Exponential` input of rate 1 gives exactly a Poisson stream whose intensity is the profile, and a more regular input (a gamma of mean 1) gives the same average rate with less variation. Without `rate`, the input is a gap in clock time, as before. If the rate is 0 from some time on (no period, last rate 0), the run stops with an error when the next arrival is due.
+
+				**Entities with attributes.** An input with `role="entity"` draws the numbers that describe each entity once, at its external arrival; `attributes="class, size"` names its columns. Attributes are numbers (code a category as a whole number; a `Categorical` gives 0, 1, 2, ...). They can change how the network treats the entity: `priority="ED:class"` makes station `ED` serve its waiting entities lowest `class` first, first come first served among equals, and never interrupt a service that has begun (low-priority entities can wait without bound under heavy load; there is no ageing). `serviceBy="ED:class"` gives the station a service input per value: `role="service.ED@1"`, `role="service.ED@2"`, and `role="service.ED"` (or `@*`) for every other value; an entity whose value has no input and there is no default stops the run with an error. A routing edge may carry a condition on the station it leaves, `From[class=1]>To:prob`: an entity uses the group of edges whose condition it meets, otherwise the unconditional group, and a station with no unconditional group sends everyone else out; the probabilities of one group sum to 1; a condition can also name `escalated`, the entity's timeouts so far (see giving up below). The attributes are appended to every output row, after the existing columns. Not in this version: preemption, ageing, attributes that change, conditions other than equality, entry by attribute. The call weights for the cost estimate use the unconditional routing only.
+
+				Events at the same clock time are ordered finish before arrival, then in the order they were scheduled. `maxInSystem` (default 1,000,000) stops a network whose arrivals exceed its capacity with an error that names the station and the row. **Resource sets.** `resources="Room:4, Physician:3"` names pools of units, and `needs="Treatment: Room + Physician; Consult: Physician"` makes a service at that station start only when a server is free and every listed pool has a free unit; it holds one unit of each for its length. Stations that name the same pool compete for it: when units come free, the station whose first waiting entity has waited longest starts first. The first entity of a queue that cannot start blocks those behind it. `keeps="Treatment: Room"` (the pool must be in that station's `needs`) keeps the unit with the entity when the service ends, through the stations after, until a service ends at a station whose `releases="Discharge: Room"` lists the pool, or the entity leaves. A station that needs a pool the entity already holds does not take another unit. With `resources`, every event row ends with the free units of each pool after the event, columns in `resources` order, after the attributes. A waiting time includes waiting for a resource.
+
+**Batch service.** `batch="Oven: 2..4"` (or `Oven: 3` for exactly 3): a free server takes between the minimum and the maximum waiting entities together, in queue order, with one service draw (using the first one's attributes) that ends all their services at one instant; each has its own start, finish and routing rows. `busy` counts servers. Entities wait until the minimum has gathered, with no time limit. A resource a batch station needs is taken once per batch; a batch station cannot `keeps`, and a delay station cannot batch.
+
+**State in the service time.** Besides the attributes, `serviceScale` can use `queue` (entities still waiting at the station when the service starts), `busy` (its busy servers, this one included), `inSystem` (entities in the whole network), `size` (the batch size) `time` (the clock when the service starts) and `escalated` (the entity's timeouts so far): `serviceScale="Ward: 1 + 0.02 * queue"` is a load-dependent service rate. An attribute with one of these names is an error.
+
+**Vehicles.** Stations on a line carry a coordinate: `positions="Lobby:0, F2:7, F3:10.5"`. `fleets="Car:3 capacity=8 speed=1.6 stop=4 load=1.2 home=Lobby dispatch=nearest; Shuttle:1 capacity=20"` defines vehicles: `capacity` passengers, `speed` coordinate units per time unit, `stop` time lost at each stop, `load` extra time per passenger getting on or off, `home` the station they start at (default the first with a position) and `dispatch` (`nearest`, `least-loaded` or `random`). `carry="Lobby>F2:Car; F2>Lobby:Car"` marks routing edges (single stations on the line) that a fleet carries: an entity routed along such an edge makes a call at the first station after its service there, waits for a vehicle, and arrives at the second station when it gets off. A call is given to one vehicle when it is made (nearest: the one that can be there soonest; least-loaded: fewest passengers and assigned calls; random) and stays with it, unless another vehicle that stops there on its way, with room, taking the call's direction, takes it over. A vehicle keeps its direction while any destination of a passenger or any call it holds lies ahead, turns round only at a station when only the other direction has any, and waits where it is when it has nothing to do. Stations with the same coordinate are one place and one stop. At a place it stops if someone gets off or a call it holds, or one it may take over, is waiting; the waiting calls board in the order they were made up to capacity, its own whatever their direction; a stop takes `stop` plus `load` per passenger moved, and a caller who arrives while the doors are open steps in for only the `load` time. The `alight` and `board` rows are written when the stop begins, so a ride ends at the arrival, before the stop time at the destination. Passing a place costs only travel. Three more event types: `call` (4, the entity asks for a ride; `queue` is the number now waiting for a ride at that station), `board` (5) and `alight` (6); with fleets the default `events` includes them. Fleet rows end (after the attributes and the pool columns) with `vehicle` (0-based over all fleets, -1 on other rows) and `load` (passengers after the event); `output="entities"` gains `rideWait` and `ride` (total time waiting for a ride, and on board) after the attributes. A line only: no loops or networks (riders on a network of lines are `network` and `transit`, below), no destination dispatch, no breakdowns.
+
+**Capacity that follows the clock, breakdowns, giving up and a full line.** `schedule="Runway: 0:2, 6:1, 9:2; Desk: 0:3, 8:5, 17:3"` gives a station a number of servers that follows the clock (`time:servers` points, constant from each to the next; before the first it is the first point's; `schedulePeriod="24"` repeats it). A drop drains: services in progress finish, nothing new starts until enough have; a rise starts waiting entities at once; 0 closes the station. `breakdowns="ATM"` (stations or groups) makes each server fail and be repaired for ever: its time up is a draw of the input with role `up.ATM`, its repair time a draw of the input with role `down.ATM`; a server that fails while serving finishes that service first and then goes down, one that is idle goes down at once; the servers available are the scheduled number minus the failed ones. `timeouts="Lane: 10 > exit; Claims: 5 > Senior; Desk: patience > exit"`: an entity that has waited that long in the station's queue (a number, or `patience`, a draw of the input with role `patience.Desk` made each time it joins) leaves the queue for the target, which is `exit` (it gives up) or a station or group (it is escalated or redirected); an entity in service is not affected. `Claims: age 30 > Senior` puts the threshold on the entity's age, the time since its external arrival, instead of its wait in this queue: it leaves the queue when its age reaches 30. One that is already that old when it joins still starts if a server is free; otherwise it joins and times out at the same instant (an arrive and a timeout row). It is the same `timeout` event and counter. Timeouts that could send an entity round to the same age timeout through queues it leaves at once (age timeouts and waits of 0) are an error. **Escalation and sending back.** `escalated` is the number of times the entity has left a queue by a timeout so far, a read-only number the model keeps (not an attribute and not a column; the `timeouts` column of entity output is its final value): a routing condition can use it, `Senior[escalated=1]>Claims:1`, and so can `serviceScale`. It is never reset, so a claim escalated a second time has `escalated=2`. The routing target `back` is the station whose queue the entity last left by a timeout (the member it left, for a group): `routing="Senior[escalated=1]>back:1"` returns an escalated claim to the team it timed out from, where it joins the queue again (its timeout there starts again) and leaves by that station's routing when served. `back` is for routing only (not a `timeouts` or `queueLimit` target) and needs `timeouts`; an edge to `back` that an entity could take before its first timeout is an error (put it under `[escalated=1]`, or on a station reached only by a timeout). Conditional groups are tried in the order they first appear in `routing`, and the first the entity meets is used. `queueLimit="Lane: 8 > exit; Desk: 20 > Overflow"`: an entity that finds that many or more waiting does not join and goes to the target (`exit` is balking, a loss system; a limit of 0 is no waiting room, an Erlang B system). Event types 7 `capacity`, 8 `down`, 9 `up`, 10 `timeout` and 11 `balk` are in the default `events` when the model can produce them; when the model has a `schedule`, a `poolSchedule` or `breakdowns` (not for timeouts or queue limits alone), event rows end (after the vehicle columns) with `servers`, the servers available at the row's station after the event; `output="entities"` has `timeouts` and `balks` (the times each happened to the entity) for a model with `timeouts` or `queueLimit`, in the place given with `output="entities"` above. None of these applies to a delay station. Not in this version: finite queues that block the previous station.
+
+**Pools on the clock, who goes first, interrupted services, stocks, traffic mixes by clock.** `poolSchedule="Runway: 0:2, 6:1, 9:2"` makes a resource pool's size follow the clock (points `time:units`, repeating every `schedulePeriod`; a drop drains: units in use come back before the pool is free again, and the free count shows 0 meanwhile); each step is a `capacity` row (type 7) at the first station that needs the pool. `contend="Landing > Takeoff"` ranks stations that share a pool: when units come free the earlier station is served first (names joined by `+` or `,` share a rank; stations not named go last, the longest-waiting head first). `breakdownMode="ATM: lose; Runway: resume"` says what a failure does to a service in progress: `finish` (the default) lets it end, `resume` continues it after the repair with the time that was left, `repeat` starts it again with the same length, `lose` sends the entity out (a `lose` row, type 12, then its exit; entity output then ends with `lost`, as listed with `output="entities"`). `stocks="ATM: level=50000 reorder=10000 refill=40000 max=100000 delay=24"` gives a station an amount that each service uses (`uses="ATM: amount"`, an expression of the attributes, 1 if not given) when it starts and cannot start without; when the level falls below `reorder` a refill of `refill` is ordered and arrives `delay` later (or after a draw of the input with role `restock.<Station>`); the arrival is a `restock` row (type 13), and event rows carry each stock's level after the event (station order, after the pool columns). Inputs with role `entity@120` take over the `entity` role from clock time 120 (all with the same columns; `entityPeriod` repeats the pattern), so the mix of entities can follow the clock. Fleet options: `board=direction` (a vehicle boards the calls it holds only when going their way or with nothing else to do; usually worse where every call goes to or from one station), `redispatch=T` (a call that has waited T is given to the best vehicle then, and checked again every T) and `park=Station` (an idle vehicle goes to that station).
+
+**Transit networks.** `network="Metro: walk=3 places=A,B,C,D,E; Red = A B C D back hop=2 stop=0.5 turn=2 headway=6; Blue = B E C loop hop=2 stop=0.5 headway=5"` declares a network of lines: after the network's name, its options `walk` (the time to change trains, default 0), `walk.C=5` (at one place) and `places=` (the places in order, for their 0-based numbers; default the order in which the lines first name them); then each line, `Name = places`, `back` (out and back: the line runs to its last place and back) or `loop` (one way round, from the last place on to the first), and `hop` (the time between neighbouring places; `hop.A-B=3` for one segment), `stop` (the time stopped at each place passed, default 0), `turn` (at each end of a back line, default 0) and `headway` (the expected time between trains). A place may be on several lines (that is where riders change) but only once on each, and every place must be reachable. Values may be constant expressions of declares (`headway=24/${trains}`). When the model is configured the network works out the route with the least expected time between every pair of places: each boarding costs half the line's headway in expected waiting, riding the hops and the stops (and turns) passed, each change the walk at the place; ties go to fewer boardings, then to the lower legs in order (the line in declaration order, the boarding position along the line, the earlier stop to get off). Routes are static: they do not react to crowding or to the waits a rider meets. The route functions are available in `serviceScale`, `uses` and the transit expressions: `routetime(o, d)` (the expected journey time), `routelegs(o, d)` (boardings; 0 from a place to itself) and, for leg `k` (0-based), `routeline`, `routeboard`, `routealight` (places), `routeride` (its ride time) and `routeheadway` `(o, d, k)`; places and lines are 0-based, a place or leg outside the network is an error at the row; elsewhere these are unknown functions. `transit="Gate>exit: Metro from=o to=d"` marks routing edges (`From` a station or group, `To` a station, a group or `exit`) that ride the network: the entity routed along one goes from place `from` to place `to` (expressions of the attributes, rounded down) by its route, leg by leg at rider level, and then arrives at `To` (or leaves). On a line without trains (rider level): at each boarding it waits a uniform draw between 0 and the headway (one number from the node's stream, drawn on reaching the platform), rides the leg's ride time, and walks the place's walk before the next leg; a ride from a place to itself takes no time and writes no rows. It writes `call` (reaching a platform), `board` and `alight` rows; on these `station` is the station the ride left and `queue` the riders waiting on that platform (a line, a place and a direction) after the event, and with `transit` every event row ends (after the vehicle columns) with `place` and `line` (-1 on other rows), while `vehicle` and `load` are -1 and 0 on transit rows. The default `events` includes the three types. `output="entities"` gains `rideWait` (waiting on platforms), `ride` and `boardings`; the walking is the rest of the sojourn. A model without `network` is unchanged; a network alone, used only by the route functions, adds no columns. **Trains.** A line with `trains=N` runs real trains instead of the drawn waits: `Red = A B C D back hop=2 stop=0.5 turn=2 trains=4 capacity=200 load=0.02 hold=on`. `capacity` is the riders a train holds (default unlimited), `load` the extra stop time per rider who gets on or off (default 0) and `hold=on` keeps a train at the first place of its line until a headway has passed since the last train left it (default off). A line with trains has no `headway` (giving both is an error): its headway, for the routes, is the time round the line over the trains, where the time round is every hop plus the stop at every place plus the turn at both ends of a back line. The N trains start evenly spaced round that cycle at time 0 (train 0 leaving the first place at time 0) and run for ever. A train stops at every place: first the riders whose leg ends there get off (`alight`), then the riders waiting on that platform (this line, this place and direction) board in the order they came, up to `capacity` (`board`); the stop takes `stop` (and `turn` at an end of a back line) plus `load` per rider moved from its arrival, a rider who reaches the platform while the doors are open and there is room steps in and adds `load`. Each rider still waiting when the train leaves writes a `denied` row and waits for the next train; then the train leaves (`depart`) and reaches the next place a hop later. One train stands at a platform at a time: a train that arrives while another is there waits behind it and stops when it has left, so trains never overtake and a late train drags those behind it (bunching). Routes stay the static routes from the headways: a rider does not change its route because a train is full. A network may mix lines with trains and lines without (rider level). The new event types are `depart` (14) and `denied` (15), both in the default `events` of a model with trains; on `board`, `alight` and `denied` rows `vehicle` is the train (0-based over all trains, after any `fleets` vehicles) and `load` the riders aboard after the event; a `depart` row belongs to no entity (entity 0, attributes 0, `station` -1) and carries the train's `load`, the `place` and `line` it left and, in `queue`, the riders left on the platform, so loads along a line can be read from the depart rows; a `call` row keeps `vehicle` -1. `output="entities"` gains `denied` (the times the entity was left behind) after `boardings`. Trains draw no random numbers, so a model whose lines all have trains adds nothing random to the run. With `until`, a rider on a platform or aboard a train counts its wait or ride so far. Not in this version: breakdowns of trains, timetables, express service or short turns, platform capacity, routes that react to what a rider sees.
+
+Not in this version: preemption or any discipline but first come first served and priority by attribute, a time limit on a batch.
+
 ### ServiceCall  (Pro)
 `com.obsvra.spicegrinder.pro.filters.ServiceCall`
 
@@ -926,11 +1164,25 @@ Wrap a local or remote HTTP service call as a data source or transform
 
 | Parameter | Type | Required | Default | Aliases | Notes |
 |---|---|---|---|---|---|
-| url | String | true | — | — | HTTP endpoint POSTed to for each round of the exchange (e.g. http://localhost:9000/rules). Must be on service.url.allowlist -- disabled by default, see UserPreferences. |
+| url | String | true | — | — | HTTP endpoint POSTed to for each round of the exchange (e.g. http://localhost:9000/rules). Must match an entry on service.url.allowlist (scheme, host and port, plus the entry's path at a '/' boundary; no userinfo) -- disabled by default, see UserPreferences. |
 | outputs | String | true | — | — | Comma-separated value type per output position, e.g. "numeric,string". Position count fixes this filter's dimension. |
 | timeoutMs | long | false | 5000 | — | Per-HTTP-call timeout in milliseconds. |
 | maxRounds | int | false | 25 | — | Safety bound on need/provide round trips within one exchange before aborting -- protects against a misbehaving or malicious service that never returns a result. |
 | headers | String | false | — | — | Semicolon-separated static Name=Value header pairs (e.g. for a bearer auth token). No per-call token refresh. |
+
+### StateWrite  (Pro)
+`com.obsvra.spicegrinder.pro.filters.StateWrite`
+
+Passes its input through unchanged and writes its columns into SharedState cells at the end of the row
+
+| Parameter | Type | Required | Default | Aliases | Notes |
+|---|---|---|---|---|---|
+| cells | String | true | — | — | Cells to write, one per input column, comma-separated |
+| mode | String | false | set | — | set replaces the cell's value; add adds the input to it |
+
+Writes each input column into the matching cell of `cells` (the first column to the first cell, and so on); the number of cells must equal the input's dimension. A range stands for a block of cells (`cells="queue[1..20]"` is `queue1` to `queue20`), and a `-` marks an input column that is not stored: `cells="a, -, b"` stores columns 0 and 2 and passes column 1 through (`-[1..3]` is three skipped columns), so a value that is only wanted as output needs no cell of its own. The output is the input, unchanged, so a write can sit in a series that is also recorded. `collaborate.state="StoreName"` names the `SharedState` to write; it is not an `<input>`.
+
+`mode="set"` (the default) replaces the cell's value; `mode="add"` adds the input to it. A cell may have at most one `set` writer and any number of `add` writers. Writes take effect at the end of the row, so reads in the same row still see the old value, and reads in the next row see the new one. To subtract, add a negative number (for example `Calculate` with `y[0] = -x[0]` in front). The input must be numeric. A cell that is not in the store, or a second `set` writer for a cell, is reported when the model is validated or on the first row, before any output row.
 
 ### Time  (Pro)
 `com.obsvra.spicegrinder.business.filters.Time`

@@ -16,13 +16,13 @@
 
   Output: one Observation of [iban] per pull, rendered as "DE89 3704 0044 0532 0130 00".
 -->
-<dataset>
+<dataset columns="iban">
 	<root node="Account"/>
 	<nodes>
 		<IBAN name="Account">
 			<input name="Country"/>
 		</IBAN>
 
-		<FlatFile name="Country" file="samples/pro/iban_countries.csv" mode="unweighted"/>
+		<FlatFile name="Country" file="iban_countries.csv" mode="unweighted"/>
 	</nodes>
 </dataset>

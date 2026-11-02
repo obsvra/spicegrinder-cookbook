@@ -5,7 +5,7 @@
 
   wait 20 nominal samples, 5 disturbance samples, repeat.
 -->
-<dataset seed="7">
+<dataset columns="latencyMs" seed="7">
 	<root node="ObservedLatency"/>
 	<nodes>
 		<Perturb name="ObservedLatency" repeat="true">
